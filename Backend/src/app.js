@@ -1,5 +1,5 @@
 import express from "express";
-
+import errorHandler from "./middlewares/errorHandler.js";
 import cors from "cors"
 import helmet from "helmet";
 import morgan from "morgan"
@@ -16,7 +16,7 @@ app.use(cors());
 
 app.use(helmet());
 app.use(morgan("dev"));
-
+app.use(errorHandler);
 app.get("/",(req,res)=>{
     res.status(200).json({
         success:true,
