@@ -1,7 +1,7 @@
 import moongoose from "mongoose"
 import bcrypt from "bcryptjs"
 
-import ROLES from "../constants/roles,js"
+import ROLES from "../constants/roles.js"
 import {USER_STATUS} from "../constants/statuses.js"
 
 const userSchema=new moongoose.Schema(
@@ -57,10 +57,10 @@ const userSchema=new moongoose.Schema(
     }
 );
 
-userSchema.pre("save",async function (next) {
-    if(!this.isModified("password")){
-        return next();
-    }
+userSchema.pre("save",async function () {
+    if(!this.isModified("password")) return
+        
+    
 
     const salt=await bcrypt.genSalt(10);
     this.password=await bcrypt.hash(
@@ -68,7 +68,7 @@ userSchema.pre("save",async function (next) {
         salt
 
     );
-    next();
+    
 });
 
 userSchema.methods.comparePassword=async function(
