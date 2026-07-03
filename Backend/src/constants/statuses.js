@@ -37,7 +37,7 @@ export const BORROW_STATUS = {
 
 export const RESERVATION_STATUS = {
 
-    PENDING: 'PENDING',
+    ACTIVE: 'ACTIVE',
 
     FULFILLED: 'FULFILLED',
 

@@ -8,12 +8,15 @@ import categoryRoutes from "./routes/categoryRoutes.js";
 import authorRoutes from "./routes/authorRoutes.js"
 import publisherRoutes from "./routes/publisherRoutes.js";
 import bookRoutes from "./routes/bookRoutes.js"
-const app=express();
+import bookCopyRoutes from "./routes/bookCopyRoutes.js";
+import borrowRoutes from "./routes/borrowRoutes.js";
+import reservationRoutes from "./routes/reservationRoutes.js";
+const app = express();
 
 app.use(express.json());
 
 app.use(express.urlencoded({
-    extended:true
+    extended: true
 }));
 
 app.use(cors());
@@ -23,45 +26,70 @@ app.use(morgan("dev"));
 app.use(errorHandler);
 app.use(
 
-  "/api/auth",
+    "/api/auth",
 
-  authRoutes
+    authRoutes
 
 );
 app.use(
 
-"/api/categories",
+    "/api/categories",
 
-categoryRoutes
+    categoryRoutes
+
+);
+
+app.use(
+
+    "/api/authors",
+
+    authorRoutes
+
+);
+
+app.use(
+    "/api/publishers",
+    publisherRoutes
+);
+
+app.use(
+
+    "/api/books",
+
+    bookRoutes
+
+);
+
+
+app.use(
+
+    "/api/bookcopies",
+
+    bookCopyRoutes
 
 );
 
 app.use(
 
-"/api/authors",
+    "/api/borrows",
 
-authorRoutes
+    borrowRoutes
 
 );
 
-app.use(
-"/api/publishers",
-publisherRoutes
-);
 
 app.use(
 
-"/api/books",
+    "/api/reservations",
 
-bookRoutes
+    reservationRoutes
 
 );
 
-
-app.get("/",(req,res)=>{
+app.get("/", (req, res) => {
     res.status(200).json({
-        success:true,
-        message:"LibraAI API Running"
+        success: true,
+        message: "LibraAI API Running"
     })
 })
 
