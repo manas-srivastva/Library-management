@@ -6,6 +6,8 @@ import morgan from "morgan"
 import authRoutes from "./routes/authRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import authorRoutes from "./routes/authorRoutes.js"
+import publisherRoutes from "./routes/publisherRoutes.js";
+import bookRoutes from "./routes/bookRoutes.js"
 const app=express();
 
 app.use(express.json());
@@ -41,6 +43,21 @@ app.use(
 authorRoutes
 
 );
+
+app.use(
+"/api/publishers",
+publisherRoutes
+);
+
+app.use(
+
+"/api/books",
+
+bookRoutes
+
+);
+
+
 app.get("/",(req,res)=>{
     res.status(200).json({
         success:true,
