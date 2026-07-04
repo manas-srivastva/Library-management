@@ -21,6 +21,54 @@ import ROLES from "../constants/roles.js";
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * tags:
+ *   name: Categories
+ *   description: Category management APIs
+ */
+
+
+/**
+ * @swagger
+ * /api/categories:
+ *   post:
+ *     summary: Create a category
+ *     description: Creates a new book category
+ *     tags:
+ *       - Categories
+ *
+ *     security:
+ *       - bearerAuth: []
+ *
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *
+ *             required:
+ *               - name
+ *
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: Programming
+ *
+ *     responses:
+ *       201:
+ *         description: Category created successfully
+ *
+ *       400:
+ *         description: Validation error
+ *
+ *       401:
+ *         description: Unauthorized
+ *
+ *       403:
+ *         description: Forbidden
+ */
 router.post(
 
     "/",
@@ -40,6 +88,20 @@ router.post(
 
 );
 
+
+/**
+ * @swagger
+ * /api/categories:
+ *   get:
+ *     summary: Get all categories
+ *     description: Fetch all categories
+ *     tags:
+ *       - Categories
+ *
+ *     responses:
+ *       200:
+ *         description: Categories fetched successfully
+ */
 router.get(
 
     "/",
@@ -48,6 +110,54 @@ router.get(
 
 );
 
+
+/**
+ * @swagger
+ * /api/categories/{id}:
+ *   put:
+ *     summary: Update category
+ *     description: Update an existing category
+ *     tags:
+ *       - Categories
+ *
+ *     security:
+ *       - bearerAuth: []
+ *
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: Computer Science
+ *
+ *     responses:
+ *       200:
+ *         description: Category updated successfully
+ *
+ *       400:
+ *         description: Validation error
+ *
+ *       401:
+ *         description: Unauthorized
+ *
+ *       403:
+ *         description: Forbidden
+ *
+ *       404:
+ *         description: Category not found
+ */
 router.put(
 
     "/:id",
@@ -67,6 +177,39 @@ router.put(
 
 );
 
+
+/**
+ * @swagger
+ * /api/categories/{id}:
+ *   delete:
+ *     summary: Delete category
+ *     description: Delete a category by id
+ *     tags:
+ *       - Categories
+ *
+ *     security:
+ *       - bearerAuth: []
+ *
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *
+ *     responses:
+ *       200:
+ *         description: Category deleted successfully
+ *
+ *       401:
+ *         description: Unauthorized
+ *
+ *       403:
+ *         description: Forbidden
+ *
+ *       404:
+ *         description: Category not found
+ */
 router.delete(
 
     "/:id",
