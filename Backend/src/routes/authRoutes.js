@@ -1,11 +1,11 @@
 import express from "express"
 const router=express.Router();
 
-import { registerUser,loginUser } from "../controllers/authController.js";
+import { registerUser,loginUser,me } from "../controllers/authController.js";
 import { registerValidator,loginValidator } from "../validators/authValidator.js";
 
 import validate from "../middlewares/validate.js";
-
+import authMiddleware from "../middlewares/authMiddleware.js";
 router.post(
 
   "/register",
@@ -31,7 +31,15 @@ router.post(
   loginUser
 
 );
+router.get(
 
+    "/me",
+
+    authMiddleware,
+
+    me
+
+);
 
 
 export default router;

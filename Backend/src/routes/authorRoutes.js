@@ -12,10 +12,7 @@ import {
 
     deleteAuthor
 
-}
-
-    from "../controllers/authorController.js";
-
+} from "../controllers/authorController.js";
 
 import {
 
@@ -23,19 +20,30 @@ import {
 
     updateAuthorValidator
 
-}
+} from "../validators/authorValidator.js";
 
-    from "../validators/authorValidator.js";
+import validate from "../middlewares/validate.js";
 
+import authMiddleware from "../middlewares/authMiddleware.js";
 
-import validate
+import authorize from "../middlewares/authorize.js";
 
-    from "../middlewares/validate.js";
+import ROLES from "../constants/roles.js";
 
 
 router.post(
 
     "/",
+
+    authMiddleware,
+
+    authorize(
+
+        ROLES.ADMIN,
+
+        ROLES.LIBRARIAN
+
+    ),
 
     createAuthorValidator,
 
@@ -59,6 +67,16 @@ router.put(
 
     "/:id",
 
+    authMiddleware,
+
+    authorize(
+
+        ROLES.ADMIN,
+
+        ROLES.LIBRARIAN
+
+    ),
+
     updateAuthorValidator,
 
     validate,
@@ -71,6 +89,14 @@ router.put(
 router.delete(
 
     "/:id",
+
+    authMiddleware,
+
+    authorize(
+
+        ROLES.ADMIN
+
+    ),
 
     deleteAuthor
 

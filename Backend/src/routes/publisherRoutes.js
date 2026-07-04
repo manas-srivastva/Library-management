@@ -2,8 +2,12 @@ import express from "express";
 
 const router = express.Router();
 
-import validate
-    from "../middlewares/validate.js";
+import validate from "../middlewares/validate.js";
+
+import authMiddleware from "../middlewares/authMiddleware.js";
+import authorize from "../middlewares/authorize.js";
+
+import ROLES from "../constants/roles.js";
 
 import {
 
@@ -13,7 +17,7 @@ import {
 
 }
 
-    from "../validators/publisherValidator.js";
+from "../validators/publisherValidator.js";
 
 import {
 
@@ -27,18 +31,31 @@ import {
 
 }
 
-    from "../controllers/publisherController.js";
+from "../controllers/publisherController.js";
 
 
 router.post(
 
     "/",
+
+    authMiddleware,
+
+    authorize(
+
+        ROLES.ADMIN,
+
+        ROLES.LIBRARIAN
+
+    ),
+
     createPublisherValidator,
+
     validate,
 
     createPublisher
 
 );
+
 
 router.get(
 
@@ -48,22 +65,45 @@ router.get(
 
 );
 
+
 router.put(
 
     "/:id",
+
+    authMiddleware,
+
+    authorize(
+
+        ROLES.ADMIN,
+
+        ROLES.LIBRARIAN
+
+    ),
+
     updatePublisherValidator,
+
     validate,
 
     updatePublisher
 
 );
 
+
 router.delete(
 
     "/:id",
 
+    authMiddleware,
+
+    authorize(
+
+        ROLES.ADMIN
+
+    ),
+
     deletePublisher
 
 );
+
 
 export default router;

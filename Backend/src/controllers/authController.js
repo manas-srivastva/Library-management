@@ -29,3 +29,21 @@ export const loginUser=asyncHandler(async(req,res)=>{
 
     ); 
 })
+
+export const me = asyncHandler(async (req, res) => {
+
+    res.status(200).json(
+
+        new ApiResponse(
+
+            200,
+
+            "User fetched successfully",
+
+            req.user
+
+        )
+
+    );
+
+});

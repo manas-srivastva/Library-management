@@ -10,6 +10,8 @@ from "../models/BookCopy.js";
 import ApiError
 from "../utils/ApiError.js";
 
+import * as fineRepository
+from "../repositories/fineRepository.js";
 
 export const borrowBook = async (data) => {
 
@@ -137,11 +139,76 @@ export const returnBook = async (id) => {
 
         );
 
+    if (borrow.status === "RETURNED")
+
+        throw new ApiError(
+
+            400,
+
+            "Book already returned"
+
+        );
+
+
+    const today = new Date();
+
+
+ if (today > borrow.dueDate) {
+
+    const existingFine =
+
+        await fineRepository.findByBorrowRecord(
+
+            borrow._id
+
+        );
+
+    if (!existingFine) {
+
+        const diff =
+
+            today - borrow.dueDate;
+
+        const daysLate = Math.ceil(
+
+            diff /
+
+            (1000 * 60 * 60 * 24)
+
+        );
+
+        const dailyRate = 10;
+
+        const amount =
+
+            daysLate * dailyRate;
+
+        await fineRepository.create({
+
+            borrowRecord:
+
+                borrow._id,
+
+            user:
+
+                borrow.user,
+
+            daysLate,
+
+            dailyRate,
+
+            amount
+
+        });
+
+    }
+
+}
+
 
     borrow.status = "RETURNED";
 
-    borrow.returnDate = new Date();
-
+    borrow.returnDate = today;
 
     await borrow.save();
 

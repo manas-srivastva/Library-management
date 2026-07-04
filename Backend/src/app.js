@@ -11,6 +11,7 @@ import bookRoutes from "./routes/bookRoutes.js"
 import bookCopyRoutes from "./routes/bookCopyRoutes.js";
 import borrowRoutes from "./routes/borrowRoutes.js";
 import reservationRoutes from "./routes/reservationRoutes.js";
+import fineRoutes from "./routes/fineRoutes.js";
 const app = express();
 
 app.use(express.json());
@@ -85,6 +86,15 @@ app.use(
     reservationRoutes
 
 );
+
+app.use(
+
+    "/api/fines",
+
+    fineRoutes
+
+);
+
 
 app.get("/", (req, res) => {
     res.status(200).json({

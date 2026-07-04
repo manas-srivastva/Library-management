@@ -2,8 +2,12 @@ import express from "express";
 
 const router = express.Router();
 
-import validate
-    from "../middlewares/validate.js";
+import validate from "../middlewares/validate.js";
+
+import authMiddleware from "../middlewares/authMiddleware.js";
+import authorize from "../middlewares/authorize.js";
+
+import ROLES from "../constants/roles.js";
 
 import {
 
@@ -13,8 +17,7 @@ import {
 
 }
 
-    from "../validators/bookValidator.js";
-
+from "../validators/bookValidator.js";
 
 import {
 
@@ -28,12 +31,22 @@ import {
 
 }
 
-    from "../controllers/bookController.js";
+from "../controllers/bookController.js";
 
 
 router.post(
 
     "/",
+
+    authMiddleware,
+
+    authorize(
+
+        ROLES.ADMIN,
+
+        ROLES.LIBRARIAN
+
+    ),
 
     createBookValidator,
 
@@ -57,6 +70,16 @@ router.put(
 
     "/:id",
 
+    authMiddleware,
+
+    authorize(
+
+        ROLES.ADMIN,
+
+        ROLES.LIBRARIAN
+
+    ),
+
     updateBookValidator,
 
     validate,
@@ -70,8 +93,17 @@ router.delete(
 
     "/:id",
 
+    authMiddleware,
+
+    authorize(
+
+        ROLES.ADMIN
+
+    ),
+
     deleteBook
 
 );
+
 
 export default router;

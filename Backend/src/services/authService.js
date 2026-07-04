@@ -1,10 +1,9 @@
-import jwt from "jsonwebtoken"
 
 import ApiError from "../utils/ApiError.js"
 
 import { createUser,findByEmail } from "../repositories/userRepository.js"
 
-
+import generateToken from "../utils/generateToken.js"
 // Register User
 
 export const register=async (userData)=>{
@@ -52,20 +51,7 @@ export const login=async(
     );
 
   }
-  const token=jwt.sign(
-    //payload
-    {
-        id:user._id,
-        role:user.role
-
-    },
-    //secret
-    process.env.JWT_SECRET,
-    {
-        expiresIn:
-        process.env.JWT_EXPIRES_IN
-    }
-  );
+const token=generateToken(user)
 
   return {
     user,token

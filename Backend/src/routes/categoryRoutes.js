@@ -1,37 +1,36 @@
 import express from "express";
 
 import {
-
     createCategory,
-
     getCategories,
-
     updateCategory,
-
     deleteCategory
-
-}
-
-    from "../controllers/categoryController.js";
+} from "../controllers/categoryController.js";
 
 import {
-
     createCategoryValidator,
-
     updateCategoryValidator
-
-}
-
-    from "../validators/categoryValidator.js";
+} from "../validators/categoryValidator.js";
 
 import validate from "../middlewares/validate.js";
 
-const router = express.Router();
+import authMiddleware from "../middlewares/authMiddleware.js";
+import authorize from "../middlewares/authorize.js";
 
+import ROLES from "../constants/roles.js";
+
+const router = express.Router();
 
 router.post(
 
     "/",
+
+    authMiddleware,
+
+    authorize(
+        ROLES.ADMIN,
+        ROLES.LIBRARIAN
+    ),
 
     createCategoryValidator,
 
@@ -41,7 +40,6 @@ router.post(
 
 );
 
-
 router.get(
 
     "/",
@@ -50,10 +48,16 @@ router.get(
 
 );
 
-
 router.put(
 
     "/:id",
+
+    authMiddleware,
+
+    authorize(
+        ROLES.ADMIN,
+        ROLES.LIBRARIAN
+    ),
 
     updateCategoryValidator,
 
@@ -63,14 +67,18 @@ router.put(
 
 );
 
-
 router.delete(
 
     "/:id",
 
+    authMiddleware,
+
+    authorize(
+        ROLES.ADMIN
+    ),
+
     deleteCategory
 
 );
-
 
 export default router;
