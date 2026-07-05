@@ -14,6 +14,7 @@ import reservationRoutes from "./routes/reservationRoutes.js";
 import fineRoutes from "./routes/fineRoutes.js";
 import swaggerUi from "swagger-ui-express";
 import specs from "./config/swagger.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
 const app = express();
 
 app.use(express.json());
@@ -104,6 +105,15 @@ app.use(
     swaggerUi.serve,
 
     swaggerUi.setup(specs)
+
+);
+
+
+app.use(
+
+    "/api/notifications",
+
+    notificationRoutes
 
 );
 

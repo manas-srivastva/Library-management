@@ -13,6 +13,13 @@ from "../utils/ApiError.js";
 import * as fineRepository
 from "../repositories/fineRepository.js";
 
+import * as notificationService
+from "./notificationService.js";
+
+import { NOTIFICATION_TYPES }
+from "../constants/notificationTypes.js";
+
+
 export const borrowBook = async (data) => {
 
     const user = await User.findOne({
@@ -99,6 +106,32 @@ export const borrowBook = async (data) => {
     await copy.save();
 
 
+    await notificationService.createNotification({
+
+        user: user._id,
+
+        type: NOTIFICATION_TYPES.BOOK_ISSUED,
+
+        title: "Book Issued",
+
+        message:
+
+            `Book borrowed successfully.
+            Return by ${new Date(
+                data.dueDate
+            ).toDateString()}`,
+
+        metadata: {
+
+            borrowId: borrow._id,
+
+            copyId: copy._id
+
+        }
+
+    });
+
+
     return borrow;
 
 };
@@ -153,57 +186,91 @@ export const returnBook = async (id) => {
     const today = new Date();
 
 
- if (today > borrow.dueDate) {
+    if (today > borrow.dueDate) {
 
-    const existingFine =
+        const existingFine =
 
-        await fineRepository.findByBorrowRecord(
+            await fineRepository.findByBorrowRecord(
 
-            borrow._id
+                borrow._id
 
-        );
+            );
 
-    if (!existingFine) {
+        if (!existingFine) {
 
-        const diff =
+            const diff =
 
-            today - borrow.dueDate;
+                today - borrow.dueDate;
 
-        const daysLate = Math.ceil(
+            const daysLate = Math.ceil(
 
-            diff /
+                diff /
 
-            (1000 * 60 * 60 * 24)
+                (1000 * 60 * 60 * 24)
 
-        );
+            );
 
-        const dailyRate = 10;
+            const dailyRate = 10;
 
-        const amount =
+            const amount =
 
-            daysLate * dailyRate;
+                daysLate * dailyRate;
 
-        await fineRepository.create({
 
-            borrowRecord:
+            const fine = await fineRepository.create({
 
-                borrow._id,
+                borrowRecord:
 
-            user:
+                    borrow._id,
 
-                borrow.user,
+                user:
 
-            daysLate,
+                    borrow.user,
 
-            dailyRate,
+                daysLate,
 
-            amount
+                dailyRate,
 
-        });
+                amount
+
+            });
+
+
+            await notificationService.createNotification({
+
+                user: borrow.user,
+
+                type:
+
+                    NOTIFICATION_TYPES.FINE_GENERATED,
+
+                title:
+
+                    "Fine Generated",
+
+                message:
+
+                    `A fine of ₹${amount}
+                    has been generated.
+                    ${daysLate} day(s) overdue.`,
+
+                metadata: {
+
+                    fineId:
+
+                        fine._id,
+
+                    borrowId:
+
+                        borrow._id
+
+                }
+
+            });
+
+        }
 
     }
-
-}
 
 
     borrow.status = "RETURNED";
@@ -225,6 +292,33 @@ export const returnBook = async (id) => {
     copy.status = "AVAILABLE";
 
     await copy.save();
+
+
+    await notificationService.createNotification({
+
+        user: borrow.user,
+
+        type:
+
+            NOTIFICATION_TYPES.BOOK_RETURNED,
+
+        title:
+
+            "Book Returned",
+
+        message:
+
+            "Book returned successfully.",
+
+        metadata: {
+
+            borrowId:
+
+                borrow._id
+
+        }
+
+    });
 
 
     return borrow;
