@@ -5,6 +5,11 @@ import * as fineRepository
 import ApiError
 
     from "../utils/ApiError.js";
+    import * as auditService
+from "./auditService.js";
+
+import { AUDIT_ACTIONS }
+from "../constants/auditActions.js";
 
 
 export const createFine = (data) =>
@@ -75,6 +80,44 @@ export const payFine = async (id) => {
 
     }
 
-    return fineRepository.markPaid(id);
+    const paidFine =
+
+        await fineRepository.markPaid(id);
+
+
+    await auditService.createLog({
+
+        user:
+
+            fine.user,
+
+        action:
+
+            AUDIT_ACTIONS.FINE_PAID,
+
+        entity:
+
+            "Fine",
+
+        entityId:
+
+            fine._id,
+
+        metadata: {
+
+            amount:
+
+                fine.amount,
+
+            borrowRecord:
+
+                fine.borrowRecord
+
+        }
+
+    });
+
+
+    return paidFine;
 
 };

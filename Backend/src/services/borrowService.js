@@ -18,7 +18,11 @@ from "./notificationService.js";
 
 import { NOTIFICATION_TYPES }
 from "../constants/notificationTypes.js";
+import * as auditService
+from "./auditService.js";
 
+import { AUDIT_ACTIONS }
+from "../constants/auditActions.js";
 
 export const borrowBook = async (data) => {
 
@@ -104,7 +108,31 @@ export const borrowBook = async (data) => {
     copy.status = "BORROWED";
 
     await copy.save();
+    await auditService.createLog({
 
+    user: issuer._id,
+
+    action:
+
+        AUDIT_ACTIONS.BOOK_BORROWED,
+
+    entity:
+
+        "BorrowRecord",
+
+    entityId:
+
+        borrow._id,
+
+    metadata: {
+
+        userId: user._id,
+
+        copyId: copy._id
+
+    }
+
+});
 
     await notificationService.createNotification({
 
@@ -319,6 +347,24 @@ export const returnBook = async (id) => {
         }
 
     });
+
+    await auditService.createLog({
+
+    user: borrow.user,
+
+    action:
+
+        AUDIT_ACTIONS.BOOK_RETURNED,
+
+    entity:
+
+        "BorrowRecord",
+
+    entityId:
+
+        borrow._id
+
+});
 
 
     return borrow;

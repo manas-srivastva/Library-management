@@ -1,24 +1,28 @@
 import Reservation
-from "../models/Reservation.js";
+    from "../models/Reservation.js";
 
 import User
-from "../models/User.js";
+    from "../models/User.js";
 
 import Book
-from "../models/Book.js";
+    from "../models/Book.js";
 
 import ApiError
-from "../utils/ApiError.js";
+    from "../utils/ApiError.js";
 
 import * as reservationRepository
-from "../repositories/reservationRepository.js";
+    from "../repositories/reservationRepository.js";
 
 import * as notificationService
-from "./notificationService.js";
+    from "./notificationService.js";
 
 import { NOTIFICATION_TYPES }
-from "../constants/notificationTypes.js";
+    from "../constants/notificationTypes.js";
+import * as auditService
+from "./auditService.js";
 
+import { AUDIT_ACTIONS }
+from "../constants/auditActions.js";
 
 export const createReservation =
 
@@ -110,6 +114,23 @@ export const createReservation =
             }
 
         });
+                await auditService.createLog({
+
+            user: user._id,
+
+            action:
+
+                AUDIT_ACTIONS.RESERVATION_CREATED,
+
+            entity:
+
+                "Reservation",
+
+            entityId:
+
+                reservation._id
+
+        });
 
 
         return reservation;
@@ -183,6 +204,25 @@ export const cancelReservation =
                     reservation._id
 
             }
+
+        });
+                await auditService.createLog({
+
+            user:
+
+                reservation.user,
+
+            action:
+
+                AUDIT_ACTIONS.RESERVATION_CANCELLED,
+
+            entity:
+
+                "Reservation",
+
+            entityId:
+
+                reservation._id
 
         });
 

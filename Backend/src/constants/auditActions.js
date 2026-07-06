@@ -1,0 +1,35 @@
+export const AUDIT_ACTIONS = {
+
+    BOOK_CREATED:
+
+        "BOOK_CREATED",
+
+    BOOK_UPDATED:
+
+        "BOOK_UPDATED",
+
+    BOOK_DELETED:
+
+        "BOOK_DELETED",
+
+    BOOK_BORROWED:
+
+        "BOOK_BORROWED",
+
+    BOOK_RETURNED:
+
+        "BOOK_RETURNED",
+
+    RESERVATION_CREATED:
+
+        "RESERVATION_CREATED",
+
+    RESERVATION_CANCELLED:
+
+        "RESERVATION_CANCELLED",
+
+    FINE_PAID:
+
+        "FINE_PAID"
+
+};

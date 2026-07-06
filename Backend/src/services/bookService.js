@@ -3,34 +3,70 @@ import ApiError from "../utils/ApiError.js";
 import * as repo
     from "../repositories/bookRepository.js";
 
-import Author from "../models/Author.js";
-import Publisher from "../models/Publisher.js";
-import Category from "../models/Category.js";
+import Author
+    from "../models/Author.js";
 
-export const createBook = async (data) => {
+import Publisher
+    from "../models/Publisher.js";
+
+import Category
+    from "../models/Category.js";
+
+import * as auditService
+    from "./auditService.js";
+
+import { AUDIT_ACTIONS }
+    from "../constants/auditActions.js";
+
+
+export const createBook = async (
+
+    data,
+
+    userId
+
+) => {
 
     const existing =
-        await repo.findByISBN(data.isbn);
+
+        await repo.findByISBN(
+
+            data.isbn
+
+        );
 
     if (existing) {
 
         throw new ApiError(
+
             400,
+
             "ISBN already exists"
+
         );
 
     }
 
+
     const authors =
+
         await Author.find({
 
             name: {
+
                 $in: data.authors
+
             }
 
         });
 
-    if (authors.length !== data.authors.length) {
+    if (
+
+        authors.length !==
+
+        data.authors.length
+
+    ) {
 
         throw new ApiError(
 
@@ -42,12 +78,21 @@ export const createBook = async (data) => {
 
     }
 
+
     const publisher =
+
         await Publisher.findOne({
 
             name: {
-                $regex: `^${data.publisher}$`,
-                $options: "i"
+
+                $regex:
+
+                    `^${data.publisher}$`,
+
+                $options:
+
+                    "i"
+
             }
 
         });
@@ -64,12 +109,21 @@ export const createBook = async (data) => {
 
     }
 
+
     const category =
+
         await Category.findOne({
 
             name: {
-                $regex: `^${data.category}$`,
-                $options: "i"
+
+                $regex:
+
+                    `^${data.category}$`,
+
+                $options:
+
+                    "i"
+
             }
 
         });
@@ -86,16 +140,67 @@ export const createBook = async (data) => {
 
     }
 
+
     data.authors =
-        authors.map(author => author._id);
+
+        authors.map(
+
+            author => author._id
+
+        );
 
     data.publisher =
+
         publisher._id;
 
     data.category =
+
         category._id;
 
-    return repo.create(data);
+
+    const book =
+
+        await repo.create(
+
+            data
+
+        );
+
+
+    await auditService.createLog({
+
+        user:
+
+            userId,
+
+        action:
+
+            AUDIT_ACTIONS.BOOK_CREATED,
+
+        entity:
+
+            "Book",
+
+        entityId:
+
+            book._id,
+
+        metadata: {
+
+            title:
+
+                book.title,
+
+            isbn:
+
+                book.isbn
+
+        }
+
+    });
+
+
+    return book;
 
 };
 
@@ -109,11 +214,23 @@ export const getBooks = async () => {
 
 
 
-export const updateBook = async (id, data) => {
+export const updateBook = async (
+
+    id,
+
+    data,
+
+    userId
+
+) => {
 
     const book =
 
-        await repo.findById(id);
+        await repo.findById(
+
+            id
+
+        );
 
     if (!book) {
 
@@ -127,23 +244,72 @@ export const updateBook = async (id, data) => {
 
     }
 
-    return repo.update(
 
-        id,
+    const updatedBook =
 
-        data
+        await repo.update(
 
-    );
+            id,
+
+            data
+
+        );
+
+
+    await auditService.createLog({
+
+        user:
+
+            userId,
+
+        action:
+
+            AUDIT_ACTIONS.BOOK_UPDATED,
+
+        entity:
+
+            "Book",
+
+        entityId:
+
+            updatedBook._id,
+
+        metadata: {
+
+            title:
+
+                updatedBook.title,
+
+            isbn:
+
+                updatedBook.isbn
+
+        }
+
+    });
+
+
+    return updatedBook;
 
 };
 
 
 
-export const deleteBook = async (id) => {
+export const deleteBook = async (
+
+    id,
+
+    userId
+
+) => {
 
     const book =
 
-        await repo.findById(id);
+        await repo.findById(
+
+            id
+
+        );
 
     if (!book) {
 
@@ -156,6 +322,40 @@ export const deleteBook = async (id) => {
         );
 
     }
+
+
+    await auditService.createLog({
+
+        user:
+
+            userId,
+
+        action:
+
+            AUDIT_ACTIONS.BOOK_DELETED,
+
+        entity:
+
+            "Book",
+
+        entityId:
+
+            book._id,
+
+        metadata: {
+
+            title:
+
+                book.title,
+
+            isbn:
+
+                book.isbn
+
+        }
+
+    });
+
 
     await repo.remove(id);
 

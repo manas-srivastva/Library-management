@@ -15,6 +15,8 @@ import fineRoutes from "./routes/fineRoutes.js";
 import swaggerUi from "swagger-ui-express";
 import specs from "./config/swagger.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
+import auditRoutes from "./routes/auditRoutes.js";
+import analyticsRoutes from "./routes/analyticsRoutes.js";
 const app = express();
 
 app.use(express.json());
@@ -116,6 +118,25 @@ app.use(
     notificationRoutes
 
 );
+
+app.use(
+
+    "/api/audit",
+
+    auditRoutes
+
+);
+
+
+
+app.use(
+
+    "/api/analytics",
+
+    analyticsRoutes
+
+);
+
 
 app.get("/", (req, res) => {
     res.status(200).json({
