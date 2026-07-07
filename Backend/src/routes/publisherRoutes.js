@@ -8,7 +8,7 @@ import authMiddleware from "../middlewares/authMiddleware.js";
 import authorize from "../middlewares/authorize.js";
 
 import ROLES from "../constants/roles.js";
-
+import * as controller from "../controllers/publisherController.js";
 import {
 
     createPublisherValidator,
@@ -126,6 +126,38 @@ router.get(
 
 );
 
+/**
+ * @swagger
+ * /api/publishers/{id}:
+ *   get:
+ *     summary: Get publisher by ID
+ *     tags:
+ *       - Publishers
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         example: 6870b8d9c4f4f2a12345678
+ *     responses:
+ *       200:
+ *         description: Publisher fetched successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Publisher not found
+ */
+router.get(
+    "/:id",
+    authMiddleware,
+    authorize("ADMIN","LIBRARIAN","MEMBER"),
+    controller.getById
+);
 
 /**
  * @swagger

@@ -26,7 +26,31 @@ export const createPublisher =
 
     });
 
+export const getById = asyncHandler(
+async(req,res)=>{
 
+    const publisher =
+        await publisherService.getById(
+
+            req.params.id
+
+        );
+
+    res.status(200).json(
+
+        new ApiResponse(
+
+            200,
+
+            publisher,
+
+            "Publisher fetched successfully"
+
+        )
+
+    );
+
+});
 export const getPublishers =
     asyncHandler(async (req, res) => {
 

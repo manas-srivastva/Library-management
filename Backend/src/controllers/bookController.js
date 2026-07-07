@@ -16,7 +16,8 @@ export const createBook =
 
             await service.createBook(
 
-                req.body
+                req.body,
+                req.user._id
 
             );
 
@@ -61,6 +62,23 @@ export const getBooks =
 
     });
 
+export const getById = asyncHandler(
+async(req,res)=>{
+
+    const book =
+        await service.getById(
+            req.params.id
+        );
+
+    res.status(200).json(
+        new ApiResponse(
+            200,
+            book,
+            "Book fetched"
+        )
+    );
+
+});
 
 export const updateBook =
 

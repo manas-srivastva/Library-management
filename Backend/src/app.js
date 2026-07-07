@@ -17,6 +17,7 @@ import specs from "./config/swagger.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 import auditRoutes from "./routes/auditRoutes.js";
 import analyticsRoutes from "./routes/analyticsRoutes.js";
+import uploadRoutes from "./routes/uploadRoutes.js";
 const app = express();
 
 app.use(express.json());
@@ -134,6 +135,15 @@ app.use(
     "/api/analytics",
 
     analyticsRoutes
+
+);
+
+
+app.use(
+
+    "/api/uploads",
+
+    uploadRoutes
 
 );
 

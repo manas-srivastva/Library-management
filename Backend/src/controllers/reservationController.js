@@ -47,7 +47,32 @@ export const create =
 
     );
 
+export const getById = asyncHandler(
+async(req,res)=>{
 
+    const reservation =
+
+        await reservationService.getById(
+
+            req.params.id
+
+        );
+
+    res.status(200).json(
+
+        new ApiResponse(
+
+            200,
+
+            reservation,
+
+            "Reservation fetched successfully"
+
+        )
+
+    );
+
+});
 export const getAll =
 
     asyncHandler(

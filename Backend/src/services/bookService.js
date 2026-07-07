@@ -211,7 +211,16 @@ export const getBooks = async () => {
     return repo.findAll();
 
 };
+export const getById = async (id) => {
 
+    const book = await repo.findById(id);
+
+    if (!book)
+        throw new ApiError(404, "Book not found");
+
+    return book;
+
+};
 
 
 export const updateBook = async (

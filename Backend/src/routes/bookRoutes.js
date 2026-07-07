@@ -6,7 +6,7 @@ import validate from "../middlewares/validate.js";
 
 import authMiddleware from "../middlewares/authMiddleware.js";
 import authorize from "../middlewares/authorize.js";
-
+import * as bookController from "../controllers/bookController.js";
 import ROLES from "../constants/roles.js";
 
 import {
@@ -151,6 +151,41 @@ router.get(
 
     getBooks
 
+);
+
+
+/**
+ * @swagger
+ * /api/books/{id}:
+ *   get:
+ *     summary: Get a book by ID
+ *     tags:
+ *       - Books
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: MongoDB Book ID
+ *         example: 6a4be9b3194ec542e254c5d6
+ *     responses:
+ *       200:
+ *         description: Book fetched successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Book not found
+ */
+router.get(
+    "/:id",
+    authMiddleware,
+    authorize("ADMIN", "LIBRARIAN", "MEMBER"),
+    bookController.getById
 );
 
 

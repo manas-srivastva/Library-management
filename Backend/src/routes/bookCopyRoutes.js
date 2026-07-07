@@ -18,7 +18,7 @@ import {
 }
 
 from "../validators/bookCopyValidator.js";
-
+import * as controller from "../controllers/bookCopyController.js"
 import {
 
     createBookCopy,
@@ -149,7 +149,38 @@ router.get(
     getBookCopies
 
 );
-
+/**
+ * @swagger
+ * /api/bookcopies/{id}:
+ *   get:
+ *     summary: Get book copy by ID
+ *     tags:
+ *       - BookCopies
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         example: 6a4beb5e772625d029ce9ccd
+ *     responses:
+ *       200:
+ *         description: Book copy fetched successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Book copy not found
+ */
+router.get(
+    "/:id",
+    authMiddleware,
+    authorize("ADMIN","LIBRARIAN","MEMBER"),
+    controller.getById
+)
 
 /**
  * @swagger

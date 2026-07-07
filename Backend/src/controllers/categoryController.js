@@ -39,7 +39,31 @@ export const createCategory =
 
     );
 
+export const getById = asyncHandler(
+async(req,res)=>{
 
+    const category =
+        await categoryService.getById(
+
+            req.params.id
+
+        );
+
+    res.status(200).json(
+
+        new ApiResponse(
+
+            200,
+
+            category,
+
+            "Category fetched successfully"
+
+        )
+
+    );
+
+});
 export const getCategories =
 
     asyncHandler(

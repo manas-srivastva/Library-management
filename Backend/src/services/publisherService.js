@@ -26,7 +26,24 @@ export const getPublishers = async () => {
     return publisherRepo.findAll();
 
 };
+export const getById = async (id) => {
 
+    const publisher =
+        await publisherRepo.findById(id);
+
+    if (!publisher)
+
+        throw new ApiError(
+
+            404,
+
+            "Publisher not found"
+
+        );
+
+    return publisher;
+
+};
 export const updatePublisher = async (id, data) => {
 
     const publisher =

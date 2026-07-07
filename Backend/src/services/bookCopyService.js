@@ -31,7 +31,24 @@ export const createBookCopy =
         return repo.create(data);
 
     };
+export const getById = async (id) => {
 
+    const copy =
+        await repo.findById(id);
+
+    if (!copy)
+
+        throw new ApiError(
+
+            404,
+
+            "Book copy not found"
+
+        );
+
+    return copy;
+
+};
 
 export const getBookCopies =
     async () => {

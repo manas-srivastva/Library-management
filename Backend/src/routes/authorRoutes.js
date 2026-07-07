@@ -10,7 +10,8 @@ import {
 
     updateAuthor,
 
-    deleteAuthor
+    deleteAuthor,
+    
 
 } from "../controllers/authorController.js";
 
@@ -29,7 +30,7 @@ import authMiddleware from "../middlewares/authMiddleware.js";
 import authorize from "../middlewares/authorize.js";
 
 import ROLES from "../constants/roles.js";
-
+import * as controller from "../controllers/authorController.js";
 
 /**
  * @swagger
@@ -100,7 +101,38 @@ router.post(
     createAuthor
 
 );
-
+/**
+ * @swagger
+ * /api/authors/{id}:
+ *   get:
+ *     summary: Get author by ID
+ *     tags:
+ *       - Authors
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         example: 6870b8d9c4f4f2a12345678
+ *     responses:
+ *       200:
+ *         description: Author fetched successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Author not found
+ */
+router.get(
+    "/:id",
+    authMiddleware,
+    authorize("ADMIN","LIBRARIAN","MEMBER"),
+    controller.getById
+);
 
 /**
  * @swagger

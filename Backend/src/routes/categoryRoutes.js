@@ -13,7 +13,7 @@ import {
 } from "../validators/categoryValidator.js";
 
 import validate from "../middlewares/validate.js";
-
+import * as controller from "../controllers/categoryController.js"
 import authMiddleware from "../middlewares/authMiddleware.js";
 import authorize from "../middlewares/authorize.js";
 
@@ -88,7 +88,38 @@ router.post(
 
 );
 
-
+/**
+ * @swagger
+ * /api/categories/{id}:
+ *   get:
+ *     summary: Get category by ID
+ *     tags:
+ *       - Categories
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         example: 6870b8d9c4f4f2a12345678
+ *     responses:
+ *       200:
+ *         description: Category fetched successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Category not found
+ */
+router.get(
+    "/:id",
+    authMiddleware,
+    authorize("ADMIN","LIBRARIAN","MEMBER"),
+    controller.getById
+);
 /**
  * @swagger
  * /api/categories:

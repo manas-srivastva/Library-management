@@ -35,7 +35,31 @@ export const createBookCopy =
         );
 
     });
+export const getById = asyncHandler(
+async(req,res)=>{
 
+    const copy =
+        await service.getById(
+
+            req.params.id
+
+        );
+
+    res.status(200).json(
+
+        new ApiResponse(
+
+            200,
+
+            copy,
+
+            "Book copy fetched successfully"
+
+        )
+
+    );
+
+});
 
 export const getBookCopies =
 

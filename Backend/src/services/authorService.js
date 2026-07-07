@@ -33,7 +33,19 @@ export const createAuthor = async (data) => {
     );
 
 };
+export const getById = async (id) => {
 
+    const author = await authorRepository.findById(id);
+
+    if (!author)
+        throw new ApiError(
+            404,
+            "Author not found"
+        );
+
+    return author;
+
+};
 
 export const getAuthors = async () => {
 

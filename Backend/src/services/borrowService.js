@@ -23,6 +23,10 @@ from "./auditService.js";
 
 import { AUDIT_ACTIONS }
 from "../constants/auditActions.js";
+import {
+    COPY_STATUS,
+    BORROW_STATUS
+} from "../constants/statuses.js";
 
 export const borrowBook = async (data) => {
 
@@ -77,7 +81,7 @@ export const borrowBook = async (data) => {
         );
 
 
-    if (copy.status !== "AVAILABLE")
+    if (copy.status !== COPY_STATUS.AVAILABLE)
 
         throw new ApiError(
 
@@ -105,7 +109,7 @@ export const borrowBook = async (data) => {
     );
 
 
-    copy.status = "BORROWED";
+    copy.status = COPY_STATUS.ISSUED;
 
     await copy.save();
     await auditService.createLog({
@@ -200,7 +204,7 @@ export const returnBook = async (id) => {
 
         );
 
-    if (borrow.status === "RETURNED")
+    if (borrow.status === BORROW_STATUS.RETURNED)
 
         throw new ApiError(
 
@@ -301,7 +305,7 @@ export const returnBook = async (id) => {
     }
 
 
-    borrow.status = "RETURNED";
+borrow.status = BORROW_STATUS.RETURNED;
 
     borrow.returnDate = today;
 
@@ -317,7 +321,7 @@ export const returnBook = async (id) => {
         );
 
 
-    copy.status = "AVAILABLE";
+copy.status = COPY_STATUS.AVAILABLE;
 
     await copy.save();
 

@@ -19,7 +19,7 @@ import authorize
 
 import ROLES
     from "../constants/roles.js";
-
+import * as controller from "../controllers/reservationController.js"
 
 const router = express.Router();
 
@@ -133,7 +133,38 @@ router.get(
 
 );
 
-
+/**
+ * @swagger
+ * /api/reservations/{id}:
+ *   get:
+ *     summary: Get reservation by ID
+ *     tags:
+ *       - Reservations
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         example: 6a4d1234c1994c62efa44210
+ *     responses:
+ *       200:
+ *         description: Reservation fetched successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Reservation not found
+ */
+router.get(
+    "/:id",
+    authMiddleware,
+    authorize("ADMIN","LIBRARIAN","MEMBER"),
+    controller.getById
+);
 /**
  * @swagger
  * /api/reservations/cancel/{id}:

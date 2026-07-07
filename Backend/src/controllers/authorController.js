@@ -42,7 +42,29 @@ export const createAuthor =
 
     );
 
+export const getById = asyncHandler(
+async (req, res) => {
 
+    const author =
+        await authorService.getById(
+            req.params.id
+        );
+
+    res.status(200).json(
+
+        new ApiResponse(
+
+            200,
+
+            author,
+
+            "Author fetched successfully"
+
+        )
+
+    );
+
+});
 export const getAuthors =
 
     asyncHandler(

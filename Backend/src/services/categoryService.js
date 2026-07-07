@@ -19,7 +19,24 @@ export const getCategories=async()=>{
     return await categoryRepository.getAllCategories();
 };
 
+export const getById = async (id) => {
 
+    const category =
+        await categoryRepository.findById(id);
+
+    if (!category)
+
+        throw new ApiError(
+
+            404,
+
+            "Category not found"
+
+        );
+
+    return category;
+
+};
 export const updateCategory=async(
     id,data)=>{
     const category=await categoryRepository.findById(id);
