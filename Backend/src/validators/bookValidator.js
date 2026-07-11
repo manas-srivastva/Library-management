@@ -18,6 +18,10 @@ export const createBookValidator = [
         .notEmpty()
         .withMessage("Publisher required"),
 
+
+
+
+        
     body("category")
         .notEmpty()
         .withMessage("Category required")
