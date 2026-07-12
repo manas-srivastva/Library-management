@@ -18,6 +18,7 @@ import notificationRoutes from "./routes/notificationRoutes.js";
 import auditRoutes from "./routes/auditRoutes.js";
 import analyticsRoutes from "./routes/analyticsRoutes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
+import healthRoutes from "./routes/healthRoutes.js";
 const app = express();
 
 app.use(express.json());
@@ -146,6 +147,8 @@ app.use(
     uploadRoutes
 
 );
+
+app.use("/health",healthRoutes);
 
 
 app.get("/", (req, res) => {

@@ -1,9 +1,8 @@
+version: "3.9"
+
 services:
-
-  libraai:
-
+  backend:
     build: .
-
     container_name: libraai-backend
 
     ports:
@@ -13,3 +12,10 @@ services:
       - .env
 
     restart: unless-stopped
+
+    networks:
+      - libraai-network
+
+networks:
+  libraai-network:
+    driver: bridge
