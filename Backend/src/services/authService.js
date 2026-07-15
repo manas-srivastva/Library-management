@@ -13,7 +13,7 @@ export const register=async (userData)=>{
 
     if(existingUser){
         throw new ApiError(
-            400,
+            409,
             "User already exists"
         );
     }

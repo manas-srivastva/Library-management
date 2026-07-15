@@ -54,10 +54,10 @@ async(req,res)=>{
         new ApiResponse(
 
             200,
+            "Category fetched successfully",
+            category
 
-            category,
-
-            "Category fetched successfully"
+            
 
         )
 

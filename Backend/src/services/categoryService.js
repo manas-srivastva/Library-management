@@ -8,7 +8,7 @@ export const createCategory=async(data)=>{
 
     if(existing)
     {
-        throw new ApiError(400,"Category already exists");
+        throw new ApiError(409,"Category already exists");
     }
 
     return await categoryRepository.createCategory(data);

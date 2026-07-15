@@ -31,7 +31,7 @@ app.use(cors());
 
 app.use(helmet());
 app.use(morgan("dev"));
-app.use(errorHandler);
+
 app.use(
 
     "/api/auth",
@@ -158,4 +158,6 @@ app.get("/", (req, res) => {
     })
 })
 
+
+app.use(errorHandler);
 export default app
