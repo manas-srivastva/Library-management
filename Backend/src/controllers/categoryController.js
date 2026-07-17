@@ -102,6 +102,10 @@ export const getCategories =
 
 export const updateCategory =
 
+
+
+
+
     asyncHandler(
 
         async (req, res) => {
