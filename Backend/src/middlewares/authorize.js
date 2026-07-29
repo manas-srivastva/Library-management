@@ -1,25 +1,25 @@
+import ApiError from "../utils/ApiError.js";
+
 const authorize = (...roles) => {
 
     return (req, res, next) => {
 
         if (!req.user) {
-
-            return res.status(401).json({
-
-                message: "Unauthorized"
-
-            });
-
+            return next(
+                new ApiError(
+                    401,
+                    "Unauthorized"
+                )
+            );
         }
 
         if (!roles.includes(req.user.role)) {
-
-            return res.status(403).json({
-
-                message: "Forbidden"
-
-            });
-
+            return next(
+                new ApiError(
+                    403,
+                    "Forbidden"
+                )
+            );
         }
 
         next();
