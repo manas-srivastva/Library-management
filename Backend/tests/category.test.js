@@ -702,4 +702,168 @@ test("should return 404 while updating non-existent category", async () => {
     expect(res.body.message).toBe("Category not found");
 
 });
+
+
+// Admin should delete category
+test("admin should delete category", async () => {
+
+    // Arrange
+    const token = await createAdminToken();
+
+    const createRes = await request(app)
+        .post("/api/categories")
+        .set("Authorization", `Bearer ${token}`)
+        .send({
+            name: "Programming"
+        });
+
+    const categoryId = createRes.body.data._id;
+
+    // Act
+    const res = await request(app)
+        .delete(`/api/categories/${categoryId}`)
+        .set("Authorization", `Bearer ${token}`);
+
+    // Assert
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.message).toBe("Category deleted successfully");
+
+    const deleted = await Category.findById(categoryId);
+
+    expect(deleted).toBeNull();
+
+});
+
+
+
+
+// 2. Librarian should not delete category
+test("librarian should not delete category", async () => {
+
+    const adminToken = await createAdminToken();
+
+    const createRes = await request(app)
+        .post("/api/categories")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send({
+            name: "Programming"
+        });
+
+    const librarianToken = await createLibrarianToken();
+
+    const res = await request(app)
+        .delete(`/api/categories/${createRes.body.data._id}`)
+        .set("Authorization", `Bearer ${librarianToken}`);
+
+    expect(res.status).toBe(403);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toBe("Forbidden");
+
+});
+
+
+// 3.Member should not delete category
+test("member should not delete category", async () => {
+
+    const adminToken = await createAdminToken();
+
+    const createRes = await request(app)
+        .post("/api/categories")
+        .set("Authorization", `Bearer ${adminToken}`)
+        .send({
+            name: "Programming"
+        });
+
+    const memberToken = await createMemberToken();
+
+    const res = await request(app)
+        .delete(`/api/categories/${createRes.body.data._id}`)
+        .set("Authorization", `Bearer ${memberToken}`);
+
+    expect(res.status).toBe(403);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toBe("Forbidden");
+
+});
+
+
+//4. Missing JWT
+test("should reject delete without jwt", async () => {
+
+    const token = await createAdminToken();
+
+    const createRes = await request(app)
+        .post("/api/categories")
+        .set("Authorization", `Bearer ${token}`)
+        .send({
+            name: "Programming"
+        });
+
+    const res = await request(app)
+        .delete(`/api/categories/${createRes.body.data._id}`);
+
+    expect(res.status).toBe(401);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toBe("Unauthorized");
+
+});
+
+//5. Invalid JWT
+test("should reject delete with invalid jwt", async () => {
+
+    const token = await createAdminToken();
+
+    const createRes = await request(app)
+        .post("/api/categories")
+        .set("Authorization", `Bearer ${token}`)
+        .send({
+            name: "Programming"
+        });
+
+    const res = await request(app)
+        .delete(`/api/categories/${createRes.body.data._id}`)
+        .set("Authorization", "Bearer invalid_token");
+
+    expect(res.status).toBe(401);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toBe("Invalid Token");
+
+});
+
+
+// 6. Invalid Category ID
+test("should reject invalid category id while deleting", async () => {
+
+    const token = await createAdminToken();
+
+    const res = await request(app)
+        .delete("/api/categories/invalid-id")
+        .set("Authorization", `Bearer ${token}`);
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toBe("Invalid resource id");
+
+});
+
+
+//7. Category Not Found
+
+
+test("should return 404 while deleting non-existent category", async () => {
+
+    const token = await createAdminToken();
+
+    const fakeId = new mongoose.Types.ObjectId();
+
+    const res = await request(app)
+        .delete(`/api/categories/${fakeId}`)
+        .set("Authorization", `Bearer ${token}`);
+
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toBe("Category not found");
+
+});
 });
