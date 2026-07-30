@@ -18,8 +18,9 @@ export const createPublisher =
 
             new ApiResponse(
                 201,
-                publisher,
-                "Publisher created successfully"
+                "Publisher created successfully",
+                publisher
+                
             )
 
         );
@@ -41,10 +42,9 @@ async(req,res)=>{
         new ApiResponse(
 
             200,
+            "Publisher fetched successfully",
+            publisher
 
-            publisher,
-
-            "Publisher fetched successfully"
 
         )
 
@@ -61,8 +61,9 @@ export const getPublishers =
 
             new ApiResponse(
                 200,
-                publishers,
-                "Publishers fetched successfully"
+                "Publishers fetched successfully",
+                publishers
+                
             )
 
         );
@@ -87,10 +88,11 @@ export const updatePublisher =
             new ApiResponse(
 
                 200,
+                "Publisher updated successfully",
 
-                publisher,
+                publisher
 
-                "Publisher updated successfully"
+                
 
             )
 
@@ -113,10 +115,10 @@ export const deletePublisher =
             new ApiResponse(
 
                 200,
+                "Publisher deleted successfully",
+                null
 
-                null,
-
-                "Publisher deleted successfully"
+                
 
             )
 

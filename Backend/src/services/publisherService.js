@@ -58,6 +58,22 @@ export const updatePublisher = async (id, data) => {
 
     }
 
+    if (Object.prototype.hasOwnProperty.call(data, "name")) {
+
+        const existing =
+            await publisherRepo.findByName(data.name);
+
+        if (existing && existing._id.toString() !== id) {
+
+            throw new ApiError(
+                400,
+                "Publisher already exists"
+            );
+
+        }
+
+    }
+
     return publisherRepo.update(id, data);
 
 };
