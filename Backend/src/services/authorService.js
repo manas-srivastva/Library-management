@@ -79,7 +79,21 @@ export const updateAuthor = async (
         );
 
     }
+       // Check for duplicate name only if name is being updated
+    if (data.name) {
 
+        const existing = await authorRepository.findByName(data.name);
+
+        if (existing && existing._id.toString() !== id) {
+
+            throw new ApiError(
+                400,
+                "Author already exists"
+            );
+
+        }
+
+    }
     return await authorRepository.updateAuthor(
 
         id,

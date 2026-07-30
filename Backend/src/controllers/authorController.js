@@ -55,10 +55,10 @@ async (req, res) => {
         new ApiResponse(
 
             200,
+            "Author fetched successfully",
+            author
 
-            author,
-
-            "Author fetched successfully"
+            
 
         )
 
