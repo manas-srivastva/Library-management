@@ -4,7 +4,7 @@ import { describe, test, expect } from "@jest/globals";
 import Category from "../src/models/Category.js";
 import mongoose from "mongoose";
 import { createAdminToken,createLibrarianToken,createMemberToken } from "./helpers/authHelper.js";
-
+import { createCategory } from "./helpers/categoryHelper.js";
 describe("Category API", () => {
 
     test("Admin should create a category", async () => {
