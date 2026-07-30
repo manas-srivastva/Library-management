@@ -12,13 +12,25 @@ export default [
       sourceType: "module",
 
       globals: {
-        ...globals.node
-      }
+        ...globals.node,
+      },
     },
 
     rules: {
       "no-unused-vars": "warn",
-      "no-console": "off"
-    }
-  }
+      "no-console": "off",
+    },
+  },
+
+  // Jest test files
+  {
+    files: ["tests/**/*.js"],
+
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.jest,
+      },
+    },
+  },
 ];
