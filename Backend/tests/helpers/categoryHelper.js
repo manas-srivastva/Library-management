@@ -1,7 +1,7 @@
 import  request  from "supertest";
 
 import app from "../../src/app.js";
-import { token } from "morgan";
+
 
 export const createCategory=async(
     token,
