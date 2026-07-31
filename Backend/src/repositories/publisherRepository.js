@@ -15,7 +15,9 @@ export const update = (id, data) =>
     Publisher.findByIdAndUpdate(
         id,
         data,
-        { new: true }
+        { new: true ,
+            runValidators: true
+        }
     );
 
 export const remove = (id) =>

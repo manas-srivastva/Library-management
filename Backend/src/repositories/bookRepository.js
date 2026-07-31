@@ -45,7 +45,9 @@ export const update = (id, data) =>
 
         data,
 
-        { new: true }
+        { new: true,
+            runValidators: true
+         }
 
     )
 
