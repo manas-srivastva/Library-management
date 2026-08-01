@@ -114,5 +114,119 @@ it("should validate required fields", async () => {
     expect(res.statusCode).toBe(400);
 
 });
+// Test 1 — Admin Get All
+it("should allow admin to get all books", async () => {
 
+    const token = await createAdminToken();
+
+    await createBook(token);
+
+    const res = await request(app)
+        .get("/api/books")
+        .set("Authorization", `Bearer ${token}`);
+
+    expect(res.statusCode).toBe(200);
+
+    expect(Array.isArray(res.body.data)).toBe(true);
+
+});
+
+// Test 2 — Librarian Get All
+it("should allow librarian to get all books", async () => {
+
+    const token = await createLibrarianToken();
+
+    await createBook(token);
+
+    const res = await request(app)
+        .get("/api/books")
+        .set("Authorization", `Bearer ${token}`);
+
+    expect(res.statusCode).toBe(200);
+
+});
+
+// Test 3 — Member Get All
+it("should allow member to get all books", async () => {
+
+    const adminToken = await createAdminToken();
+    const memberToken = await createMemberToken();
+
+    await createBook(adminToken);
+
+    const res = await request(app)
+        .get("/api/books")
+        .set("Authorization", `Bearer ${memberToken}`);
+
+    expect(res.statusCode).toBe(200);
+
+});
+
+// Test 4 — Missing JWT
+it("should not get books without token", async () => {
+
+    const res = await request(app)
+        .get("/api/books");
+
+    expect(res.statusCode).toBe(401);
+
+});
+
+// Test 5 — Invalid JWT
+it("should not get books with invalid token", async () => {
+
+    const res = await request(app)
+        .get("/api/books")
+        .set("Authorization", "Bearer invalidtoken");
+
+    expect(res.statusCode).toBe(401);
+
+});
+
+
+// Test 6 — Get Book by ID
+it("should get a book by id", async () => {
+
+    const token = await createAdminToken();
+
+    const created = await createBook(token);
+
+    const res = await request(app)
+        .get(`/api/books/${created.body.data._id}`)
+        .set("Authorization", `Bearer ${token}`);
+
+    expect(res.statusCode).toBe(200);
+
+    expect(res.body.data._id).toBe(created.body.data._id);
+
+});
+
+
+// Test 7 — Invalid ObjectId
+it("should return 400 for invalid object id", async () => {
+
+    const token = await createAdminToken();
+
+    const res = await request(app)
+        .get("/api/books/invalidid")
+        .set("Authorization", `Bearer ${token}`);
+
+    expect(res.statusCode).toBe(400);
+
+});
+
+// Test 8 — Book Not Found
+it("should return 404 when book does not exist", async () => {
+
+    const token = await createAdminToken();
+
+    const id = new mongoose.Types.ObjectId();
+
+    const res = await request(app)
+        .get(`/api/books/${id}`)
+        .set("Authorization", `Bearer ${token}`);
+
+    expect(res.statusCode).toBe(404);
+
+});
 });
