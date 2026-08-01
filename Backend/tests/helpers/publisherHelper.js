@@ -3,10 +3,12 @@ import app from "../../src/app.js";
 
 export const createPublisher = async (token, data = {}) => {
 
+    const unique = Date.now() + Math.floor(Math.random() * 10000);
+
     const publisherData = {
-        name: "O'Reilly Media",
+        name: `Publisher-${unique}`,
         description: "Technology publisher",
-        website: "https://www.oreilly.com",
+        website: `https://publisher-${unique}.com`,
         country: "USA",
         ...data,
     };
@@ -15,5 +17,4 @@ export const createPublisher = async (token, data = {}) => {
         .post("/api/publishers")
         .set("Authorization", `Bearer ${token}`)
         .send(publisherData);
-
 };

@@ -1,22 +1,21 @@
-import  request  from "supertest";
-
+import request from "supertest";
 import app from "../../src/app.js";
 
-
-export const createCategory=async(
+export const createCategory = async (
     token,
-    data={}
-)=>{
+    data = {}
+) => {
 
+    const unique = Date.now() + Math.floor(Math.random() * 10000);
 
-    const res=await request(app)
+    const res = await request(app)
         .post("/api/categories")
-        .set("Authorization",`Bearer ${token}`)
+        .set("Authorization", `Bearer ${token}`)
         .send({
-            name: "Programming",
+            name: `Programming-${unique}`,
             description: "Programming books",
             ...data
-        })
+        });
 
     return res.body.data;
-}
+};
