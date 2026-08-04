@@ -176,9 +176,22 @@ export const getAll = () =>
 
 
 
-export const getById = (id) =>
+export const getById = async (id) => {
 
-    borrowRepository.findById(id);
+    const borrow = await borrowRepository.findById(id);
+
+    if (!borrow) {
+
+        throw new ApiError(
+            404,
+            "Borrow record not found"
+        );
+
+    }
+
+    return borrow;
+
+};
 
 
 
