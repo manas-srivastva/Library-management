@@ -24,10 +24,11 @@ export const getAll = asyncHandler(
             new ApiResponse(
 
                 200,
+                "Fines fetched",
 
-                fines,
+                fines
 
-                "Fines fetched"
+                
 
             )
 
@@ -55,10 +56,11 @@ export const getById = asyncHandler(
             new ApiResponse(
 
                 200,
+                "Fine fetched",
 
-                fine,
+                fine
 
-                "Fine fetched"
+                
 
             )
 
@@ -86,10 +88,11 @@ export const getUserFines = asyncHandler(
             new ApiResponse(
 
                 200,
+                "User fines fetched",
 
-                fines,
+                fines
 
-                "User fines fetched"
+                
 
             )
 
@@ -117,10 +120,11 @@ export const pay = asyncHandler(
             new ApiResponse(
 
                 200,
+                "Fine paid",
 
-                fine,
+                fine
 
-                "Fine paid"
+                
 
             )
 

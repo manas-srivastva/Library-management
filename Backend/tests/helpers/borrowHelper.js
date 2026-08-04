@@ -27,18 +27,17 @@ export const createBorrow = async (
         barcode = copy.body.data.barcode;
     }
 
-    const dueDate = new Date();
-    dueDate.setDate(dueDate.getDate() + 14);
+const defaultDueDate = new Date();
+defaultDueDate.setDate(defaultDueDate.getDate() + 14);
 
-    return await request(app)
-        .post("/api/borrows")
-        .set("Authorization", `Bearer ${issuer.token}`)
-        .send({
-            user: memberEmail,
-            issuedBy: issuer.user.email,
-            barcode,
-            dueDate,
-            ...data,
-        });
-
+return await request(app)
+    .post("/api/borrows")
+    .set("Authorization", `Bearer ${issuer.token}`)
+    .send({
+        user: memberEmail,
+        issuedBy: issuer.user.email,
+        barcode,
+        dueDate: defaultDueDate,
+        ...data,
+    });
 };
