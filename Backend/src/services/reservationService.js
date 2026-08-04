@@ -143,10 +143,26 @@ export const getAll = () =>
     reservationRepository.findAll();
 
 
-export const getById = (id) =>
+export const getById = async (id) => {
 
-    reservationRepository.findById(id);
+    const reservation =
+        await reservationRepository.findById(id);
 
+    if (!reservation) {
+
+        throw new ApiError(
+
+            404,
+
+            "Reservation not found"
+
+        );
+
+    }
+
+    return reservation;
+
+};
 
 export const cancelReservation =
 
