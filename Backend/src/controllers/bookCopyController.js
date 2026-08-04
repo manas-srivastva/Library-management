@@ -25,10 +25,11 @@ export const createBookCopy =
             new ApiResponse(
 
                 201,
+                "Book copy created",
 
-                copy,
+                copy
 
-                "Book copy created"
+                
 
             )
 
@@ -50,10 +51,11 @@ async(req,res)=>{
         new ApiResponse(
 
             200,
+            "Book copy fetched successfully",
 
-            copy,
+            copy
 
-            "Book copy fetched successfully"
+            
 
         )
 
@@ -74,10 +76,11 @@ export const getBookCopies =
             new ApiResponse(
 
                 200,
+                "Copies fetched",
 
-                copies,
+                copies
 
-                "Copies fetched"
+                
 
             )
 
@@ -105,10 +108,11 @@ export const updateBookCopy =
             new ApiResponse(
 
                 200,
+                "Copy updated",
 
-                copy,
+                copy
 
-                "Copy updated"
+                
 
             )
 
@@ -133,9 +137,11 @@ export const deleteBookCopy =
 
                 200,
 
-                null,
+                "Copy deleted",
 
-                "Copy deleted"
+                null
+
+                
 
             )
 

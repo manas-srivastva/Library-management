@@ -14,18 +14,22 @@ import { createAuthor } from "./helpers/authorHelper.js";
 describe("Author API",() => {
     describe("POST /api/authors", () => {
 
-    it("should allow admin to create an author", async () => {
+it("should allow admin to create an author", async () => {
 
-        const token = await createAdminToken();
+    const token = await createAdminToken();
 
-        const res = await createAuthor(token);
+    const authorName = "J.K. Rowling";
 
-        expect(res.statusCode).toBe(201);
-        expect(res.body.success).toBe(true);
-        expect(res.body.message).toBe("Author created successfully");
-        expect(res.body.data.name).toBe("J.K. Rowling");
-
+    const res = await createAuthor(token, {
+        name: authorName,
     });
+
+    expect(res.statusCode).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(res.body.message).toBe("Author created successfully");
+    expect(res.body.data.name).toBe(authorName);
+
+});
 
     it("should allow librarian to create an author", async () => {
 
@@ -75,19 +79,25 @@ describe("Author API",() => {
 
     });
 
-    it("should not allow duplicate author", async () => {
+it("should not allow duplicate author", async () => {
 
-        const token = await createAdminToken();
+    const token = await createAdminToken();
 
-        await createAuthor(token);
+    const authorName = "J.K. Rowling";
 
-        const res = await createAuthor(token);
-
-        expect(res.statusCode).toBe(400);
-        expect(res.body.success).toBe(false);
-        expect(res.body.message).toBe("Author already exists");
-
+    await createAuthor(token, {
+        name: authorName,
     });
+
+    const res = await createAuthor(token, {
+        name: authorName,
+    });
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toBe("Author already exists");
+
+});
 
     it("should require author name", async () => {
 
@@ -180,22 +190,26 @@ describe("Author API",() => {
 
 describe("GET /api/authors/:id", () => {
 
-    it("should allow admin to get an author by id", async () => {
+it("should allow admin to get an author by id", async () => {
 
-        const token = await createAdminToken();
+    const token = await createAdminToken();
 
-        const author = await createAuthor(token);
+    const authorName = "J.K. Rowling";
 
-        const res = await request(app)
-            .get(`/api/authors/${author.body.data._id}`)
-            .set("Authorization", `Bearer ${token}`);
-
-        expect(res.statusCode).toBe(200);
-        expect(res.body.success).toBe(true);
-        expect(res.body.message).toBe("Author fetched successfully");
-        expect(res.body.data.name).toBe("J.K. Rowling");
-
+    const author = await createAuthor(token, {
+        name: authorName,
     });
+
+    const res = await request(app)
+        .get(`/api/authors/${author.body.data._id}`)
+        .set("Authorization", `Bearer ${token}`);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.message).toBe("Author fetched successfully");
+    expect(res.body.data.name).toBe(authorName);
+
+});
 
     it("should allow librarian to get an author by id", async () => {
 

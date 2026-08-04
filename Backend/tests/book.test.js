@@ -229,4 +229,300 @@ it("should return 404 when book does not exist", async () => {
     expect(res.statusCode).toBe(404);
 
 });
+
+
+// Test 1 — Admin can update
+it("should allow admin to update a book", async () => {
+
+    const token = await createAdminToken();
+
+    const created = await createBook(token);
+
+    const res = await request(app)
+        .put(`/api/books/${created.body.data._id}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({
+            title: "Updated Clean Code"
+        });
+
+    expect(res.statusCode).toBe(200);
+
+    expect(res.body.data.title).toBe("Updated Clean Code");
+
+});
+
+
+// Test 2 — Librarian can update
+it("should allow librarian to update a book", async () => {
+
+    const token = await createLibrarianToken();
+
+    const created = await createBook(token);
+
+    const res = await request(app)
+        .put(`/api/books/${created.body.data._id}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({
+            title: "Updated Book"
+        });
+
+    expect(res.statusCode).toBe(200);
+
+});
+
+
+
+//  Test 3 — Member cannot update
+it("should not allow member to update a book", async () => {
+
+    const adminToken = await createAdminToken();
+    const memberToken = await createMemberToken();
+
+    const created = await createBook(adminToken);
+
+    const res = await request(app)
+        .put(`/api/books/${created.body.data._id}`)
+        .set("Authorization", `Bearer ${memberToken}`)
+        .send({
+            title: "Updated"
+        });
+
+    expect(res.statusCode).toBe(403);
+
+});
+
+
+// Test 4 — Missing JWT
+it("should not update without token", async () => {
+
+    const token = await createAdminToken();
+
+    const created = await createBook(token);
+
+    const res = await request(app)
+        .put(`/api/books/${created.body.data._id}`)
+        .send({
+            title: "Updated"
+        });
+
+    expect(res.statusCode).toBe(401);
+
+});
+
+// Test 5 — Invalid JWT
+it("should not update with invalid token", async () => {
+
+    const token = await createAdminToken();
+
+    const created = await createBook(token);
+
+    const res = await request(app)
+        .put(`/api/books/${created.body.data._id}`)
+        .set("Authorization", "Bearer invalidtoken")
+        .send({
+            title: "Updated"
+        });
+
+    expect(res.statusCode).toBe(401);
+
+});
+
+
+// Test 6 — Duplicate ISBN
+it("should not allow duplicate ISBN while updating", async () => {
+
+    const token = await createAdminToken();
+
+    const first = await createBook(token, {
+        isbn: "1111111111111"
+    });
+
+    const second = await createBook(token, {
+        isbn: "2222222222222"
+    });
+
+    const res = await request(app)
+        .put(`/api/books/${second.body.data._id}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({
+            isbn: "1111111111111"
+        });
+
+    expect(res.statusCode).toBe(400);
+
+    expect(res.body.message).toContain("ISBN already exists");
+
+});
+
+
+
+// Test 7 — Validation
+it("should validate update payload", async () => {
+
+    const token = await createAdminToken();
+
+    const created = await createBook(token);
+
+    const res = await request(app)
+        .put(`/api/books/${created.body.data._id}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({
+            pages: -10
+        });
+
+    expect(res.statusCode).toBe(400);
+
+});
+
+// Test 8 — Invalid ObjectId
+it("should return 400 for invalid update id", async () => {
+
+    const token = await createAdminToken();
+
+    const res = await request(app)
+        .put("/api/books/invalidid")
+        .set("Authorization", `Bearer ${token}`)
+        .send({
+            title: "Updated"
+        });
+
+    expect(res.statusCode).toBe(400);
+
+});
+
+// Test 9 — Book Not Found
+it("should return 404 when updating non-existing book", async () => {
+
+    const token = await createAdminToken();
+
+    const id = new mongoose.Types.ObjectId();
+
+    const res = await request(app)
+        .put(`/api/books/${id}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({
+            title: "Updated"
+        });
+
+    expect(res.statusCode).toBe(404);
+
+});
+// delete
+
+it("should allow admin to delete a book", async () => {
+
+    const token = await createAdminToken();
+
+    const created = await createBook(token);
+
+    const res = await request(app)
+        .delete(`/api/books/${created.body.data._id}`)
+        .set("Authorization", `Bearer ${token}`);
+
+    expect(res.statusCode).toBe(200);
+
+    expect(res.body.message).toBe("Book deleted");
+
+});
+
+it("should not allow librarian to delete a book", async () => {
+
+    const adminToken = await createAdminToken();
+    const librarianToken = await createLibrarianToken();
+
+    const created = await createBook(adminToken);
+
+    const res = await request(app)
+        .delete(`/api/books/${created.body.data._id}`)
+        .set("Authorization", `Bearer ${librarianToken}`);
+
+    expect(res.statusCode).toBe(403);
+
+});
+
+it("should not allow member to delete a book", async () => {
+
+    const adminToken = await createAdminToken();
+    const memberToken = await createMemberToken();
+
+    const created = await createBook(adminToken);
+
+    const res = await request(app)
+        .delete(`/api/books/${created.body.data._id}`)
+        .set("Authorization", `Bearer ${memberToken}`);
+
+    expect(res.statusCode).toBe(403);
+
+});
+
+it("should not delete a book without token", async () => {
+
+    const token = await createAdminToken();
+
+    const created = await createBook(token);
+
+    const res = await request(app)
+        .delete(`/api/books/${created.body.data._id}`);
+
+    expect(res.statusCode).toBe(401);
+
+});
+
+it("should not delete a book with invalid token", async () => {
+
+    const token = await createAdminToken();
+
+    const created = await createBook(token);
+
+    const res = await request(app)
+        .delete(`/api/books/${created.body.data._id}`)
+        .set("Authorization", "Bearer invalidtoken");
+
+    expect(res.statusCode).toBe(401);
+
+});
+
+it("should return 400 for invalid object id while deleting", async () => {
+
+    const token = await createAdminToken();
+
+    const res = await request(app)
+        .delete("/api/books/invalidid")
+        .set("Authorization", `Bearer ${token}`);
+
+    expect(res.statusCode).toBe(400);
+
+});
+
+it("should not delete the same book twice", async () => {
+
+    const token = await createAdminToken();
+
+    const created = await createBook(token);
+
+    await request(app)
+        .delete(`/api/books/${created.body.data._id}`)
+        .set("Authorization", `Bearer ${token}`);
+
+    const res = await request(app)
+        .delete(`/api/books/${created.body.data._id}`)
+        .set("Authorization", `Bearer ${token}`);
+
+    expect(res.statusCode).toBe(404);
+
+});
+
+it("should return 404 when deleting non-existing book", async () => {
+
+    const token = await createAdminToken();
+
+    const id = new mongoose.Types.ObjectId();
+
+    const res = await request(app)
+        .delete(`/api/books/${id}`)
+        .set("Authorization", `Bearer ${token}`);
+
+    expect(res.statusCode).toBe(404);
+
+});
 });

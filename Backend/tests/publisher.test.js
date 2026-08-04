@@ -20,18 +20,22 @@ describe("Publisher API", () => {
 // POST
     describe("POST /api/publishers", () => {
 
-        it("should allow admin to create a publisher", async () => {
+    it("should allow admin to create a publisher", async () => {
 
-            const token = await createAdminToken();
+    const token = await createAdminToken();
 
-            const res = await createPublisher(token);
+    const publisherName = "O'Reilly Media";
 
-            expect(res.statusCode).toBe(201);
-            expect(res.body.success).toBe(true);
-            expect(res.body.message).toBe("Publisher created successfully");
-            expect(res.body.data.name).toBe("O'Reilly Media");
+    const res = await createPublisher(token, {
+        name: publisherName
+    });
 
-        });
+    expect(res.statusCode).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(res.body.message).toBe("Publisher created successfully");
+    expect(res.body.data.name).toBe(publisherName);
+
+});
 
         it("should allow librarian to create a publisher", async () => {
 
@@ -81,19 +85,25 @@ describe("Publisher API", () => {
 
         });
 
-        it("should not allow duplicate publisher", async () => {
+  it("should not allow duplicate publisher", async () => {
 
-            const token = await createAdminToken();
+    const token = await createAdminToken();
 
-            await createPublisher(token);
+    const publisherName = "O'Reilly Media";
 
-            const res = await createPublisher(token);
+    await createPublisher(token, {
+        name: publisherName
+    });
 
-            expect(res.statusCode).toBe(400);
-            expect(res.body.success).toBe(false);
-            expect(res.body.message).toBe("Publisher already exists");
+    const res = await createPublisher(token, {
+        name: publisherName
+    });
 
-        });
+    expect(res.statusCode).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toBe("Publisher already exists");
+
+});
 
         it("should require publisher name", async () => {
 
