@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+      <stop stopColor="#0e0f14"/>
+      <stop offset="1" stopColor="#181a21"/>
+    </linearGradient>
+    <linearGradient id="stroke" x1="8" y1="10" x2="32" y2="30" gradientUnits="userSpaceOnUse">
+      <stop stopColor="#43d0a1"/>
+      <stop offset="1" stopColor="#1fb988"/>
+    </linearGradient>
+    <linearGradient id="spark" x1="18" y1="6" x2="22" y2="14" gradientUnits="userSpaceOnUse">
+      <stop stopColor="#a78bfa"/>
+      <stop offset="1" stopColor="#8b5cf6"/>
+    </linearGradient>
+  </defs>
+  <rect width="40" height="40" rx="11" fill="url(#bg)"/>
+  <rect x="0.5" y="0.5" width="39" height="39" rx="10.5" stroke="#1f222c"/>
+  <path d="M20 13.5C17.5 11.8 14.5 11.2 11 11.8V27.5C14.5 26.9 17.5 27.5 20 29.2" stroke="url(#stroke)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M20 13.5C22.5 11.8 25.5 11.2 29 11.8V27.5C25.5 26.9 22.5 27.5 20 29.2" stroke="url(#stroke)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.65"/>
+  <path d="M20 13.5V29.2" stroke="url(#stroke)" stroke-width="2" stroke-linecap="round"/>
+  <path d="M20 5.5C20.6 7.6 21.4 8.4 23.5 9C21.4 9.6 20.6 10.4 20 12.5C19.4 10.4 18.6 9.6 16.5 9C18.6 8.4 19.4 7.6 20 5.5Z" fill="url(#spark)"/>
+</svg>
