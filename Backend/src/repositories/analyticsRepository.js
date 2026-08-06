@@ -1,148 +1,181 @@
 import User from "../models/User.js";
-
 import Book from "../models/Book.js";
-
+import BookCopy from "../models/BookCopy.js";
 import BorrowRecord from "../models/BorrowRecord.js";
-
 import Reservation from "../models/Reservation.js";
 import Fine from "../models/Fine.js";
 
-export const overview=async()=>{
-    const users=await User.countDocuments();
-
-    const books=await Book.countDocuments();
-
-    const borrows=await BorrowRecord.countDocuments();
-
-    const reservations=await Reservation.countDocuments();
-
-    const fines=await Fine.countDocuments();
-
+export const overview = async () => {
+    const [users, books, borrows, reservations, fines] =
+        await Promise.all([
+            User.countDocuments(),
+            Book.countDocuments(),
+            BorrowRecord.countDocuments(),
+            Reservation.countDocuments(),
+            Fine.countDocuments(),
+        ]);
 
     return {
-        users,books,borrows,reservations,fines
+        users,
+        books,
+        borrows,
+        reservations,
+        fines,
     };
 };
 
-
-export const popularBooks=()=>
+export const popularBooks = () =>
     BorrowRecord.aggregate([
         {
-            $group:{
-                _id:"$bookCopy",
-                count:{
-                    $sum:1
-                }
-            }
+            $group: {
+                _id: "$bookCopy",
+                borrowCount: {
+                    $sum: 1,
+                },
+            },
         },
         {
-            $sort:{
-                count:-1
-            }
+            $lookup: {
+                from: BookCopy.collection.name,
+                localField: "_id",
+                foreignField: "_id",
+                as: "bookCopy",
+            },
         },
         {
-            $limit:10
-        }
+            $unwind: "$bookCopy",
+        },
+        {
+            $lookup: {
+                from: Book.collection.name,
+                localField: "bookCopy.book",
+                foreignField: "_id",
+                as: "book",
+            },
+        },
+        {
+            $unwind: "$book",
+        },
+        {
+            $project: {
+                _id: "$book._id",
+                title: "$book.title",
+                author: "$book.author",
+                isbn: "$book.isbn",
+                borrowCount: 1,
+            },
+        },
+        {
+            $sort: {
+                borrowCount: -1,
+            },
+        },
+        {
+            $limit: 10,
+        },
     ]);
 
 export const activeMembers = () =>
-
     BorrowRecord.aggregate([
-
         {
-
             $group: {
-
                 _id: "$user",
-
                 totalBorrowed: {
-
-                    $sum: 1
-
-                }
-
-            }
-
+                    $sum: 1,
+                },
+            },
         },
-
         {
-
+            $lookup: {
+                from: User.collection.name,
+                localField: "_id",
+                foreignField: "_id",
+                as: "user",
+            },
+        },
+        {
+            $unwind: "$user",
+        },
+        {
+            $project: {
+                _id: "$user._id",
+                name: "$user.name",
+                email: "$user.email",
+                role: "$user.role",
+                totalBorrowed: 1,
+            },
+        },
+        {
             $sort: {
-
-                totalBorrowed: -1
-
-            }
-
+                totalBorrowed: -1,
+            },
         },
-
         {
-
-            $limit: 10
-
-        }
-
+            $limit: 10,
+        },
     ]);
 
 export const fineStats = () =>
-
     Fine.aggregate([
-
         {
-
             $group: {
-
                 _id: "$status",
-
                 total: {
-
-                    $sum: "$amount"
-
-                }
-
-            }
-
-        }
-
+                    $sum: "$amount",
+                },
+            },
+        },
+        {
+            $sort: {
+                _id: 1,
+            },
+        },
     ]);
 
-export const monthlyBorrows = () =>
-
-    BorrowRecord.aggregate([
-
+export const monthlyBorrows = async () => {
+    const data = await BorrowRecord.aggregate([
         {
-
             $group: {
-
                 _id: {
-
                     month: {
-
-                        $month:
-
-                            "$issueDate"
-
-                    }
-
+                        $month: "$issueDate",
+                    },
                 },
-
                 total: {
-
-                    $sum: 1
-
-                }
-
-            }
-
+                    $sum: 1,
+                },
+            },
         },
-
         {
-
             $sort: {
+                "_id.month": 1,
+            },
+        },
+    ]);
 
-                "_id.month": 1
+    const monthNames = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+    ];
 
-            }
+    const monthlyData = monthNames.map((month, index) => ({
+        month,
+        total: 0,
+    }));
 
-        }
+    data.forEach((item) => {
+        monthlyData[item._id.month - 1].total = item.total;
+    });
 
- ]);
+    return monthlyData;
+};
