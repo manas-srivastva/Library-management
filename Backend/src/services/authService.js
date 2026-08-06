@@ -53,7 +53,11 @@ export const login=async(
   }
 const token=generateToken(user)
 
-  return {
-    user,token
-  };
+const userObject = user.toObject();
+delete userObject.password;
+
+return {
+  user: userObject,
+  token,
+};
 };

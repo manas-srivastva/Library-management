@@ -37,40 +37,46 @@ export function AuthProvider({ children }: Props) {
 
   const [isLoading, setIsLoading] = useState(true);
 
-  const refreshUser = async () => {
-    try {
-      const response = await authApi.me();
-      setUser(response.data);
-    } catch (error) {
-      logout();
-    }
-  };
+const refreshUser = async () => {
+  try {
+    const response = await authApi.me();
 
-  useEffect(() => {
-    async function initialize() {
-      if (!token) {
-        setIsLoading(false);
-        return;
-      }
+    console.log("ME Response:", response);
+    console.log("ME User:", response.data);
 
-      await refreshUser();
+    setUser(response.data);
+  } catch (error) {
+    console.error("ME Error:", error);
+    logout();
+  }
+};
+
+ useEffect(() => {
+  async function initialize() {
+    if (!token) {
       setIsLoading(false);
+      return;
     }
 
-    initialize();
-  }, []);
+    await refreshUser();
+    setIsLoading(false);
+  }
 
-  const login = async (payload: LoginPayload) => {
-    const response = await authApi.login(payload);
+  initialize();
+}, [token]);
 
-    const { token, user } = response.data;
+const login = async (payload: LoginPayload) => {
+  const response = await authApi.login(payload);
 
-    localStorage.setItem(STORAGE_KEYS.TOKEN, token);
-    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
+  const { token, user } = response.data;
 
-    setToken(token);
-    setUser(user);
-  };
+  localStorage.setItem(STORAGE_KEYS.TOKEN, token);
+  localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
+
+  setToken(token);
+  setUser(user);
+  setIsLoading(false);
+};
 
   const register = async (payload: RegisterPayload) => {
     await authApi.register(payload);
@@ -89,7 +95,7 @@ export function AuthProvider({ children }: Props) {
       value={{
         user,
         token,
-        isAuthenticated: !!token,
+        isAuthenticated: !!user,
         isLoading,
         login,
         register,

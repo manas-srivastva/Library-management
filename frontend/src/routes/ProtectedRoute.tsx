@@ -14,6 +14,11 @@ export default function ProtectedRoute({
 
   // Wait until authentication is restored
   if (isLoading) {
+    console.log("ProtectedRoute State", {
+  user,
+  isAuthenticated,
+  isLoading,
+});
     return <FullPageLoader />;
   }
 

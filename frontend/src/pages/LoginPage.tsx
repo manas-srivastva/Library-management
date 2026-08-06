@@ -31,22 +31,26 @@ export default function LoginPage() {
   }, [isAuthenticated, navigate]);
 
   const onSubmit = async (data: FormValues) => {
-    try {
-      await login(data);
+ 
 
-      toast.success("Login successful");
+  try {
+    await login(data);
 
-      navigate("/app/dashboard", {
-        replace: true,
-      });
-    } catch (error: any) {
-      toast.error(
-        error?.response?.data?.message ||
-          error?.message ||
-          "Login failed"
-      );
-    }
-  };
+    toast.success("Login successful");
+
+    // Don't navigate manually.
+    // LoginPage's useEffect will redirect automatically
+    // when isAuthenticated becomes true.
+  } catch (error: any) {
+    console.error(error);
+
+    toast.error(
+      error?.response?.data?.message ||
+      error?.message ||
+      "Login failed"
+    );
+  }
+};
 
   return (
     <div className="relative flex min-h-screen items-center justify-center px-4 py-12">
