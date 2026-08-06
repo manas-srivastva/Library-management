@@ -1,41 +1,47 @@
-import axios from 'axios';
+import axios from "axios";
+import { STORAGE_KEYS } from "@/constants/storage";
 
-/**
- * Pre-configured Axios instance.
- *
- * NOTE: The backend is not yet wired up. When ready, set VITE_API_URL in your
- * environment and all `api.*` calls will hit it. Until then, pages consume
- * local placeholder data directly — swapping to these calls later is trivial:
- *
- *   const { data } = await api.get('/books');
- *
- * No backend code lives in this project.
- */
-const baseURL = import.meta.env.VITE_API_URL || '/api';
-
-export const api = axios.create({
-  baseURL,
-  headers: { 'Content-Type': 'application/json' },
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
   timeout: 15000,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
-// Attach auth token from localStorage when present
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('libraai-token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+// Attach JWT token
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
 
-// Normalize errors before they reach the UI
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Handle unauthorized responses
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    const message =
-      error?.response?.data?.message || error?.message || 'Unexpected network error';
-    return Promise.reject(new Error(message));
-  },
+    if (error.response?.status === 401) {
+      localStorage.removeItem(STORAGE_KEYS.TOKEN);
+      localStorage.removeItem(STORAGE_KEYS.USER);
+
+      // Prevent redirect loop if already on auth pages
+      if (
+        window.location.pathname !== "/login" &&
+        window.location.pathname !== "/register"
+      ) {
+        window.location.href = "/login";
+      }
+    }
+
+    return Promise.reject(error);
+  }
 );
 
 export default api;
