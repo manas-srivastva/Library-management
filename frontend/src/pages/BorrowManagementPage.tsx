@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { CalendarClock, Filter, Plus, RotateCcw } from 'lucide-react';
+import {  Filter, Plus, RotateCcw } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { BorrowStatusBadge } from '@/components/shared/StatusBadges';
@@ -13,10 +13,12 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Table, TBody, Td, Th, THead, Tr } from '@/components/ui/Table';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Dropdown, DropdownItem } from '@/components/ui/Dropdown';
-import { placeholderBorrows, placeholderBooks, placeholderMembers } from '@/data/placeholders';
 import { formatDate, formatCurrency, paginate, totalPages } from '@/utils/format';
-
-const statuses = ['All', 'borrowed', 'overdue', 'returned'];
+import { borrowApi } from '@/api/borrowApi';
+import { usersApi } from '@/api/usersApi';
+import { bookApi } from '@/api/booksApi';
+import { useQuery } from '@tanstack/react-query';
+const statuses = ['All', 'BORROWED', 'RETURNED'];
 const PAGE_SIZE = 6;
 
 export default function BorrowManagementPage() {
@@ -24,30 +26,56 @@ export default function BorrowManagementPage() {
   const [status, setStatus] = useState('All');
   const [page, setPage] = useState(1);
   const [issueOpen, setIssueOpen] = useState(false);
-  const [borrows, setBorrows] = useState(placeholderBorrows);
+const {
+  data: borrows = [],
+  isLoading,
+  isError,
+} = useQuery({
+  queryKey: ['borrows'],
+  queryFn: borrowApi.getBorrows,
+});
 
-  const filtered = useMemo(() => {
-    return borrows.filter((b) => {
-      const matchesQuery =
-        !query ||
-        b.bookTitle.toLowerCase().includes(query.toLowerCase()) ||
-        b.user.toLowerCase().includes(query.toLowerCase());
-      const matchesStatus = status === 'All' || b.status === status;
-      return matchesQuery && matchesStatus;
-    });
-  }, [borrows, query, status]);
+const { data: books = [] } = useQuery({
+  queryKey: ['books'],
+  queryFn: bookApi.getBooks,
+});
+
+const { data: users = [] } = useQuery({
+  queryKey: ['users'],
+  queryFn: usersApi.getUsers,
+});
+ const filtered = useMemo(() => {
+  return borrows.filter((b) => {
+    const bookTitle = b.bookCopy?.book?.title || '';
+    const userName = b.user?.name || '';
+
+    const matchesQuery =
+      !query ||
+      bookTitle.toLowerCase().includes(query.toLowerCase()) ||
+      userName.toLowerCase().includes(query.toLowerCase());
+
+    const matchesStatus =
+      status === 'All' || b.status === status;
+
+    return matchesQuery && matchesStatus;
+  });
+}, [borrows, query, status]);
 
   const pages = totalPages(filtered.length, PAGE_SIZE);
   const current = paginate(filtered, page, PAGE_SIZE);
 
-  const handleReturn = (id: string) => {
-    setBorrows((prev) =>
-      prev.map((b) =>
-        b.id === id ? { ...b, status: 'returned' as const, returnDate: new Date().toISOString().slice(0, 10), fine: 0 } : b,
-      ),
-    );
+const handleReturn = async (id: string) => {
+  try {
+    await borrowApi.returnBook(id);
+
     toast.success('Book returned successfully');
-  };
+
+    // Refresh borrow records
+    window.location.reload();
+  } catch (error) {
+    toast.error('Failed to return book');
+  }
+};
 
   const handleIssue = () => {
     setIssueOpen(false);
@@ -102,37 +130,103 @@ export default function BorrowManagementPage() {
                 </tr>
               </THead>
               <TBody>
-                {current.map((b, i) => (
-                  <Tr key={b.id}>
-                    <Td>
-                      <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }} className="flex items-center gap-3">
-                        <img src={b.bookCover} alt={b.bookTitle} className="h-10 w-7 rounded object-cover border border-border" />
-                        <span className="font-medium text-fg">{b.bookTitle}</span>
-                      </motion.div>
-                    </Td>
-                    <Td>
-                      <div className="flex items-center gap-2">
-                        <Avatar name={b.user} size="sm" />
-                        <span className="text-fg-muted">{b.user}</span>
-                      </div>
-                    </Td>
-                    <Td className="text-fg-muted">{formatDate(b.borrowDate)}</Td>
-                    <Td className="text-fg-muted">{formatDate(b.dueDate)}</Td>
-                    <Td className="text-fg-muted">{b.returnDate ? formatDate(b.returnDate) : '—'}</Td>
-                    <Td className={b.fine > 0 ? 'font-medium text-danger-400' : 'text-fg-subtle'}>
-                      {b.fine > 0 ? formatCurrency(b.fine) : '—'}
-                    </Td>
-                    <Td><BorrowStatusBadge status={b.status} /></Td>
-                    <Td>
-                      {b.status !== 'returned' && (
-                        <Button size="sm" variant="secondary" leftIcon={<RotateCcw className="h-3.5 w-3.5" />} onClick={() => handleReturn(b.id)}>
-                          Return
-                        </Button>
-                      )}
-                    </Td>
-                  </Tr>
-                ))}
-              </TBody>
+  {current.map((b, i) => (
+    <Tr key={b._id}>
+      {/* Book */}
+      <Td>
+        <motion.div
+          initial={{ opacity: 0, y: 4 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: i * 0.03 }}
+          className="flex items-center gap-3"
+        >
+          {b.bookCopy?.book?.coverImage ? (
+            <img
+              src={b.bookCopy.book.coverImage}
+              alt={b.bookCopy.book.title}
+              className="h-10 w-7 rounded object-cover border border-border"
+            />
+          ) : (
+            <div className="flex h-10 w-7 items-center justify-center rounded border border-border bg-bg-elevated">
+              <span className="text-xs text-fg-subtle">📖</span>
+            </div>
+          )}
+
+          <div>
+            <span className="font-medium text-fg">
+              {b.bookCopy?.book?.title || 'Unknown Book'}
+            </span>
+
+            <div className="text-xs text-fg-subtle">
+              {b.bookCopy?.barcode || 'No barcode'}
+            </div>
+          </div>
+        </motion.div>
+      </Td>
+
+      {/* Member */}
+      <Td>
+        <div className="flex items-center gap-2">
+          <Avatar
+            name={b.user?.name || 'Unknown User'}
+            size="sm"
+          />
+
+          <div>
+            <div className="text-fg">
+              {b.user?.name || 'Unknown User'}
+            </div>
+
+            <div className="text-xs text-fg-subtle">
+              {b.user?.email || 'No email'}
+            </div>
+          </div>
+        </div>
+      </Td>
+
+      {/* Borrow Date */}
+      <Td className="text-fg-muted">
+        {b.issueDate ? formatDate(b.issueDate) : '—'}
+      </Td>
+
+      {/* Due Date */}
+      <Td className="text-fg-muted">
+        {b.dueDate ? formatDate(b.dueDate) : '—'}
+      </Td>
+
+      {/* Return Date */}
+      <Td className="text-fg-muted">
+        {b.returnDate ? formatDate(b.returnDate) : '—'}
+      </Td>
+
+      {/* Fine */}
+      <Td className="text-fg-subtle">
+        —
+      </Td>
+
+      {/* Status */}
+      <Td>
+        <BorrowStatusBadge status={b.status} />
+      </Td>
+
+      {/* Action */}
+      <Td>
+        {b.status !== 'RETURNED' && (
+          <Button
+            size="sm"
+            variant="secondary"
+            leftIcon={
+              <RotateCcw className="h-3.5 w-3.5" />
+            }
+            onClick={() => handleReturn(b._id)}
+          >
+            Return
+          </Button>
+        )}
+      </Td>
+    </Tr>
+  ))}
+</TBody>
             </Table>
             <div className="mt-5 border-t border-border-soft pt-4">
               <Pagination page={page} totalPages={pages} onPageChange={setPage} />
@@ -141,48 +235,7 @@ export default function BorrowManagementPage() {
         )}
       </Card>
 
-      {/* Issue Book modal */}
-      <Modal
-        open={issueOpen}
-        onClose={() => setIssueOpen(false)}
-        title="Issue Book"
-        description="Select a book and member to create a new borrow record."
-        footer={
-          <>
-            <Button variant="secondary" onClick={() => setIssueOpen(false)}>Cancel</Button>
-            <Button onClick={handleIssue}>Issue Book</Button>
-          </>
-        }
-      >
-        <div className="space-y-4">
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-fg">Book</label>
-            <select className="input-base">
-              {placeholderBooks.map((b) => (
-                <option key={b.id} value={b.id}>{b.title} — {b.author}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-fg">Member</label>
-            <select className="input-base">
-              {placeholderMembers.map((m) => (
-                <option key={m.id} value={m.id}>{m.name}</option>
-              ))}
-            </select>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-fg">Borrow Date</label>
-              <input type="date" className="input-base" defaultValue={new Date().toISOString().slice(0, 10)} />
-            </div>
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-fg">Due Date</label>
-              <input type="date" className="input-base" defaultValue={new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10)} />
-            </div>
-          </div>
-        </div>
-      </Modal>
+
     </div>
   );
 }

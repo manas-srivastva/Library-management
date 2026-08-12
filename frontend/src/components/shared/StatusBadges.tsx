@@ -38,11 +38,20 @@ export function CopyStatusBadge({
 }
 
 export function BorrowStatusBadge({ status }: { status: BorrowStatus }) {
-  const map: Record<BorrowStatus, { tone: 'info' | 'success' | 'danger'; label: string }> = {
-    borrowed: { tone: 'info', label: 'Borrowed' },
-    returned: { tone: 'success', label: 'Returned' },
-    overdue: { tone: 'danger', label: 'Overdue' },
-  };
+const map = {
+  BORROWED: {
+    tone: "info",
+    label: "Borrowed",
+  },
+  RETURNED: {
+    tone: "success",
+    label: "Returned",
+  },
+  OVERDUE: {
+    tone: "danger",
+    label: "Overdue",
+  },
+};
   const { tone, label } = map[status];
   return <Badge tone={tone} dot>{label}</Badge>;
 }
