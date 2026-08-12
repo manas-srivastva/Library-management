@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import {  Filter, Plus} from 'lucide-react';
+import { Filter, Plus } from 'lucide-react';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -15,19 +15,36 @@ import type { Book } from '@/types';
 import { paginate, totalPages } from '@/utils/format';
 import { bookApi } from '@/api/booksApi';
 import { useQuery } from '@tanstack/react-query';
+import { bookCopyApi } from "@/api/bookCopyApi";
 const categories = ['All'];
-const statuses = ['All', 'available', 'borrowed', 'reserved', 'lost', 'damaged'];
+const statuses = [
+  'All',
+  'available',
+  'issued',
+  'reserved',
+  'lost',
+  'maintenance'
+];
 const PAGE_SIZE = 6;
 
 export default function BooksPage() {
   const {
     data: books = [],
-    isLoading,
-    isError,
+    isLoading: booksLoading,
+    isError: booksError,
   } = useQuery({
-    queryKey: ['books'],
+    queryKey: ["books"],
     queryFn: bookApi.getBooks,
-  })
+  });
+
+  const {
+    data: bookCopies = [],
+    isLoading: copiesLoading,
+    isError: copiesError,
+  } = useQuery({
+    queryKey: ["bookCopies"],
+    queryFn: bookCopyApi.getBookCopies,
+  });
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('All');
   const [status, setStatus] = useState('All');
@@ -39,7 +56,7 @@ export default function BooksPage() {
     return books.filter((b) => {
       const authorNames = b.authors
         ?.map((author) => author.name)
-        .join(', ');
+        .join(", ");
 
       const matchesQuery =
         !query ||
@@ -48,18 +65,39 @@ export default function BooksPage() {
         b.isbn.includes(query);
 
       const matchesCategory =
-        category === 'All' || b.category?.name === category;
+        category === "All" ||
+        b.category?.name === category;
 
-      // Status will be handled later when we connect BookCopy data
-      const matchesStatus = status === 'All';
+      const copiesForBook = bookCopies.filter(
+        (copy) =>
+          typeof copy.book === "object"
+            ? copy.book._id === b._id
+            : copy.book === b._id
+      );
 
-      return matchesQuery && matchesCategory && matchesStatus;
+      const matchesStatus =
+        status === "All" ||
+        copiesForBook.some(
+          (copy) => copy.status.toLowerCase() === status
+        );
+
+      return (
+        matchesQuery &&
+        matchesCategory &&
+        matchesStatus
+      );
     });
-  }, [books, query, category, status]);
+  }, [books, bookCopies, query, category, status]);
 
   const pages = totalPages(filtered.length, PAGE_SIZE);
   const current = paginate(filtered, page, PAGE_SIZE);
-
+  const selectedBookCopies = selected
+    ? bookCopies.filter((copy) =>
+      typeof copy.book === "object"
+        ? copy.book._id === selected._id
+        : copy.book === selected._id
+    )
+    : [];
   return (
     <div>
       <PageHeader
@@ -149,7 +187,7 @@ export default function BooksPage() {
                   <Th>Author</Th>
                   <Th>Publisher</Th>
                   <Th>Category</Th>
-                
+
                 </tr>
               </THead>
               <TBody>
@@ -180,9 +218,9 @@ export default function BooksPage() {
                         {b.category?.name}
                       </Badge>
                     </Td>
-                   
-                    
-                    
+
+
+
                   </Tr>
                 ))}
               </TBody>
@@ -207,71 +245,96 @@ export default function BooksPage() {
           </>
         }
       >
-       {selected && (
-  <div className="flex flex-col gap-6 sm:flex-row">
-    <img
-      src={selected.coverImage || '/Book1.png'}
-      alt={selected.title}
-      className="h-64 w-44 rounded-xl object-cover border border-border shadow-card"
-    />
+        {selected && (
+          <div className="flex flex-col gap-6 sm:flex-row">
+            <img
+              src={selected.coverImage || '/Book1.png'}
+              alt={selected.title}
+              className="h-64 w-44 rounded-xl object-cover border border-border shadow-card"
+            />
 
-    <div className="flex-1 space-y-4">
-      <div>
-        <h3 className="text-xl font-bold text-fg">
-          {selected.title}
-        </h3>
+            <div className="flex-1 space-y-4">
+              <div>
+                <h3 className="text-xl font-bold text-fg">
+                  {selected.title}
+                </h3>
 
-        <p className="text-sm text-fg-muted">
-          by {selected.authors?.map((author) => author.name).join(', ')}
-        </p>
-      </div>
+                <p className="text-sm text-fg-muted">
+                  by {selected.authors?.map((author) => author.name).join(', ')}
+                </p>
+              </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <Badge tone="neutral">
-          {selected.category?.name}
-        </Badge>
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge tone="neutral">
+                  {selected.category?.name}
+                </Badge>
 
-        <Badge tone="neutral">
-          {selected.language}
-        </Badge>
-      </div>
+                <Badge tone="neutral">
+                  {selected.language}
+                </Badge>
+              </div>
 
-      <p className="text-sm text-fg-muted">
-        {selected.description || 'No description available.'}
-      </p>
+              <p className="text-sm text-fg-muted">
+                {selected.description || 'No description available.'}
+              </p>
 
-      <div className="grid grid-cols-2 gap-3 text-sm">
-        <Info
-          label="Publisher"
-          value={selected.publisher?.name || 'N/A'}
-        />
+              <div className="grid grid-cols-2 gap-3 text-sm">
 
-        <Info
-          label="Published"
-          value={
-            selected.publicationYear
-              ? String(selected.publicationYear)
-              : 'N/A'
-          }
-        />
+                <Info
+                  label="Publisher"
+                  value={selected.publisher?.name || "N/A"}
+                />
 
-        <Info
-          label="ISBN"
-          value={selected.isbn}
-        />
+                <Info
+                  label="Published"
+                  value={
+                    selected.publicationYear
+                      ? String(selected.publicationYear)
+                      : "N/A"
+                  }
+                />
 
-        <Info
-          label="Pages"
-          value={
-            selected.pages
-              ? String(selected.pages)
-              : 'N/A'
-          }
-        />
-      </div>
-    </div>
-  </div>
-)}
+                <Info
+                  label="ISBN"
+                  value={selected.isbn}
+                />
+
+                <Info
+                  label="Pages"
+                  value={
+                    selected.pages
+                      ? String(selected.pages)
+                      : "N/A"
+                  }
+                />
+
+                <Info
+                  label="Total Copies"
+                  value={String(
+                    bookCopies.filter((copy) =>
+                      typeof copy.book === "object"
+                        ? copy.book._id === selected._id
+                        : copy.book === selected._id
+                    ).length
+                  )}
+                />
+
+                <Info
+                  label="Available Copies"
+                  value={String(
+                    bookCopies.filter((copy) =>
+                      (typeof copy.book === "object"
+                        ? copy.book._id === selected._id
+                        : copy.book === selected._id) &&
+                      copy.status === "AVAILABLE"
+                    ).length
+                  )}
+                />
+
+              </div>
+            </div>
+          </div>
+        )}
       </Modal>
     </div>
   );

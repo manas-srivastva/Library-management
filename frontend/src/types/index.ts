@@ -1,35 +1,25 @@
+export * from "./book";
 export type BookStatus = 'available' | 'borrowed' | 'reserved' | 'lost' | 'damaged';
-export type CopyStatus = 'available' | 'issued' | 'reserved' | 'lost' | 'damaged';
+export type CopyStatus = 'available' | 'issued' | 'reserved' | 'lost' | 'maintenance';
 export type BorrowStatus = 'borrowed' | 'returned' | 'overdue';
 export type ReservationStatus = 'pending' | 'ready' | 'fulfilled' | 'cancelled' | 'expired';
 export type FineStatus = 'pending' | 'paid' | 'waived';
 
-export interface Book {
-  id: string;
-  title: string;
-  author: string;
-  publisher: string;
-  category: string;
-  isbn: string;
-  cover: string;
-  status: BookStatus;
-  totalCopies: number;
-  availableCopies: number;
-  rating: number;
-  publishedYear: number;
-  description: string;
-}
+
 
 export interface BookCopy {
-  id: string;
+  _id: string;
+  book: {
+    _id: string;
+    title: string;
+    isbn: string;
+  };
   barcode: string;
-  bookId: string;
-  bookTitle: string;
-  shelf: string;
+  shelfLocation: string;
   status: CopyStatus;
-  condition: 'new' | 'good' | 'fair' | 'poor';
+  createdAt?: string;
+  updatedAt?: string;
 }
-
 export interface BorrowRecord {
   id: string;
   bookTitle: string;
