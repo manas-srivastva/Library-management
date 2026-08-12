@@ -11,38 +11,60 @@ import { Badge } from '@/components/ui/Badge';
 import { Table, TBody, Td, Th, THead, Tr } from '@/components/ui/Table';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Dropdown, DropdownItem } from '@/components/ui/Dropdown';
-import { placeholderCopies } from '@/data/placeholders';
+import { bookCopyApi } from '@/api/bookCopyApi';
+import { useQuery } from '@tanstack/react-query';
 import { paginate, totalPages } from '@/utils/format';
 
-const statuses = ['All', 'available', 'issued', 'reserved', 'lost', 'damaged'];
-const conditions = ['All', 'new', 'good', 'fair', 'poor'];
-const PAGE_SIZE = 8;
-
-const conditionTone: Record<string, 'success' | 'info' | 'warning' | 'danger'> = {
+const statuses = [
+  'All',
+  'AVAILABLE',
+  'BORROWED',
+  'RESERVED',
+  'LOST',
+  'MAINTENANCE',
+]; const PAGE_SIZE = 8;
+const conditionTone: Record<
+  string,
+  'success' | 'info' | 'warning' | 'danger'
+> = {
   new: 'success',
   good: 'info',
   fair: 'warning',
   poor: 'danger',
 };
 
+
 export default function BookCopiesPage() {
-  const [query, setQuery] = useState('');
-  const [status, setStatus] = useState('All');
-  const [condition, setCondition] = useState('All');
-  const [page, setPage] = useState(1);
+  const {
+    data: bookCopies = [],
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["bookCopies"],
+    queryFn: bookCopyApi.getBookCopies,
+  });
+const [query, setQuery] = useState('');
+const [status, setStatus] = useState('All');
+const [condition, setCondition] = useState('All');
+const [page, setPage] = useState(1);
 
   const filtered = useMemo(() => {
-    return placeholderCopies.filter((c) => {
-      const matchesQuery =
-        !query ||
-        c.barcode.toLowerCase().includes(query.toLowerCase()) ||
-        c.bookTitle.toLowerCase().includes(query.toLowerCase()) ||
-        c.shelf.toLowerCase().includes(query.toLowerCase());
-      const matchesStatus = status === 'All' || c.status === status;
-      const matchesCondition = condition === 'All' || c.condition === condition;
-      return matchesQuery && matchesStatus && matchesCondition;
+    return bookCopies.filter((c) => {
+const bookTitle =
+  typeof c.book === "object" ? c.book.title : "";
+
+const matchesQuery =
+  !query ||
+  c.barcode?.toLowerCase().includes(query.toLowerCase()) ||
+  bookTitle?.toLowerCase().includes(query.toLowerCase()) ||
+  c.shelfLocation?.toLowerCase().includes(query.toLowerCase());
+
+      const matchesStatus =
+        status === "All" || c.status === status;
+
+      return matchesQuery && matchesStatus;
     });
-  }, [query, status, condition]);
+  }, [query, status]);
 
   const pages = totalPages(filtered.length, PAGE_SIZE);
   const current = paginate(filtered, page, PAGE_SIZE);
@@ -64,20 +86,7 @@ export default function BookCopiesPage() {
         <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <SearchInput value={query} onChange={setQuery} placeholder="Search by barcode, title, or shelf…" className="lg:w-80" />
           <div className="flex flex-wrap items-center gap-2">
-            <Dropdown
-              align="left"
-              trigger={<span className="btn-secondary px-3 py-2 text-xs capitalize">Status: <span className="text-fg">{status}</span></span>}
-            >
-              {(close) => (
-                <div>
-                  {statuses.map((s) => (
-                    <DropdownItem key={s} onClick={() => { setStatus(s); setPage(1); close(); }}>
-                      <span className="capitalize">{s}</span>
-                    </DropdownItem>
-                  ))}
-                </div>
-              )}
-            </Dropdown>
+
             <Dropdown
               align="left"
               trigger={<span className="btn-secondary px-3 py-2 text-xs capitalize">Condition: <span className="text-fg">{condition}</span></span>}
@@ -95,7 +104,15 @@ export default function BookCopiesPage() {
           </div>
         </div>
 
-        {current.length === 0 ? (
+        {isLoading ? (
+          <div className="py-10 text-center text-fg-muted">
+            Loading book copies...
+          </div>
+        ) : isError ? (
+          <div className="py-10 text-center text-danger">
+            Failed to load book copies.
+          </div>
+        ) : current.length === 0 ? (
           <EmptyState variant="search" title="No copies found" description="Adjust filters or add a new copy to get started." />
         ) : (
           <>
@@ -111,17 +128,18 @@ export default function BookCopiesPage() {
               </THead>
               <TBody>
                 {current.map((c, i) => (
-                  <Tr key={c.id}>
+                  <Tr key={c._id}>
                     <Td>
                       <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }} className="flex items-center gap-2">
                         <code className="rounded-md bg-bg-elevated px-2 py-1 font-mono text-xs text-fg">{c.barcode}</code>
                       </motion.div>
                     </Td>
-                    <Td className="font-medium text-fg">{c.bookTitle}</Td>
-                    <Td>
+                    <Td className="font-medium text-fg">
+                      {typeof c.book === "object" ? c.book.title : "Unknown Book"}
+                    </Td>                    <Td>
                       <span className="inline-flex items-center gap-1.5 text-fg-muted">
                         <span className="h-1.5 w-1.5 rounded-full bg-brand-400" />
-                        {c.shelf}
+                        {c.shelfLocation}
                       </span>
                     </Td>
                     <Td><Badge tone={conditionTone[c.condition]} className="capitalize">{c.condition}</Badge></Td>

@@ -18,9 +18,7 @@ export function Table({ className, children, ...props }: TableProps) {
 export function THead({ children }: { children: ReactNode }) {
   return (
     <thead className="sticky top-0 z-10">
-      <tr className="border-b border-border [&>th]:bg-bg-soft/80 [&>th]:backdrop-blur-xl [&>th]:text-left [&>th]:px-4 [&>th]:py-3 [&>th]:text-[11px] [&>th]:font-semibold [&>th]:uppercase [&>th]:tracking-wider [&>th]:text-fg-subtle [&>th]:select-none">
-        {children}
-      </tr>
+      {children}
     </thead>
   );
 }
