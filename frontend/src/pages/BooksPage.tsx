@@ -1,8 +1,7 @@
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { BookOpen, Filter, Plus, Star } from 'lucide-react';
+import {  Filter, Plus} from 'lucide-react';
 import { PageHeader } from '@/components/shared/PageHeader';
-import { BookStatusBadge } from '@/components/shared/StatusBadges';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { SearchInput } from '@/components/ui/SearchInput';
@@ -12,33 +11,51 @@ import { Badge } from '@/components/ui/Badge';
 import { Table, TBody, Td, Th, THead, Tr } from '@/components/ui/Table';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Dropdown, DropdownItem } from '@/components/ui/Dropdown';
-import { placeholderBooks } from '@/data/placeholders';
 import type { Book } from '@/types';
 import { paginate, totalPages } from '@/utils/format';
-
-const categories = ['All', 'Fiction', 'Sci-Fi', 'Self-Help', 'Memoir', 'Productivity', 'Technology', 'History', 'Psychology', 'Thriller'];
+import { bookApi } from '@/api/booksApi';
+import { useQuery } from '@tanstack/react-query';
+const categories = ['All'];
 const statuses = ['All', 'available', 'borrowed', 'reserved', 'lost', 'damaged'];
 const PAGE_SIZE = 6;
 
 export default function BooksPage() {
+  const {
+    data: books = [],
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ['books'],
+    queryFn: bookApi.getBooks,
+  })
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('All');
   const [status, setStatus] = useState('All');
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Book | null>(null);
+  ;
 
   const filtered = useMemo(() => {
-    return placeholderBooks.filter((b) => {
+    return books.filter((b) => {
+      const authorNames = b.authors
+        ?.map((author) => author.name)
+        .join(', ');
+
       const matchesQuery =
         !query ||
         b.title.toLowerCase().includes(query.toLowerCase()) ||
-        b.author.toLowerCase().includes(query.toLowerCase()) ||
+        authorNames.toLowerCase().includes(query.toLowerCase()) ||
         b.isbn.includes(query);
-      const matchesCategory = category === 'All' || b.category === category;
-      const matchesStatus = status === 'All' || b.status === status;
+
+      const matchesCategory =
+        category === 'All' || b.category?.name === category;
+
+      // Status will be handled later when we connect BookCopy data
+      const matchesStatus = status === 'All';
+
       return matchesQuery && matchesCategory && matchesStatus;
     });
-  }, [query, category, status]);
+  }, [books, query, category, status]);
 
   const pages = totalPages(filtered.length, PAGE_SIZE);
   const current = paginate(filtered, page, PAGE_SIZE);
@@ -132,14 +149,12 @@ export default function BooksPage() {
                   <Th>Author</Th>
                   <Th>Publisher</Th>
                   <Th>Category</Th>
-                  <Th>Copies</Th>
-                  <Th>Status</Th>
-                  <Th>Rating</Th>
+                
                 </tr>
               </THead>
               <TBody>
                 {current.map((b, i) => (
-                  <Tr key={b.id} className="cursor-pointer" onClick={() => setSelected(b)}>
+                  <Tr key={b._id} className="cursor-pointer" onClick={() => setSelected(b)}>
                     <Td>
                       <motion.div
                         initial={{ opacity: 0, y: 4 }}
@@ -147,29 +162,27 @@ export default function BooksPage() {
                         transition={{ delay: i * 0.04 }}
                         className="flex items-center gap-3"
                       >
-                        <img src={b.cover} alt={b.title} className="h-12 w-9 rounded-md object-cover border border-border" />
+                        <img src={b.coverImage || '/Book1.png'} alt={b.title} className="h-12 w-9 rounded-md object-cover border border-border" />
                         <div>
                           <p className="font-medium text-fg">{b.title}</p>
                           <p className="text-xs text-fg-subtle">ISBN {b.isbn}</p>
                         </div>
                       </motion.div>
                     </Td>
-                    <Td className="text-fg-muted">{b.author}</Td>
-                    <Td className="text-fg-muted">{b.publisher}</Td>
-                    <Td>
-                      <Badge tone="neutral">{b.category}</Badge>
+                    <Td className="text-fg-muted">
+                      {b.authors?.map((author) => author.name).join(', ')}
+                    </Td>
+                    <Td className="text-fg-muted">
+                      {b.publisher?.name}
                     </Td>
                     <Td>
-                      <span className="font-medium text-fg">{b.availableCopies}</span>
-                      <span className="text-fg-subtle"> / {b.totalCopies}</span>
+                      <Badge tone="neutral">
+                        {b.category?.name}
+                      </Badge>
                     </Td>
-                    <Td><BookStatusBadge status={b.status} /></Td>
-                    <Td>
-                      <span className="inline-flex items-center gap-1 text-sm text-fg">
-                        <Star className="h-3.5 w-3.5 fill-warning-400 text-warning-400" />
-                        {b.rating}
-                      </span>
-                    </Td>
+                   
+                    
+                    
                   </Tr>
                 ))}
               </TBody>
@@ -194,32 +207,71 @@ export default function BooksPage() {
           </>
         }
       >
-        {selected && (
-          <div className="flex flex-col gap-6 sm:flex-row">
-            <img src={selected.cover} alt={selected.title} className="h-64 w-44 rounded-xl object-cover border border-border shadow-card" />
-            <div className="flex-1 space-y-4">
-              <div>
-                <h3 className="text-xl font-bold text-fg">{selected.title}</h3>
-                <p className="text-sm text-fg-muted">by {selected.author}</p>
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <BookStatusBadge status={selected.status} />
-                <Badge tone="neutral">{selected.category}</Badge>
-                <span className="inline-flex items-center gap-1 text-sm text-fg">
-                  <Star className="h-3.5 w-3.5 fill-warning-400 text-warning-400" />
-                  {selected.rating}
-                </span>
-              </div>
-              <p className="text-sm text-fg-muted">{selected.description}</p>
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <Info label="Publisher" value={selected.publisher} />
-                <Info label="Published" value={String(selected.publishedYear)} />
-                <Info label="ISBN" value={selected.isbn} />
-                <Info label="Available" value={`${selected.availableCopies} / ${selected.totalCopies} copies`} />
-              </div>
-            </div>
-          </div>
-        )}
+       {selected && (
+  <div className="flex flex-col gap-6 sm:flex-row">
+    <img
+      src={selected.coverImage || '/Book1.png'}
+      alt={selected.title}
+      className="h-64 w-44 rounded-xl object-cover border border-border shadow-card"
+    />
+
+    <div className="flex-1 space-y-4">
+      <div>
+        <h3 className="text-xl font-bold text-fg">
+          {selected.title}
+        </h3>
+
+        <p className="text-sm text-fg-muted">
+          by {selected.authors?.map((author) => author.name).join(', ')}
+        </p>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <Badge tone="neutral">
+          {selected.category?.name}
+        </Badge>
+
+        <Badge tone="neutral">
+          {selected.language}
+        </Badge>
+      </div>
+
+      <p className="text-sm text-fg-muted">
+        {selected.description || 'No description available.'}
+      </p>
+
+      <div className="grid grid-cols-2 gap-3 text-sm">
+        <Info
+          label="Publisher"
+          value={selected.publisher?.name || 'N/A'}
+        />
+
+        <Info
+          label="Published"
+          value={
+            selected.publicationYear
+              ? String(selected.publicationYear)
+              : 'N/A'
+          }
+        />
+
+        <Info
+          label="ISBN"
+          value={selected.isbn}
+        />
+
+        <Info
+          label="Pages"
+          value={
+            selected.pages
+              ? String(selected.pages)
+              : 'N/A'
+          }
+        />
+      </div>
+    </div>
+  </div>
+)}
       </Modal>
     </div>
   );

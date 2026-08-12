@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { bookApi } from "@/api/bookApi";
+import { bookApi } from "@/api/booksApi";
 
 export const useBooks = () => {
   return useQuery({
