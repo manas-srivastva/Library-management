@@ -18,6 +18,7 @@ import notificationRoutes from "./routes/notificationRoutes.js";
 import auditRoutes from "./routes/auditRoutes.js";
 import analyticsRoutes from "./routes/analyticsRoutes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 import healthRoutes from "./routes/healthRoutes.js";
 const app = express();
 
@@ -67,7 +68,7 @@ app.use(
     bookRoutes
 
 );
-
+app.use("/api/users", userRoutes);
 
 app.use(
 

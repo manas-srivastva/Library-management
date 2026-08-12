@@ -3,6 +3,9 @@ import api from "./client";
 export const usersApi = {
   getUsers: async () => {
     const response = await api.get("/users");
-    return response.data.data;
+
+    console.log("USERS API RESPONSE:", response.data);
+
+    return response.data.data.users || [];
   },
 };

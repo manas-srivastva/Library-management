@@ -17,15 +17,21 @@ import { formatDate, formatCurrency, paginate, totalPages } from '@/utils/format
 import { borrowApi } from '@/api/borrowApi';
 import { usersApi } from '@/api/usersApi';
 import { bookApi } from '@/api/booksApi';
+import { bookCopyApi } from '@/api/bookCopyApi';
 import { useQuery } from '@tanstack/react-query';
 const statuses = ['All', 'BORROWED', 'RETURNED'];
 const PAGE_SIZE = 6;
 
 export default function BorrowManagementPage() {
-  const [query, setQuery] = useState('');
-  const [status, setStatus] = useState('All');
-  const [page, setPage] = useState(1);
-  const [issueOpen, setIssueOpen] = useState(false);
+const [query, setQuery] = useState('');
+const [status, setStatus] = useState('All');
+const [page, setPage] = useState(1);
+const [issueOpen, setIssueOpen] = useState(false);
+
+const [selectedUser, setSelectedUser] = useState('');
+const [selectedBookCopy, setSelectedBookCopy] = useState('');
+const [dueDate, setDueDate] = useState('');
+const [isIssuing, setIsIssuing] = useState(false);
 const {
   data: borrows = [],
   isLoading,
@@ -40,10 +46,23 @@ const { data: books = [] } = useQuery({
   queryFn: bookApi.getBooks,
 });
 
+
+
+
 const { data: users = [] } = useQuery({
   queryKey: ['users'],
   queryFn: usersApi.getUsers,
 });
+
+console.log("USERS FROM API:", users);
+
+const { data: bookCopies = [] } = useQuery({
+  queryKey: ['bookCopies'],
+  queryFn: bookCopyApi.getBookCopies,
+});
+const availableBookCopies = bookCopies.filter(
+  (copy) => copy.status === 'AVAILABLE'
+);
  const filtered = useMemo(() => {
   return borrows.filter((b) => {
     const bookTitle = b.bookCopy?.book?.title || '';
@@ -77,10 +96,36 @@ const handleReturn = async (id: string) => {
   }
 };
 
-  const handleIssue = () => {
-    setIssueOpen(false);
+const handleIssue = async () => {
+  if (!selectedUser || !selectedBookCopy || !dueDate) {
+    toast.error('Please fill all fields');
+    return;
+  }
+
+  try {
+    setIsIssuing(true);
+
+    await borrowApi.borrowBook({
+      userId: selectedUser,
+      bookCopyId: selectedBookCopy,
+      dueDate: new Date(dueDate).toISOString(),
+    });
+
     toast.success('Book issued successfully');
-  };
+
+    setIssueOpen(false);
+    setSelectedUser('');
+    setSelectedBookCopy('');
+    setDueDate('');
+
+    window.location.reload();
+  } catch (error) {
+    toast.error('Failed to issue book');
+    console.error(error);
+  } finally {
+    setIsIssuing(false);
+  }
+};
 
   return (
     <div>
@@ -91,6 +136,7 @@ const handleReturn = async (id: string) => {
       />
 
       <Card className="p-5">
+
         <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <SearchInput value={query} onChange={setQuery} placeholder="Search by book or member…" className="lg:w-80" />
           <div className="flex items-center gap-2">
@@ -234,7 +280,92 @@ const handleReturn = async (id: string) => {
           </>
         )}
       </Card>
+          <Modal
+  open={issueOpen}
+  onClose={() => setIssueOpen(false)}
+  title="Issue Book"
+>
+  <div className="space-y-4">
 
+    {/* Member */}
+    <div>
+      <label className="mb-1 block text-sm font-medium text-fg">
+        Member
+      </label>
+
+      <select
+        value={selectedUser}
+        onChange={(e) => setSelectedUser(e.target.value)}
+        className="w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-fg"
+      >
+        <option value="">Select member</option>
+
+        {users
+          .filter((user: any) => user.role === 'MEMBER')
+          .map((user: any) => (
+            <option key={user._id} value={user._id}>
+              {user.name} — {user.email}
+            </option>
+          ))}
+      </select>
+    </div>
+
+    {/* Book Copy */}
+    <div>
+      <label className="mb-1 block text-sm font-medium text-fg">
+        Book Copy
+      </label>
+
+      <select
+        value={selectedBookCopy}
+        onChange={(e) => setSelectedBookCopy(e.target.value)}
+        className="w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-fg"
+      >
+        <option value="">Select book copy</option>
+
+        {bookCopies
+          .filter((copy: any) => copy.status === 'AVAILABLE')
+          .map((copy: any) => (
+            <option key={copy._id} value={copy._id}>
+              {copy.book?.title || 'Unknown Book'} — {copy.barcode}
+            </option>
+          ))}
+      </select>
+    </div>
+
+    {/* Due Date */}
+    <div>
+      <label className="mb-1 block text-sm font-medium text-fg">
+        Due Date
+      </label>
+
+      <input
+        type="date"
+        value={dueDate}
+        onChange={(e) => setDueDate(e.target.value)}
+        className="w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-fg"
+      />
+    </div>
+
+    {/* Actions */}
+    <div className="flex justify-end gap-2 pt-2">
+      <Button
+        variant="secondary"
+        onClick={() => setIssueOpen(false)}
+      >
+        Cancel
+      </Button>
+
+      <Button
+        onClick={handleIssue}
+        disabled={isIssuing}
+      >
+        {isIssuing ? 'Issuing...' : 'Issue Book'}
+      </Button>
+    </div>
+
+  </div>
+</Modal>
 
     </div>
   );
