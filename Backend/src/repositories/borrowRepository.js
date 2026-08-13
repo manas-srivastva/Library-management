@@ -26,9 +26,9 @@ export const findById = (id) =>
         });
 
 
-export const findAll = () =>
+export const findAll = async () => {
 
-    BorrowRecord.find()
+    const borrows = await BorrowRecord.find()
 
         .populate("user")
 
@@ -45,6 +45,38 @@ export const findAll = () =>
             }
 
         });
+
+
+    const Fine = (await import("../models/Fine.js")).default;
+
+
+    const borrowsWithFine = await Promise.all(
+
+        borrows.map(async (borrow) => {
+
+            const fine = await Fine.findOne({
+
+                borrowRecord: borrow._id
+
+            });
+
+
+            return {
+
+                ...borrow.toObject(),
+
+                fine: fine || null
+
+            };
+
+        })
+
+    );
+
+
+    return borrowsWithFine;
+
+};
 
 
 export const update = (id, data) =>

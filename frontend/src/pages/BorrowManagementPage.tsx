@@ -252,10 +252,10 @@ console.log("USERS FOR DROPDOWN:", users);
         {b.returnDate ? formatDate(b.returnDate) : '—'}
       </Td>
 
-      {/* Fine */}
-      <Td className="text-fg-subtle">
-        —
-      </Td>
+{/* Fine */}
+<Td className="text-fg-subtle">
+  {b.fine ? formatCurrency(b.fine.amount) : '—'}
+</Td>
 
       {/* Status */}
       <Td>
