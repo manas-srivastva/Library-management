@@ -23,40 +23,70 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Table, TBody, Td, Th, THead, Tr } from '@/components/ui/Table';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Dropdown, DropdownItem } from '@/components/ui/Dropdown';
-import { placeholderFines, fineTrendData } from '@/data/placeholders';
-import { formatCurrency, formatDate, paginate, totalPages } from '@/utils/format';
-
-const statuses = ['All', 'pending', 'paid', 'waived'];
+import { fineTrendData } from '@/data/placeholders';import { formatCurrency, formatDate, paginate, totalPages } from '@/utils/format';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { fineApi } from '@/api/fineApi';
+const statuses = ['All', 'PENDING', 'PAID'];
 const PAGE_SIZE = 6;
 
 export default function FinesPage() {
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState('All');
   const [page, setPage] = useState(1);
-  const [fines, setFines] = useState(placeholderFines);
+const queryClient = useQueryClient();
 
-  const filtered = useMemo(() => {
-    return fines.filter((f) => {
-      const matchesQuery =
-        !query ||
-        f.user.toLowerCase().includes(query.toLowerCase()) ||
-        f.bookTitle.toLowerCase().includes(query.toLowerCase());
-      const matchesStatus = status === 'All' || f.status === status;
-      return matchesQuery && matchesStatus;
-    });
-  }, [fines, query, status]);
+const {
+  data: fines = [],
+  isLoading,
+  isError,
+} = useQuery({
+  queryKey: ['fines'],
+  queryFn: fineApi.getFines,
+});
+const filtered = useMemo(() => {
+  return fines.filter((f: any) => {
+    const userName = f.user?.name || '';
+    const bookTitle =
+      f.borrowRecord?.bookCopy?.book?.title || '';
+
+    const matchesQuery =
+      !query ||
+      userName.toLowerCase().includes(query.toLowerCase()) ||
+      bookTitle.toLowerCase().includes(query.toLowerCase());
+
+    const matchesStatus =
+      status === 'All' || f.status === status;
+
+    return matchesQuery && matchesStatus;
+  });
+}, [fines, query, status]);
 
   const pages = totalPages(filtered.length, PAGE_SIZE);
   const current = paginate(filtered, page, PAGE_SIZE);
 
-  const totalPending = fines.filter((f) => f.status === 'pending').reduce((s, f) => s + f.amount, 0);
-  const totalCollected = fines.filter((f) => f.status === 'paid').reduce((s, f) => s + f.amount, 0);
-  const totalWaived = fines.filter((f) => f.status === 'waived').reduce((s, f) => s + f.amount, 0);
+ const totalPending = fines
+  .filter((f: any) => f.status === 'PENDING')
+  .reduce((sum: number, f: any) => sum + f.amount, 0);
 
-  const handlePay = (id: string) => {
-    setFines((prev) => prev.map((f) => (f.id === id ? { ...f, status: 'paid' as const } : f)));
+const totalCollected = fines
+  .filter((f: any) => f.status === 'PAID')
+  .reduce((sum: number, f: any) => sum + f.amount, 0);
+
+
+ const handlePay = async (id: string) => {
+  try {
+    await fineApi.payFine(id);
+
     toast.success('Fine paid successfully');
-  };
+
+    queryClient.invalidateQueries({
+      queryKey: ['fines'],
+    });
+  } catch (error) {
+    console.error(error);
+    toast.error('Failed to pay fine');
+  }
+};
 
   return (
     <div>
@@ -124,12 +154,29 @@ export default function FinesPage() {
               <TBody>
                 {current.map((f, i) => (
                   <Tr key={f.id}>
-                    <Td>
-                      <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }} className="flex items-center gap-2">
-                        <Avatar name={f.user} size="sm" />
-                        <span className="font-medium text-fg">{f.user}</span>
-                      </motion.div>
-                    </Td>
+                 <Td>
+  <motion.div
+    initial={{ opacity: 0, y: 4 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: i * 0.03 }}
+    className="flex items-center gap-2"
+  >
+    <Avatar
+      name={f.user?.name || 'Unknown User'}
+      size="sm"
+    />
+
+    <div>
+      <div className="font-medium text-fg">
+        {f.user?.name || 'Unknown User'}
+      </div>
+
+      <div className="text-xs text-fg-subtle">
+        {f.user?.email || 'No email'}
+      </div>
+    </div>
+  </motion.div>
+</Td>
                     <Td className="text-fg-muted">{f.bookTitle}</Td>
                     <Td className="text-fg-muted">{f.reason}</Td>
                     <Td className="font-semibold text-fg">{formatCurrency(f.amount)}</Td>
