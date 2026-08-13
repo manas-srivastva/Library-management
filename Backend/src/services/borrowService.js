@@ -30,142 +30,87 @@ import {
 
 export const borrowBook = async (data) => {
 
-    const user = await User.findOne({
+    // Find member using userId
+    const user = await User.findById(data.userId);
 
-        email: data.user
-
-    });
-
-    if (!user)
-
+    if (!user) {
         throw new ApiError(
-
             404,
-
             "User not found"
-
         );
+    }
 
+    // Find issuer from currently authenticated user
+    // req.user should be available through authMiddleware
+    const issuer = await User.findById(data.issuedBy);
 
-    const issuer = await User.findOne({
-
-        email: data.issuedBy
-
-    });
-
-    if (!issuer)
-
+    if (!issuer) {
         throw new ApiError(
-
             404,
-
             "Issuer not found"
-
         );
+    }
 
+    // Find book copy using bookCopyId
+    const copy = await BookCopy.findById(data.bookCopyId);
 
-    const copy = await BookCopy.findOne({
+    if (!copy) {
+        throw new ApiError(
+            404,
+            "Book copy not found"
+        );
+    }
 
-        barcode: data.barcode
+    // Check availability
+    if (copy.status !== COPY_STATUS.AVAILABLE) {
+        throw new ApiError(
+            400,
+            "Copy unavailable"
+        );
+    }
 
+    // Create borrow record
+    const borrow = await borrowRepository.create({
+        user: user._id,
+        issuedBy: issuer._id,
+        bookCopy: copy._id,
+        dueDate: data.dueDate
     });
 
-    if (!copy)
-
-        throw new ApiError(
-
-            404,
-
-            "Book copy not found"
-
-        );
-
-
-    if (copy.status !== COPY_STATUS.AVAILABLE)
-
-        throw new ApiError(
-
-            400,
-
-            "Copy unavailable"
-
-        );
-
-
-    const borrow = await borrowRepository.create(
-
-        {
-
-            user: user._id,
-
-            issuedBy: issuer._id,
-
-            bookCopy: copy._id,
-
-            dueDate: data.dueDate
-
-        }
-
-    );
-
-
+    // Mark copy as issued
     copy.status = COPY_STATUS.ISSUED;
 
     await copy.save();
+
+    // Audit log
     await auditService.createLog({
+        user: issuer._id,
+        action: AUDIT_ACTIONS.BOOK_BORROWED,
+        entity: "BorrowRecord",
+        entityId: borrow._id,
+        metadata: {
+            userId: user._id,
+            copyId: copy._id
+        }
+    });
 
-    user: issuer._id,
-
-    action:
-
-        AUDIT_ACTIONS.BOOK_BORROWED,
-
-    entity:
-
-        "BorrowRecord",
-
-    entityId:
-
-        borrow._id,
-
-    metadata: {
-
-        userId: user._id,
-
-        copyId: copy._id
-
-    }
-
-});
-
+    // Notification
     await notificationService.createNotification({
-
         user: user._id,
-
         type: NOTIFICATION_TYPES.BOOK_ISSUED,
-
         title: "Book Issued",
-
         message:
-
             `Book borrowed successfully.
             Return by ${new Date(
                 data.dueDate
             ).toDateString()}`,
-
         metadata: {
-
             borrowId: borrow._id,
-
             copyId: copy._id
-
         }
-
     });
 
-
     return borrow;
-
 };
 
 

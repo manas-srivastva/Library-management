@@ -41,6 +41,7 @@ const {
   queryFn: borrowApi.getBorrows,
 });
 
+
 const { data: books = [] } = useQuery({
   queryKey: ['books'],
   queryFn: bookApi.getBooks,
@@ -49,10 +50,16 @@ const { data: books = [] } = useQuery({
 
 
 
-const { data: users = [] } = useQuery({
-  queryKey: ['users'],
+const {
+  data: users = [],
+  isLoading: usersLoading,
+  error: usersError,
+} = useQuery({
+  queryKey: ["users"],
   queryFn: usersApi.getUsers,
 });
+
+console.log("USERS FROM API:", users);
 
 console.log("USERS FROM API:", users);
 
@@ -126,7 +133,7 @@ const handleIssue = async () => {
     setIsIssuing(false);
   }
 };
-
+console.log("USERS FOR DROPDOWN:", users);
   return (
     <div>
       <PageHeader
@@ -288,28 +295,25 @@ const handleIssue = async () => {
   <div className="space-y-4">
 
     {/* Member */}
-    <div>
-      <label className="mb-1 block text-sm font-medium text-fg">
-        Member
-      </label>
+ <div>
+  <label className="mb-1 block text-sm font-medium text-fg">
+    Member
+  </label>
 
-      <select
-        value={selectedUser}
-        onChange={(e) => setSelectedUser(e.target.value)}
-        className="w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-fg"
-      >
-        <option value="">Select member</option>
+  <select
+  value={selectedUser}
+  onChange={(e) => setSelectedUser(e.target.value)}
+  className="w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-fg"
+>
+  <option value="">Select member</option>
 
-        {users
-          .filter((user: any) => user.role === 'MEMBER')
-          .map((user: any) => (
-            <option key={user._id} value={user._id}>
-              {user.name} — {user.email}
-            </option>
-          ))}
-      </select>
-    </div>
-
+  {users.map((user) => (
+    <option key={user._id} value={user._id}>
+      {user.name} — {user.email}
+    </option>
+  ))}
+</select>
+</div>
     {/* Book Copy */}
     <div>
       <label className="mb-1 block text-sm font-medium text-fg">

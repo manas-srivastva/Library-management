@@ -5,7 +5,10 @@ import * as borrowService from "../services/borrowService.js";
 
 export const borrowBook = asyncHandler(async (req, res) => {
 
-    const borrow = await borrowService.borrowBook(req.body);
+    const borrow = await borrowService.borrowBook({
+        ...req.body,
+        issuedBy: req.user._id
+    });
 
     res.status(201).json(
         new ApiResponse(
@@ -14,7 +17,6 @@ export const borrowBook = asyncHandler(async (req, res) => {
             borrow
         )
     );
-
 });
 
 export const getAll = asyncHandler(async (req, res) => {
