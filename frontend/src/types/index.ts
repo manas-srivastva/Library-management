@@ -3,7 +3,7 @@ export type BookStatus = 'available' | 'borrowed' | 'reserved' | 'lost' | 'damag
 export type CopyStatus = 'available' | 'issued' | 'reserved' | 'lost' | 'maintenance';
 export type BorrowStatus = 'borrowed' | 'returned' | 'overdue';
 export type ReservationStatus = 'pending' | 'ready' | 'fulfilled' | 'cancelled' | 'expired';
-export type FineStatus = 'pending' | 'paid' | 'waived';
+ export type FineStatus = 'PENDING' | 'PAID';
 
 
 

@@ -69,11 +69,28 @@ export function ReservationStatusBadge({ status }: { status: ReservationStatus }
 }
 
 export function FineStatusBadge({ status }: { status: FineStatus }) {
-  const map: Record<FineStatus, { tone: 'warning' | 'success' | 'neutral'; label: string }> = {
-    pending: { tone: 'warning', label: 'Pending' },
-    paid: { tone: 'success', label: 'Paid' },
-    waived: { tone: 'neutral', label: 'Waived' },
+  const map: Record<
+    FineStatus,
+    {
+      tone: 'warning' | 'success';
+      label: string;
+    }
+  > = {
+    PENDING: {
+      tone: 'warning',
+      label: 'Pending',
+    },
+    PAID: {
+      tone: 'success',
+      label: 'Paid',
+    },
   };
+
   const { tone, label } = map[status];
-  return <Badge tone={tone} dot>{label}</Badge>;
+
+  return (
+    <Badge tone={tone} dot>
+      {label}
+    </Badge>
+  );
 }

@@ -23,7 +23,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Table, TBody, Td, Th, THead, Tr } from '@/components/ui/Table';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Dropdown, DropdownItem } from '@/components/ui/Dropdown';
-import { fineTrendData } from '@/data/placeholders';import { formatCurrency, formatDate, paginate, totalPages } from '@/utils/format';
+import { fineTrendData } from '@/data/placeholders'; import { formatCurrency, formatDate, paginate, totalPages } from '@/utils/format';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fineApi } from '@/api/fineApi';
 const statuses = ['All', 'PENDING', 'PAID'];
@@ -33,69 +33,67 @@ export default function FinesPage() {
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState('All');
   const [page, setPage] = useState(1);
-const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
-const {
-  data: fines = [],
-  isLoading,
-  isError,
-} = useQuery({
-  queryKey: ['fines'],
-  queryFn: fineApi.getFines,
-});
-const filtered = useMemo(() => {
-  return fines.filter((f: any) => {
-    const userName = f.user?.name || '';
-    const bookTitle =
-      f.borrowRecord?.bookCopy?.book?.title || '';
-
-    const matchesQuery =
-      !query ||
-      userName.toLowerCase().includes(query.toLowerCase()) ||
-      bookTitle.toLowerCase().includes(query.toLowerCase());
-
-    const matchesStatus =
-      status === 'All' || f.status === status;
-
-    return matchesQuery && matchesStatus;
+  const {
+    data: fines = [],
+   
+  } = useQuery({
+    queryKey: ['fines'],
+    queryFn: fineApi.getFines,
   });
-}, [fines, query, status]);
+  const filtered = useMemo(() => {
+    return fines.filter((f: any) => {
+      const userName = f.user?.name || '';
+      const bookTitle =
+        f.borrowRecord?.bookCopy?.book?.title || '';
+
+      const matchesQuery =
+        !query ||
+        userName.toLowerCase().includes(query.toLowerCase()) ||
+        bookTitle.toLowerCase().includes(query.toLowerCase());
+
+      const matchesStatus =
+        status === 'All' || f.status === status;
+
+      return matchesQuery && matchesStatus;
+    });
+  }, [fines, query, status]);
 
   const pages = totalPages(filtered.length, PAGE_SIZE);
   const current = paginate(filtered, page, PAGE_SIZE);
 
- const totalPending = fines
-  .filter((f: any) => f.status === 'PENDING')
-  .reduce((sum: number, f: any) => sum + f.amount, 0);
+  const totalPending = fines
+    .filter((f: any) => f.status === 'PENDING')
+    .reduce((sum: number, f: any) => sum + f.amount, 0);
 
-const totalCollected = fines
-  .filter((f: any) => f.status === 'PAID')
-  .reduce((sum: number, f: any) => sum + f.amount, 0);
+  const totalCollected = fines
+    .filter((f: any) => f.status === 'PAID')
+    .reduce((sum: number, f: any) => sum + f.amount, 0);
 
 
- const handlePay = async (id: string) => {
-  try {
-    await fineApi.payFine(id);
+  const handlePay = async (id: string) => {
+    try {
+      await fineApi.payFine(id);
 
-    toast.success('Fine paid successfully');
+      toast.success('Fine paid successfully');
 
-    queryClient.invalidateQueries({
-      queryKey: ['fines'],
-    });
-  } catch (error) {
-    console.error(error);
-    toast.error('Failed to pay fine');
-  }
-};
+      queryClient.invalidateQueries({
+        queryKey: ['fines'],
+      });
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to pay fine');
+    }
+  };
 
   return (
     <div>
-      <PageHeader title="Fine Management" description="Track, collect, and waive library fines." />
+      <PageHeader title="Fine Management" description="Track and collect library fines." />
 
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard label="Pending Fines" value={formatCurrency(totalPending)} icon={Wallet} accent="warning" delay={0} />
         <StatCard label="Collected" value={formatCurrency(totalCollected)} icon={DollarSign} accent="brand" delay={0.05} />
-        <StatCard label="Waived" value={formatCurrency(totalWaived)} icon={CheckCircle2} accent="info" delay={0.1} />
       </div>
 
       <ChartCard title="Fine Trends" subtitle="Collected vs pending over the last 8 months" className="mt-6">
@@ -151,47 +149,82 @@ const totalCollected = fines
                   <Th></Th>
                 </tr>
               </THead>
-              <TBody>
-                {current.map((f, i) => (
-                  <Tr key={f.id}>
-                 <Td>
-  <motion.div
-    initial={{ opacity: 0, y: 4 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: i * 0.03 }}
-    className="flex items-center gap-2"
-  >
-    <Avatar
-      name={f.user?.name || 'Unknown User'}
-      size="sm"
-    />
+             <TBody>
+  {current.map((f, i) => (
+    <Tr key={f._id}>
+      
+      {/* Member */}
+      <Td>
+        <motion.div
+          initial={{ opacity: 0, y: 4 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: i * 0.03 }}
+          className="flex items-center gap-2"
+        >
+          <Avatar
+            name={f.user?.name || 'Unknown User'}
+            size="sm"
+          />
 
-    <div>
-      <div className="font-medium text-fg">
-        {f.user?.name || 'Unknown User'}
-      </div>
+          <div>
+            <div className="font-medium text-fg">
+              {f.user?.name || 'Unknown User'}
+            </div>
 
-      <div className="text-xs text-fg-subtle">
-        {f.user?.email || 'No email'}
-      </div>
-    </div>
-  </motion.div>
-</Td>
-                    <Td className="text-fg-muted">{f.bookTitle}</Td>
-                    <Td className="text-fg-muted">{f.reason}</Td>
-                    <Td className="font-semibold text-fg">{formatCurrency(f.amount)}</Td>
-                    <Td className="text-fg-muted">{formatDate(f.issuedAt)}</Td>
-                    <Td><FineStatusBadge status={f.status} /></Td>
-                    <Td>
-                      {f.status === 'pending' && (
-                        <Button size="sm" leftIcon={<DollarSign className="h-3.5 w-3.5" />} onClick={() => handlePay(f.id)}>
-                          Pay Fine
-                        </Button>
-                      )}
-                    </Td>
-                  </Tr>
-                ))}
-              </TBody>
+            <div className="text-xs text-fg-subtle">
+              {f.user?.email || 'No email'}
+            </div>
+          </div>
+        </motion.div>
+      </Td>
+
+      {/* Book */}
+      <Td className="text-fg-muted">
+        {f.borrowRecord?.bookCopy?.book?.title || 'Unknown Book'}
+      </Td>
+
+      {/* Reason */}
+      <Td className="text-fg-muted">
+        {f.daysLate
+          ? `${f.daysLate} day${f.daysLate !== 1 ? 's' : ''} overdue`
+          : 'Late return'}
+      </Td>
+
+      {/* Amount */}
+      <Td className="font-semibold text-fg">
+        {formatCurrency(f.amount)}
+      </Td>
+
+      {/* Issued */}
+      <Td className="text-fg-muted">
+        {f.createdAt
+          ? formatDate(f.createdAt)
+          : '—'}
+      </Td>
+
+      {/* Status */}
+      <Td>
+        <FineStatusBadge status={f.status} />
+      </Td>
+
+      {/* Action */}
+      <Td>
+        {f.status === 'PENDING' && (
+          <Button
+            size="sm"
+            leftIcon={
+              <DollarSign className="h-3.5 w-3.5" />
+            }
+            onClick={() => handlePay(f._id)}
+          >
+            Pay Fine
+          </Button>
+        )}
+      </Td>
+
+    </Tr>
+  ))}
+</TBody>
             </Table>
             <div className="mt-5 border-t border-border-soft pt-4">
               <Pagination page={page} totalPages={pages} onPageChange={setPage} />

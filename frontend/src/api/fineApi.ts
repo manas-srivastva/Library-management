@@ -21,9 +21,9 @@ export const fineApi = {
     return response.data.data;
   },
 
-  payFine: async (id: string) => {
-    const response = await api.put(`/fines/${id}/pay`);
+payFine: async (id: string) => {
+  const response = await api.put(`/fines/pay/${id}`);
 
-    return response.data.data;
-  },
+  return response.data.data;
+},
 };
