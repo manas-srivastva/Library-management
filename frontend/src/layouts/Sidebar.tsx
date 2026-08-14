@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import {
   BarChart3,
+  Bell,
   BookCopy,
   BookOpen,
   CalendarClock,
@@ -25,6 +26,7 @@ const nav = [
   { to: '/app/borrows', label: 'Borrows', icon: CalendarClock },
   { to: '/app/reservations', label: 'Reservations', icon: Library },
   { to: '/app/fines', label: 'Fines', icon: Receipt },
+  { to: '/app/notifications', label: 'Notifications', icon: Bell },
   { to: '/app/analytics', label: 'Analytics', icon: BarChart3 },
 ];
 

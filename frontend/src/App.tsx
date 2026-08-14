@@ -33,6 +33,7 @@ const BookCopiesPage = lazy(() => import("@/pages/BookCopiesPage"));
 const BorrowManagementPage = lazy(() => import("@/pages/BorrowManagementPage"));
 const ReservationsPage = lazy(() => import("@/pages/ReservationsPage"));
 const FinesPage = lazy(() => import("@/pages/FinesPage"));
+const NotificationsPage = lazy(() => import("@/pages/NotificationsPage"));
 const AnalyticsPage = lazy(() => import("@/pages/AnalyticsPage"));
 const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
 const SettingsPage = lazy(() => import("@/pages/SettingsPage"));
@@ -61,6 +62,7 @@ export default function App() {
                   <Route path="borrows" element={<BorrowManagementPage />} />
                   <Route path="reservations" element={<ReservationsPage />} />
                   <Route path="fines" element={<FinesPage />} />
+                  <Route path="notifications" element={<NotificationsPage />} />
                   <Route path="analytics" element={<AnalyticsPage />} />
                   <Route path="profile" element={<ProfilePage />} />
                   <Route path="settings" element={<SettingsPage />} />

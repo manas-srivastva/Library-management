@@ -10,7 +10,7 @@ export const findAll=()=>
     .sort({createdAt:-1});
 
 export const findById=(id)=>{
-    Notification.findById(id)
+   return Notification.findById(id)
     .populate("user");
 }
 
