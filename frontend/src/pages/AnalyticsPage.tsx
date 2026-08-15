@@ -35,13 +35,6 @@ import { formatCurrency } from '@/utils/format';
 
 const PIE_COLORS = ['#1fb988', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444'];
 
-const radarData = [
-  { category: 'Fiction', borrows: 120 },
-  { category: 'Sci-Fi', borrows: 96 },
-  { category: 'Self-Help', borrows: 84 },
-  { category: 'History', borrows: 60 },
-  { category: 'Tech', borrows: 72 },
-];
 
 export default function AnalyticsPage() {
 
@@ -104,7 +97,7 @@ const {
 </div>
 
       <div className="mt-6 grid gap-4 lg:grid-cols-2">
-        <ChartCard title="Monthly Borrows" subtitle="Monthly Borrow Trend" action={<Badge tone="brand" dot><TrendingUp className="h-3 w-3" /> +14%</Badge>}>
+        <ChartCard title="Monthly Borrows" subtitle="Monthly Borrow Trend" action={<Badge tone="brand" dot><TrendingUp className="h-3 w-3" /> Live Data</Badge>}>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={monthlyBorrows ?? []} margin={{ left: -16, right: 8, top: 8 }}>
