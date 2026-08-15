@@ -23,8 +23,8 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Table, TBody, Td, Th, THead, Tr } from '@/components/ui/Table';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Dropdown, DropdownItem } from '@/components/ui/Dropdown';
-import { fineTrendData } from '@/data/placeholders'; import { formatCurrency, formatDate, paginate, totalPages } from '@/utils/format';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useFineStats } from '@/hooks/useAnalytics';
 import { fineApi } from '@/api/fineApi';
 const statuses = ['All', 'PENDING', 'PAID'];
 const PAGE_SIZE = 6;
@@ -34,10 +34,15 @@ export default function FinesPage() {
   const [status, setStatus] = useState('All');
   const [page, setPage] = useState(1);
   const queryClient = useQueryClient();
+  const {
+    data: fineStats = [],
+    isLoading: fineStatsLoading,
+  } = useFineStats();
+
 
   const {
     data: fines = [],
-   
+
   } = useQuery({
     queryKey: ['fines'],
     queryFn: fineApi.getFines,
@@ -96,19 +101,57 @@ export default function FinesPage() {
         <StatCard label="Collected" value={formatCurrency(totalCollected)} icon={DollarSign} accent="brand" delay={0.05} />
       </div>
 
-      <ChartCard title="Fine Trends" subtitle="Collected vs pending over the last 8 months" className="mt-6">
+      <ChartCard
+        title="Fine Statistics"
+        subtitle="Paid vs pending fines"
+        className="mt-6"
+      >
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={fineTrendData} margin={{ left: -12, right: 8 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1c2029" vertical={false} />
-              <XAxis dataKey="month" stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
-              <YAxis stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
+            <BarChart
+              data={fineStats}
+              margin={{ left: -12, right: 8 }}
+            >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="#1c2029"
+                vertical={false}
+              />
+
+              <XAxis
+                dataKey="_id"
+                stroke="#6b7280"
+                fontSize={12}
+                tickLine={false}
+                axisLine={false}
+              />
+
+              <YAxis
+                stroke="#6b7280"
+                fontSize={12}
+                tickLine={false}
+                axisLine={false}
+              />
+
               <Tooltip
                 cursor={{ fill: 'rgba(255,255,255,0.03)' }}
-                contentStyle={{ background: '#14161d', border: '1px solid #232733', borderRadius: 12, fontSize: 12 }}
+                formatter={(value: number) =>
+                  formatCurrency(value)
+                }
+                contentStyle={{
+                  background: '#14161d',
+                  border: '1px solid #232733',
+                  borderRadius: 12,
+                  fontSize: 12,
+                }}
               />
-              <Bar dataKey="collected" fill="#1fb988" radius={[6, 6, 0, 0]} barSize={14} />
-              <Bar dataKey="pending" fill="#f59e0b" radius={[6, 6, 0, 0]} barSize={14} />
+
+              <Bar
+                dataKey="total"
+                fill="#1fb988"
+                radius={[6, 6, 0, 0]}
+                barSize={40}
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -149,82 +192,82 @@ export default function FinesPage() {
                   <Th></Th>
                 </tr>
               </THead>
-             <TBody>
-  {current.map((f, i) => (
-    <Tr key={f._id}>
-      
-      {/* Member */}
-      <Td>
-        <motion.div
-          initial={{ opacity: 0, y: 4 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: i * 0.03 }}
-          className="flex items-center gap-2"
-        >
-          <Avatar
-            name={f.user?.name || 'Unknown User'}
-            size="sm"
-          />
+              <TBody>
+                {current.map((f, i) => (
+                  <Tr key={f._id}>
 
-          <div>
-            <div className="font-medium text-fg">
-              {f.user?.name || 'Unknown User'}
-            </div>
+                    {/* Member */}
+                    <Td>
+                      <motion.div
+                        initial={{ opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.03 }}
+                        className="flex items-center gap-2"
+                      >
+                        <Avatar
+                          name={f.user?.name || 'Unknown User'}
+                          size="sm"
+                        />
 
-            <div className="text-xs text-fg-subtle">
-              {f.user?.email || 'No email'}
-            </div>
-          </div>
-        </motion.div>
-      </Td>
+                        <div>
+                          <div className="font-medium text-fg">
+                            {f.user?.name || 'Unknown User'}
+                          </div>
 
-      {/* Book */}
-      <Td className="text-fg-muted">
-        {f.borrowRecord?.bookCopy?.book?.title || 'Unknown Book'}
-      </Td>
+                          <div className="text-xs text-fg-subtle">
+                            {f.user?.email || 'No email'}
+                          </div>
+                        </div>
+                      </motion.div>
+                    </Td>
 
-      {/* Reason */}
-      <Td className="text-fg-muted">
-        {f.daysLate
-          ? `${f.daysLate} day${f.daysLate !== 1 ? 's' : ''} overdue`
-          : 'Late return'}
-      </Td>
+                    {/* Book */}
+                    <Td className="text-fg-muted">
+                      {f.borrowRecord?.bookCopy?.book?.title || 'Unknown Book'}
+                    </Td>
 
-      {/* Amount */}
-      <Td className="font-semibold text-fg">
-        {formatCurrency(f.amount)}
-      </Td>
+                    {/* Reason */}
+                    <Td className="text-fg-muted">
+                      {f.daysLate
+                        ? `${f.daysLate} day${f.daysLate !== 1 ? 's' : ''} overdue`
+                        : 'Late return'}
+                    </Td>
 
-      {/* Issued */}
-      <Td className="text-fg-muted">
-        {f.createdAt
-          ? formatDate(f.createdAt)
-          : '—'}
-      </Td>
+                    {/* Amount */}
+                    <Td className="font-semibold text-fg">
+                      {formatCurrency(f.amount)}
+                    </Td>
 
-      {/* Status */}
-      <Td>
-        <FineStatusBadge status={f.status} />
-      </Td>
+                    {/* Issued */}
+                    <Td className="text-fg-muted">
+                      {f.createdAt
+                        ? formatDate(f.createdAt)
+                        : '—'}
+                    </Td>
 
-      {/* Action */}
-      <Td>
-        {f.status === 'PENDING' && (
-          <Button
-            size="sm"
-            leftIcon={
-              <DollarSign className="h-3.5 w-3.5" />
-            }
-            onClick={() => handlePay(f._id)}
-          >
-            Pay Fine
-          </Button>
-        )}
-      </Td>
+                    {/* Status */}
+                    <Td>
+                      <FineStatusBadge status={f.status} />
+                    </Td>
 
-    </Tr>
-  ))}
-</TBody>
+                    {/* Action */}
+                    <Td>
+                      {f.status === 'PENDING' && (
+                        <Button
+                          size="sm"
+                          leftIcon={
+                            <DollarSign className="h-3.5 w-3.5" />
+                          }
+                          onClick={() => handlePay(f._id)}
+                        >
+                          Pay Fine
+                        </Button>
+                      )}
+                    </Td>
+
+                  </Tr>
+                ))}
+              </TBody>
             </Table>
             <div className="mt-5 border-t border-border-soft pt-4">
               <Pagination page={page} totalPages={pages} onPageChange={setPage} />

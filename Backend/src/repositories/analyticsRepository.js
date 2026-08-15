@@ -60,7 +60,7 @@ export const popularBooks = () =>
             $project: {
                 _id: "$book._id",
                 title: "$book.title",
-                author: "$book.author",
+                author: "$book.authors",
                 isbn: "$book.isbn",
                 borrowCount: 1,
             },
