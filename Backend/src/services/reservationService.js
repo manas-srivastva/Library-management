@@ -203,7 +203,7 @@ export const cancelReservation =
 
             type:
 
-                NOTIFICATION_TYPES.RESERVATION_EXPIRED,
+                NOTIFICATION_TYPES.RESERVATION_CANCELLED,
 
             title:
 

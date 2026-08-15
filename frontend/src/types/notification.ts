@@ -4,6 +4,7 @@ export type NotificationType =
   | "RESERVATION_CREATED"
   | "RESERVATION_EXPIRED"
   | "BOOK_AVAILABLE"
+  |"RESERVATION_CANCELLED"
   | "BOOK_ISSUED"
   | "BOOK_RETURNED";
 

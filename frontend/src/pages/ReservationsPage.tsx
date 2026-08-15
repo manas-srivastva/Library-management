@@ -13,10 +13,16 @@ import { Modal } from '@/components/ui/Modal';
 import { Table, TBody, Td, Th, THead, Tr } from '@/components/ui/Table';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Dropdown, DropdownItem } from '@/components/ui/Dropdown';
-import { placeholderReservations, placeholderBooks, placeholderMembers } from '@/data/placeholders';
 import { formatDate, paginate, totalPages } from '@/utils/format';
-
-const statuses = ['All', 'pending', 'ready', 'fulfilled', 'cancelled', 'expired'];
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { reservationApi } from '@/api/reservationApi';
+const statuses = [
+  'All',
+  'ACTIVE',
+  'FULFILLED',
+  'CANCELLED',
+  'EXPIRED',
+];
 const PAGE_SIZE = 6;
 
 export default function ReservationsPage() {
@@ -24,31 +30,84 @@ export default function ReservationsPage() {
   const [status, setStatus] = useState('All');
   const [page, setPage] = useState(1);
   const [reserveOpen, setReserveOpen] = useState(false);
-  const [reservations, setReservations] = useState(placeholderReservations);
+  const [selectedBook, setSelectedBook] = useState('');
+const [selectedMember, setSelectedMember] = useState('');
+const queryClient = useQueryClient();
 
-  const filtered = useMemo(() => {
-    return reservations.filter((r) => {
-      const matchesQuery =
-        !query ||
-        r.bookTitle.toLowerCase().includes(query.toLowerCase()) ||
-        r.user.toLowerCase().includes(query.toLowerCase());
-      const matchesStatus = status === 'All' || r.status === status;
-      return matchesQuery && matchesStatus;
-    });
-  }, [reservations, query, status]);
+const {
+  data: reservations = [],
+  isLoading,
+  isError,
+} = useQuery({
+  queryKey: ['reservations'],
+  queryFn: reservationApi.getReservations,
+});
+const filtered = useMemo(() => {
+  return reservations.filter((r) => {
+    const userName = r.user?.name || '';
+    const userEmail = r.user?.email || '';
+    const bookTitle = r.book?.title || '';
+
+    const matchesQuery =
+      !query ||
+      bookTitle.toLowerCase().includes(query.toLowerCase()) ||
+      userName.toLowerCase().includes(query.toLowerCase()) ||
+      userEmail.toLowerCase().includes(query.toLowerCase());
+
+    const matchesStatus =
+      status === 'All' || r.status === status;
+
+    return matchesQuery && matchesStatus;
+  });
+}, [reservations, query, status]);
 
   const pages = totalPages(filtered.length, PAGE_SIZE);
   const current = paginate(filtered, page, PAGE_SIZE);
 
-  const handleCancel = (id: string) => {
-    setReservations((prev) => prev.map((r) => (r.id === id ? { ...r, status: 'cancelled' as const } : r)));
-    toast.success('Reservation cancelled');
-  };
+const handleCancel = async (id: string) => {
+  try {
+    await reservationApi.cancelReservation(id);
 
-  const handleReserve = () => {
-    setReserveOpen(false);
+    toast.success('Reservation cancelled');
+
+    queryClient.invalidateQueries({
+      queryKey: ['reservations'],
+    });
+  } catch (error) {
+    console.error(error);
+
+    toast.error('Failed to cancel reservation');
+  }
+};
+
+const handleReserve = async () => {
+  if (!selectedBook || !selectedMember) {
+    toast.error('Please select a book and member');
+    return;
+  }
+
+  try {
+    await reservationApi.createReservation({
+      user: selectedMember,
+      book: selectedBook,
+    });
+
     toast.success('Book reserved successfully');
-  };
+
+    setReserveOpen(false);
+
+    setSelectedBook('');
+    setSelectedMember('');
+
+    queryClient.invalidateQueries({
+      queryKey: ['reservations'],
+    });
+  } catch (error) {
+    console.error(error);
+
+    toast.error('Failed to create reservation');
+  }
+};
 
   return (
     <div>

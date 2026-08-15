@@ -19,7 +19,6 @@ import authorize
 
 import ROLES
     from "../constants/roles.js";
-import * as controller from "../controllers/reservationController.js"
 
 const router = express.Router();
 
@@ -162,8 +161,12 @@ router.get(
 router.get(
     "/:id",
     authMiddleware,
-    authorize("ADMIN","LIBRARIAN","MEMBER"),
-    controller.getById
+    authorize(
+        ROLES.ADMIN,
+        ROLES.LIBRARIAN,
+        ROLES.MEMBER
+    ),
+    reservationController.getById
 );
 /**
  * @swagger
