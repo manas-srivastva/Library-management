@@ -2,7 +2,11 @@ export * from "./book";
 export type BookStatus = 'available' | 'borrowed' | 'reserved' | 'lost' | 'damaged';
 export type CopyStatus = 'available' | 'issued' | 'reserved' | 'lost' | 'maintenance';
 export type BorrowStatus = 'borrowed' | 'returned' | 'overdue';
-export type ReservationStatus = 'pending' | 'ready' | 'fulfilled' | 'cancelled' | 'expired';
+export type ReservationStatus =
+  | 'ACTIVE'
+  | 'FULFILLED'
+  | 'CANCELLED'
+  | 'EXPIRED';
  export type FineStatus = 'PENDING' | 'PAID';
 
 
