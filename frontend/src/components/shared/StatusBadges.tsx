@@ -16,25 +16,53 @@ export function BookStatusBadge({ status }: { status: BookStatus }) {
 export function CopyStatusBadge({
   status,
 }: {
-  status: "AVAILABLE" | "BORROWED" | "RESERVED" | "LOST" | "MAINTENANCE";
+  status:
+    | "AVAILABLE"
+    | "ISSUED"
+    | "BORROWED"
+    | "RESERVED"
+    | "LOST"
+    | "MAINTENANCE";
 }) {
-  const map: Record<
-    "AVAILABLE" | "BORROWED" | "RESERVED" | "LOST" | "MAINTENANCE",
-    {
-      tone: "success" | "info" | "warning" | "danger" | "neutral";
-      label: string;
-    }
-  > = {
-    AVAILABLE: { tone: "success", label: "Available" },
-    BORROWED: { tone: "info", label: "Borrowed" },
-    RESERVED: { tone: "warning", label: "Reserved" },
-    LOST: { tone: "danger", label: "Lost" },
-    MAINTENANCE: { tone: "neutral", label: "Maintenance" },
-  };
+  const map = {
+    AVAILABLE: {
+      tone: "success",
+      label: "Available",
+    },
+
+    ISSUED: {
+      tone: "info",
+      label: "Issued",
+    },
+
+    BORROWED: {
+      tone: "info",
+      label: "Borrowed",
+    },
+
+    RESERVED: {
+      tone: "warning",
+      label: "Reserved",
+    },
+
+    LOST: {
+      tone: "danger",
+      label: "Lost",
+    },
+
+    MAINTENANCE: {
+      tone: "neutral",
+      label: "Maintenance",
+    },
+  } as const;
 
   const { tone, label } = map[status];
 
-  return <Badge tone={tone} dot>{label}</Badge>;
+  return (
+    <Badge tone={tone} dot>
+      {label}
+    </Badge>
+  );
 }
 
 export function BorrowStatusBadge({ status }: { status: BorrowStatus }) {
