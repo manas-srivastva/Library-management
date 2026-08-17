@@ -32,6 +32,8 @@ import {
   paginate,
   totalPages,
 } from '@/utils/format';
+
+
 const statuses = ['All', 'PENDING', 'PAID'];
 const PAGE_SIZE = 6;
 
