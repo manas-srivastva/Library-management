@@ -21,14 +21,40 @@ export const borrowBook = asyncHandler(async (req, res) => {
 
 export const getAll = asyncHandler(async (req, res) => {
 
-    const borrows = await borrowService.getAll();
+    const {
+        page = 1,
+        limit = 10,
+        search = "",
+        status = "",
+        from = "",
+        to = ""
+    } = req.query;
+
+
+    const result = await borrowService.getAll({
+
+        page,
+        limit,
+        search,
+        status,
+        from,
+        to
+
+    });
+
 
     res.status(200).json(
+
         new ApiResponse(
+
             200,
+
             "Borrow records fetched",
-            borrows
+
+            result
+
         )
+
     );
 
 });

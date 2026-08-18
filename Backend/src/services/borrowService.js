@@ -115,9 +115,9 @@ export const borrowBook = async (data) => {
 
 
 
-export const getAll = () =>
+export const getAll = (options) =>
 
-    borrowRepository.findAll();
+    borrowRepository.findAll(options);
 
 
 
