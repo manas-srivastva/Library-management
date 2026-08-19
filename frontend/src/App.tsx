@@ -45,7 +45,7 @@ const AnalyticsPage = lazy(() => import("@/pages/AnalyticsPage"));
 const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
 const SettingsPage = lazy(() => import("@/pages/SettingsPage"));
 const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"));
-
+const MyBorrowsPage = lazy(() => import("@/pages/MyBorrowsPage"));
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -102,6 +102,10 @@ export default function App() {
                     <Route
                       path="books"
                       element={<BooksPage />}
+                    />
+                    <Route
+                      path="my-borrows"
+                      element={<MyBorrowsPage />}
                     />
 
                     <Route

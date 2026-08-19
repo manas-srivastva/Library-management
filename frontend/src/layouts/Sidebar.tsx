@@ -79,6 +79,12 @@ const nav: NavItem[] = [
     icon: BarChart3,
     roles: ['ADMIN', 'LIBRARIAN'],
   },
+  {
+    to: '/app/my-borrows',
+    label: 'My Borrows',
+    icon: CalendarClock,
+    roles: ['MEMBER'],
+  },
 ];
 
 const secondary = [
@@ -126,7 +132,7 @@ function NavItems({ collapsed }: { collapsed: boolean }) {
                     'absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-brand-400 transition-opacity',
                     isActive ? 'opacity-100' : 'opacity-0',
                     collapsed &&
-                      'left-1/2 -translate-x-1/2 top-0 h-full w-0.5',
+                    'left-1/2 -translate-x-1/2 top-0 h-full w-0.5',
                   )}
                 />
 
