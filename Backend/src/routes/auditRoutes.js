@@ -42,9 +42,9 @@ router.get(
 
     authorize(
 
-        ROLES.ADMIN,
+        ROLES.ADMIN
 
-        ROLES.LIBRARIAN
+       
 
     ),
 
@@ -78,9 +78,9 @@ router.get(
 
     authorize(
 
-        ROLES.ADMIN,
+        ROLES.ADMIN
 
-        ROLES.LIBRARIAN
+        
 
     ),
 
@@ -114,9 +114,9 @@ router.get(
 
     authorize(
 
-        ROLES.ADMIN,
+        ROLES.ADMIN
 
-        ROLES.LIBRARIAN
+        
 
     ),
 
