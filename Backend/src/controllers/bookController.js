@@ -26,7 +26,24 @@ export const getBooks =
 
     asyncHandler(async (req, res) => {
 
-        const books = await service.getBooks();
+        const {
+            page = 1,
+            limit = 10,
+            search = "",
+            category
+        } = req.query;
+
+        const books = await service.getBooks({
+
+            page: Number(page),
+
+            limit: Number(limit),
+
+            search,
+
+            category
+
+        });
 
         res.status(200).json(
             new ApiResponse(

@@ -15,7 +15,6 @@ export const findById = (id) =>
 
     Book.findById(id)
 
-
         .populate("authors")
 
         .populate("publisher")
@@ -23,18 +22,73 @@ export const findById = (id) =>
         .populate("category");
 
 
-export const findAll = () =>
+export const findAll = async ({
+    page = 1,
+    limit = 10,
+    search = ""
+}) => {
 
+    const skip = (page - 1) * limit;
 
-    Book.find()
+    const query = {};
 
-        .populate("authors")
+    if (search) {
 
-        .populate("publisher")
+        query.$or = [
 
-        .populate("category")
+            {
+                title: {
+                    $regex: search,
+                    $options: "i"
+                }
+            },
 
-        .sort({ createdAt: -1 });
+            {
+                isbn: {
+                    $regex: search,
+                    $options: "i"
+                }
+            }
+
+        ];
+
+    }
+
+    const [books, total] = await Promise.all([
+
+        Book.find(query)
+
+            .populate("authors")
+
+            .populate("publisher")
+
+            .populate("category")
+
+            .sort({ createdAt: -1 })
+
+            .skip(skip)
+
+            .limit(limit),
+
+        Book.countDocuments(query)
+
+    ]);
+
+    return {
+
+        books,
+
+        total,
+
+        page,
+
+        limit,
+
+        totalPages: Math.ceil(total / limit)
+
+    };
+
+};
 
 
 export const update = (id, data) =>
@@ -45,9 +99,10 @@ export const update = (id, data) =>
 
         data,
 
-        { new: true,
+        {
+            new: true,
             runValidators: true
-         }
+        }
 
     )
 

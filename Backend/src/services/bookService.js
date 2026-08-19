@@ -57,11 +57,20 @@ export const createBook = async (data, userId) => {
     return book;
 };
 
-export const getBooks = async () => {
+export const getBooks = async ({
+    page = 1,
+    limit = 10,
+    search = "",
+    category
+}) => {
 
-    return repo.findAll();
+    return repo.findAll({
+        page,
+        limit,
+        search,
+        category
+    });
 };
-
 export const getById = async (id) => {
 
     const book = await repo.findById(id);
