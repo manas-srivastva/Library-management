@@ -1,6 +1,6 @@
 import asyncHandler from "../utils/asyncHandler.js";
 import ApiResponse from "../utils/ApiResponse.js";
-
+import ROLES from "../constants/roles.js";
 import * as borrowService from "../services/borrowService.js";
 
 export const borrowBook = asyncHandler(async (req, res) => {
@@ -89,7 +89,25 @@ export const returnBook = asyncHandler(async (req, res) => {
 
 export const history = asyncHandler(async (req, res) => {
 
-    const history = await borrowService.getUserHistory(req.params.id);
+    const requestedUserId = req.params.id;
+
+    // Members can only view their own borrowing history
+    if (
+        req.user.role === "MEMBER" &&
+        requestedUserId !== req.user._id.toString()
+    ) {
+        return res.status(403).json({
+            statusCode: 403,
+            success: false,
+            message: "Forbidden",
+            data: null
+        });
+    }
+
+    const history =
+        await borrowService.getUserHistory(
+            requestedUserId
+        );
 
     res.status(200).json(
         new ApiResponse(

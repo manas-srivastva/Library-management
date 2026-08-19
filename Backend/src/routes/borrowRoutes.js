@@ -273,7 +273,8 @@ router.get(
     authMiddleware,
     authorize(
         ROLES.ADMIN,
-        ROLES.LIBRARIAN
+        ROLES.LIBRARIAN,
+        ROLES.MEMBER
     ),
     borrowController.history
 );
