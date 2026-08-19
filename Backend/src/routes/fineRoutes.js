@@ -15,7 +15,7 @@ import ROLES
 const router = express.Router();
 
 /**
- * @swagger
+ * @swagger  
  * tags:
  *   name: Fines
  *   description: Fine management APIs
@@ -80,6 +80,11 @@ router.get(
 router.get(
     "/user/:id",
     authMiddleware,
+    authorize(
+        ROLES.ADMIN,
+        ROLES.LIBRARIAN,
+        ROLES.MEMBER
+    ),
     fineController.getUserFines
 );
 
@@ -152,6 +157,11 @@ router.put(
 router.get(
     "/:id",
     authMiddleware,
+    authorize(
+        ROLES.ADMIN,
+        ROLES.LIBRARIAN,
+        ROLES.MEMBER
+    ),
     fineController.getById
 );
 
