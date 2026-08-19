@@ -28,23 +28,14 @@ export const createReservation =
 
     async (data) => {
 
-        const user =
+       const user =
+    await User.findById(data.user);
 
-            await User.findOne({
-
-                email: data.user
-
-            });
-
-        if (!user)
-
-            throw new ApiError(
-
-                404,
-
-                "User not found"
-
-            );
+if (!user)
+    throw new ApiError(
+        404,
+        "User not found"
+    );
 
 
         const book =

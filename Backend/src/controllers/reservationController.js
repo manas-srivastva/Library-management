@@ -32,10 +32,9 @@ export const getById = asyncHandler(async (req, res) => {
     const reservation =
         await reservationService.getById(req.params.id);
 
-    // MEMBER can only view their own reservation
     if (
         req.user.role === ROLES.MEMBER &&
-        reservation.user.toString() !== req.user._id.toString()
+        reservation.user._id.toString() !== req.user._id.toString()
     ) {
         return res.status(403).json({
             statusCode: 403,
@@ -70,16 +69,35 @@ export const getAll = asyncHandler(async (req, res) => {
 
 });
 
+
+
 export const cancel = asyncHandler(async (req, res) => {
 
     const reservation =
-        await reservationService.cancelReservation(req.params.id);
+        await reservationService.getById(req.params.id);
+
+    if (
+        req.user.role === ROLES.MEMBER &&
+        reservation.user._id.toString() !== req.user._id.toString()
+    ) {
+        return res.status(403).json({
+            statusCode: 403,
+            success: false,
+            message: "Forbidden",
+            data: null
+        });
+    }
+
+    const updatedReservation =
+        await reservationService.cancelReservation(
+            req.params.id
+        );
 
     res.status(200).json(
         new ApiResponse(
             200,
             "Reservation cancelled",
-            reservation
+            updatedReservation
         )
     );
 
