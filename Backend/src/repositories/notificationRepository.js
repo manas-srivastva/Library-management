@@ -20,17 +20,19 @@ export const findByUser=(id)=>
     })
     .sort({createdAt:-1});
 
-export const markRead=(id)=>
-    Notification.findByIdAndUpdate(
-        id,
+export const markRead = (id, userId) =>
+    Notification.findOneAndUpdate(
         {
-            isRead:true
+            _id: id,
+            user: userId
         },
         {
-            new:true
+            isRead: true
+        },
+        {
+            new: true
         }
-);
-
+    );
 export const markAllRead=(userId)=>
     Notification.updateMany(
         {

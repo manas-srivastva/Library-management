@@ -65,59 +65,41 @@ async (req, res) => {
 
 
 
-export const getUserNotifications =
+export const getMyNotifications = asyncHandler(
+    async (req, res) => {
 
-asyncHandler(
-
-async (req, res) => {
-
-    const notifications =
-
-        await notificationService
-
-            .getUserNotifications(
-
-                req.params.id
-
+        const notifications =
+            await notificationService.getUserNotifications(
+                req.user._id
             );
 
-    res.status(200).json(
+        res.status(200).json(
+            new ApiResponse(
+                200,
+                "Notifications fetched successfully",
+                notifications
+            )
+        );
 
-        new ApiResponse(
-
-            200,
-
-            notifications
-
-        )
-
-    );
-
-});
+    }
+);
 
 
 export const markRead = asyncHandler(
-
 async (req, res) => {
 
     const notification =
-
         await notificationService.markRead(
-
-            req.params.id
-
+            req.params.id,
+            req.user._id
         );
 
     res.status(200).json(
 
         new ApiResponse(
-
             200,
-
             notification,
-
             "Notification updated"
-
         )
 
     );
@@ -152,3 +134,5 @@ async (req, res) => {
     );
 
 });
+
+

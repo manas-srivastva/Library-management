@@ -64,24 +64,18 @@ async (id) => {
 };
 
 
-export const markRead = async (id) => {
+export const markRead = async (id, userId) => {
 
     const notification =
-
         await notificationRepository.markRead(
-
-            id
-
+            id,
+            userId
         );
 
     if (!notification)
-
         throw new ApiError(
-
             404,
-
             "Notification not found"
-
         );
 
     return notification;

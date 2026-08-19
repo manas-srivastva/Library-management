@@ -104,10 +104,9 @@ export default function NotificationsPage() {
     isLoading,
     isError,
   } = useQuery<Notification[]>({
-    queryKey: ['notifications', user?._id],
-    queryFn: () =>
-      notificationApi.getUserNotifications(user!._id),
-    enabled: !!user?._id,
+  queryKey: ['notifications'],
+queryFn: () =>
+  notificationApi.getMyNotifications(),
   });
 
   const markReadMutation = useMutation({
@@ -117,9 +116,9 @@ export default function NotificationsPage() {
     onSuccess: () => {
       toast.success('Notification marked as read');
 
-      queryClient.invalidateQueries({
-        queryKey: ['notifications', user?._id],
-      });
+     queryClient.invalidateQueries({
+  queryKey: ['notifications'],
+});
     },
 
     onError: (error) => {

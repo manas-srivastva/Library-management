@@ -2,18 +2,13 @@ import api from "./client";
 import type { Notification } from "@/types/notification";
 
 export const notificationApi = {
-  getUserNotifications: async (userId: string) => {
-    const response = await api.get(
-      `/notifications/user/${userId}`
-    );
+ getMyNotifications: async () => {
+  const response = await api.get(
+    "/notifications/me"
+  );
 
-    console.log(
-      "NOTIFICATIONS API RESPONSE:",
-      response.data
-    );
-
-    return (response.data.data || []) as Notification[];
-  },
+  return (response.data.data || []) as Notification[];
+},
 
   getNotificationById: async (id: string) => {
     const response = await api.get(
