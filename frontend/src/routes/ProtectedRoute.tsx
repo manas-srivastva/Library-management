@@ -14,11 +14,6 @@ export default function ProtectedRoute({
 
   // Wait until authentication is restored
   if (isLoading) {
-    console.log("ProtectedRoute State", {
-  user,
-  isAuthenticated,
-  isLoading,
-});
     return <FullPageLoader />;
   }
 
@@ -30,8 +25,7 @@ export default function ProtectedRoute({
   // Role-based authorization
   if (
     allowedRoles &&
-    user &&
-    !allowedRoles.includes(user.role)
+    (!user || !allowedRoles.includes(user.role))
   ) {
     return <Navigate to="/app/dashboard" replace />;
   }

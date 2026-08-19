@@ -10,6 +10,7 @@ import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { FullPageLoader } from "@/components/ui/Loader";
 import { queryClient } from "@/lib/queryClient";
 import ProtectedRoute from "@/routes/ProtectedRoute";
+
 function ThemedToast() {
   const { theme } = useTheme();
 
@@ -30,10 +31,16 @@ const RegisterPage = lazy(() => import("@/pages/RegisterPage"));
 const DashboardPage = lazy(() => import("@/pages/DashboardPage"));
 const BooksPage = lazy(() => import("@/pages/BooksPage"));
 const BookCopiesPage = lazy(() => import("@/pages/BookCopiesPage"));
-const BorrowManagementPage = lazy(() => import("@/pages/BorrowManagementPage"));
-const ReservationsPage = lazy(() => import("@/pages/ReservationsPage"));
+const BorrowManagementPage = lazy(
+  () => import("@/pages/BorrowManagementPage")
+);
+const ReservationsPage = lazy(
+  () => import("@/pages/ReservationsPage")
+);
 const FinesPage = lazy(() => import("@/pages/FinesPage"));
-const NotificationsPage = lazy(() => import("@/pages/NotificationsPage"));
+const NotificationsPage = lazy(
+  () => import("@/pages/NotificationsPage")
+);
 const AnalyticsPage = lazy(() => import("@/pages/AnalyticsPage"));
 const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
 const SettingsPage = lazy(() => import("@/pages/SettingsPage"));
@@ -46,30 +53,125 @@ export default function App() {
         <ThemeProvider>
           <Suspense fallback={<FullPageLoader />}>
             <Routes>
+
+              {/* ========================= */}
+              {/* PUBLIC ROUTES */}
+              {/* ========================= */}
+
               <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
 
+              {/* ========================= */}
+              {/* AUTHENTICATED ROUTES */}
+              {/* ========================= */}
+
               <Route element={<ProtectedRoute />}>
                 <Route path="/app" element={<DashboardLayout />}>
+
+                  {/* ========================= */}
+                  {/* ALL AUTHENTICATED USERS */}
+                  {/* ========================= */}
+
                   <Route
                     index
-                    element={<Navigate to="/app/dashboard" replace />}
+                    element={
+                      <Navigate
+                        to="/app/dashboard"
+                        replace
+                      />
+                    }
                   />
-                  <Route path="dashboard" element={<DashboardPage />} />
-                  <Route path="books" element={<BooksPage />} />
-                  <Route path="copies" element={<BookCopiesPage />} />
-                  <Route path="borrows" element={<BorrowManagementPage />} />
-                  <Route path="reservations" element={<ReservationsPage />} />
-                  <Route path="fines" element={<FinesPage />} />
-                  <Route path="notifications" element={<NotificationsPage />} />
-                  <Route path="analytics" element={<AnalyticsPage />} />
-                  <Route path="profile" element={<ProfilePage />} />
-                  <Route path="settings" element={<SettingsPage />} />
+
+                  <Route
+                    element={
+                      <ProtectedRoute
+                        allowedRoles={[
+                          "ADMIN",
+                          "LIBRARIAN",
+                          "MEMBER",
+                        ]}
+                      />
+                    }
+                  >
+                    <Route
+                      path="dashboard"
+                      element={<DashboardPage />}
+                    />
+
+                    <Route
+                      path="books"
+                      element={<BooksPage />}
+                    />
+
+                    <Route
+                      path="reservations"
+                      element={<ReservationsPage />}
+                    />
+
+                    <Route
+                      path="fines"
+                      element={<FinesPage />}
+                    />
+
+                    <Route
+                      path="notifications"
+                      element={<NotificationsPage />}
+                    />
+
+                    <Route
+                      path="profile"
+                      element={<ProfilePage />}
+                    />
+
+                    <Route
+                      path="settings"
+                      element={<SettingsPage />}
+                    />
+                  </Route>
+
+                  {/* ========================= */}
+                  {/* ADMIN + LIBRARIAN */}
+                  {/* ========================= */}
+
+                  <Route
+                    element={
+                      <ProtectedRoute
+                        allowedRoles={[
+                          "ADMIN",
+                          "LIBRARIAN",
+                        ]}
+                      />
+                    }
+                  >
+                    <Route
+                      path="copies"
+                      element={<BookCopiesPage />}
+                    />
+
+                    <Route
+                      path="borrows"
+                      element={<BorrowManagementPage />}
+                    />
+
+                    <Route
+                      path="analytics"
+                      element={<AnalyticsPage />}
+                    />
+                  </Route>
+
                 </Route>
               </Route>
 
-              <Route path="*" element={<NotFoundPage />} />
+              {/* ========================= */}
+              {/* 404 */}
+              {/* ========================= */}
+
+              <Route
+                path="*"
+                element={<NotFoundPage />}
+              />
+
             </Routes>
           </Suspense>
 
