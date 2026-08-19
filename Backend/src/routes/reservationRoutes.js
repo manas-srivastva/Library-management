@@ -78,17 +78,16 @@ const router = express.Router();
  *         description: Book not found
  */
 router.post(
-
     "/",
-
     authMiddleware,
-
+    authorize(
+        ROLES.ADMIN,
+        ROLES.LIBRARIAN,
+        ROLES.MEMBER
+    ),
     createReservationValidator,
-
     validate,
-
     reservationController.create
-
 );
 
 
@@ -198,13 +197,14 @@ router.get(
  *         description: Reservation not found
  */
 router.put(
-
     "/cancel/:id",
-
     authMiddleware,
-
+    authorize(
+        ROLES.ADMIN,
+        ROLES.LIBRARIAN,
+        ROLES.MEMBER
+    ),
     reservationController.cancel
-
 );
 
 

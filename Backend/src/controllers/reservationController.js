@@ -1,12 +1,21 @@
 import asyncHandler from "../utils/asyncHandler.js";
 import ApiResponse from "../utils/ApiResponse.js";
-
+import ROLES from "../constants/roles.js";
 import * as reservationService from "../services/reservationService.js";
 
 export const create = asyncHandler(async (req, res) => {
 
+    const data = {
+        ...req.body
+    };
+
+    // MEMBER can only create a reservation for themselves
+    if (req.user.role === ROLES.MEMBER) {
+        data.user = req.user._id;
+    }
+
     const reservation =
-        await reservationService.createReservation(req.body);
+        await reservationService.createReservation(data);
 
     res.status(201).json(
         new ApiResponse(
@@ -22,6 +31,19 @@ export const getById = asyncHandler(async (req, res) => {
 
     const reservation =
         await reservationService.getById(req.params.id);
+
+    // MEMBER can only view their own reservation
+    if (
+        req.user.role === ROLES.MEMBER &&
+        reservation.user.toString() !== req.user._id.toString()
+    ) {
+        return res.status(403).json({
+            statusCode: 403,
+            success: false,
+            message: "Forbidden",
+            data: null
+        });
+    }
 
     res.status(200).json(
         new ApiResponse(
