@@ -50,12 +50,21 @@ export const getById = async (id) => {
 
 };
 
-export const getBookCopies =
-    async () => {
+export const getBookCopies = async ({
+    page = 1,
+    limit = 10,
+    search = "",
+    status
+} = {}) => {
 
-        return repo.findAll();
+    return repo.findAll({
+        page,
+        limit,
+        search,
+        status
+    });
 
-    };
+};
 
 
 export const updateBookCopy =

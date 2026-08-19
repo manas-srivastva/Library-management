@@ -32,17 +32,45 @@ export interface BookCopy {
   updatedAt?: string;
 }
 
+export interface BookCopyPagination {
+  copies: BookCopy[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 export const bookCopyApi = {
-  // GET /api/bookcopies
-  async getBookCopies() {
+
+  // GET /api/bookcopies?page=1&limit=10&search=&status=
+  async getBookCopies(params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: BookCopy["status"];
+  }) {
+
     const { data } =
-      await client.get<ApiResponse<BookCopy[]>>("/bookcopies");
+      await client.get<ApiResponse<BookCopyPagination>>(
+        "/bookcopies",
+        {
+          params: {
+            page: params?.page ?? 1,
+            limit: params?.limit ?? 10,
+            search: params?.search ?? "",
+            ...(params?.status
+              ? { status: params.status }
+              : {}),
+          },
+        }
+      );
 
     return data.data;
   },
 
   // GET /api/bookcopies/:id
   async getBookCopyById(id: string) {
+
     const { data } =
       await client.get<ApiResponse<BookCopy>>(
         `/bookcopies/${id}`
@@ -58,6 +86,7 @@ export const bookCopyApi = {
     shelfLocation: string;
     status?: BookCopy["status"];
   }) {
+
     const { data } =
       await client.post<ApiResponse<BookCopy>>(
         "/bookcopies",
@@ -76,6 +105,7 @@ export const bookCopyApi = {
       status?: BookCopy["status"];
     }
   ) {
+
     const { data } =
       await client.put<ApiResponse<BookCopy>>(
         `/bookcopies/${id}`,
@@ -87,6 +117,7 @@ export const bookCopyApi = {
 
   // DELETE /api/bookcopies/:id
   async deleteBookCopy(id: string) {
+
     const { data } =
       await client.delete<ApiResponse<null>>(
         `/bookcopies/${id}`

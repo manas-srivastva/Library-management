@@ -67,27 +67,37 @@ export const getBookCopies =
 
     asyncHandler(async (req, res) => {
 
-        const copies =
+        const {
+            page = 1,
+            limit = 10,
+            search = "",
+            status
+        } = req.query;
 
-            await service.getBookCopies();
+        const result =
+            await service.getBookCopies({
+
+                page: Number(page),
+
+                limit: Number(limit),
+
+                search,
+
+                status
+
+            });
 
         res.status(200).json(
 
             new ApiResponse(
-
                 200,
                 "Copies fetched",
-
-                copies
-
-                
-
+                result
             )
 
         );
 
     });
-
 
 export const updateBookCopy =
 
