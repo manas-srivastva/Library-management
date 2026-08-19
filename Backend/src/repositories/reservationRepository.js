@@ -16,6 +16,17 @@ export const findAll = () =>
 
         .populate("book");
 
+        export const findByUser = (userId) =>
+
+    Reservation.find({
+        user: userId
+    })
+        .populate("user")
+        .populate("book")
+        .sort({
+            createdAt: -1
+        });
+
 
 export const findById = (id) =>
 

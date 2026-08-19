@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Plus, X } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-
+import { useAuthContext } from '@/context/AuthContext';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { ReservationStatusBadge } from '@/components/shared/StatusBadges';
 import { Button } from '@/components/ui/Button';
@@ -43,19 +43,23 @@ export default function ReservationsPage() {
   const [selectedMember, setSelectedMember] = useState('');
 
   const queryClient = useQueryClient();
-
+const { user } = useAuthContext();
   // -----------------------------
   // RESERVATIONS
   // -----------------------------
 
   const {
-    data: reservations = [],
-    isLoading: reservationsLoading,
-    isError: reservationsError,
-  } = useQuery({
-    queryKey: ['reservations'],
-    queryFn: reservationApi.getReservations,
-  });
+  data: reservations = [],
+  isLoading: reservationsLoading,
+  isError: reservationsError,
+} = useQuery({
+  queryKey: ['reservations', user?.role, user?._id],
+  queryFn:
+    user?.role === 'MEMBER'
+      ? reservationApi.getMyReservations
+      : reservationApi.getReservations,
+  enabled: !!user,
+});
 
   // -----------------------------
   // BOOKS
@@ -73,13 +77,14 @@ export default function ReservationsPage() {
   // USERS
   // -----------------------------
 
-  const {
-    data: users = [],
-    isLoading: usersLoading,
-  } = useQuery({
-    queryKey: ['users'],
-    queryFn: usersApi.getUsers,
-  });
+ const {
+  data: users = [],
+  isLoading: usersLoading,
+} = useQuery({
+  queryKey: ['users'],
+  queryFn: usersApi.getUsers,
+  enabled: user?.role !== 'MEMBER',
+});
 
   // -----------------------------
   // FILTERING
@@ -175,22 +180,31 @@ export default function ReservationsPage() {
     cancelReservationMutation.mutate(id);
   };
 
-  const handleReserve = () => {
-    if (!selectedBook) {
-      toast.error('Please select a book');
-      return;
-    }
+const handleReserve = () => {
+  if (!selectedBook) {
+    toast.error('Please select a book');
+    return;
+  }
 
-    if (!selectedMember) {
-      toast.error('Please select a member');
-      return;
-    }
-
+  if (user?.role === 'MEMBER') {
     createReservationMutation.mutate({
-      user: selectedMember,
+      user: user.email,
       book: selectedBook,
     });
-  };
+
+    return;
+  }
+
+  if (!selectedMember) {
+    toast.error('Please select a member');
+    return;
+  }
+
+  createReservationMutation.mutate({
+    user: selectedMember,
+    book: selectedBook,
+  });
+};
 
   // -----------------------------
   // LOADING / ERROR
@@ -236,15 +250,17 @@ export default function ReservationsPage() {
         title="Reservations"
         description="Manage book holds and pickup queues."
         actions={
-          <Button
-            leftIcon={
-              <Plus className="h-4 w-4" />
-            }
-            onClick={() => setReserveOpen(true)}
-          >
-            Reserve Book
-          </Button>
-        }
+  user?.role !== 'MEMBER' ? (
+    <Button
+      leftIcon={
+        <Plus className="h-4 w-4" />
+      }
+      onClick={() => setReserveOpen(true)}
+    >
+      Reserve Book
+    </Button>
+  ) : undefined
+}
       />
 
       <Card className="p-5">
@@ -562,52 +578,51 @@ export default function ReservationsPage() {
 
           {/* MEMBER SELECT */}
 
-          <div>
+{/* MEMBER SELECT */}
 
-            <label className="mb-1.5 block text-sm font-medium text-fg">
-              Member
-            </label>
+{user?.role !== 'MEMBER' && (
+  <div>
 
-            <select
-              className="input-base"
-              value={selectedMember}
-              onChange={(e) =>
-                setSelectedMember(
-                  e.target.value
-                )
-              }
-              disabled={usersLoading}
-            >
+    <label className="mb-1.5 block text-sm font-medium text-fg">
+      Member
+    </label>
 
-              <option value="">
-                {usersLoading
-                  ? 'Loading members...'
-                  : 'Select a member'}
-              </option>
+    <select
+      className="input-base"
+      value={selectedMember}
+      onChange={(e) =>
+        setSelectedMember(e.target.value)
+      }
+      disabled={usersLoading}
+    >
 
-              {users
-                .filter(
-                  (user) =>
-                    user.role ===
-                    'MEMBER' &&
-                    user.status ===
-                    'ACTIVE'
-                )
-                .map((user) => (
+      <option value="">
+        {usersLoading
+          ? 'Loading members...'
+          : 'Select a member'}
+      </option>
 
-                  <option
-                    key={user._id}
-                    value={user.email}
-                  >
-                    {user.name} —{' '}
-                    {user.email}
-                  </option>
+      {users
+        .filter(
+          (user) =>
+            user.role === 'MEMBER' &&
+            user.status === 'ACTIVE'
+        )
+        .map((user) => (
 
-                ))}
+          <option
+            key={user._id}
+            value={user.email}
+          >
+            {user.name} — {user.email}
+          </option>
 
-            </select>
+        ))}
 
-          </div>
+    </select>
+
+  </div>
+)}
 
         </div>
 

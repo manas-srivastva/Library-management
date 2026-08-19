@@ -133,7 +133,11 @@ export const getAll = () =>
 
     reservationRepository.findAll();
 
+export const getUserReservations = (userId) =>
 
+    reservationRepository.findByUser(userId);
+
+    
 export const getById = async (id) => {
 
     const reservation =

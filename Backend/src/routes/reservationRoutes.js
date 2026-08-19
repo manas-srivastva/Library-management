@@ -131,6 +131,18 @@ router.get(
 
 );
 
+
+router.get(
+    "/my",
+    authMiddleware,
+    authorize(
+        ROLES.ADMIN,
+        ROLES.LIBRARIAN,
+        ROLES.MEMBER
+    ),
+    reservationController.getMyReservations
+);
+
 /**
  * @swagger
  * /api/reservations/{id}:

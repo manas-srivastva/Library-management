@@ -54,6 +54,23 @@ export const getById = asyncHandler(async (req, res) => {
 
 });
 
+export const getMyReservations = asyncHandler(async (req, res) => {
+
+    const reservations =
+        await reservationService.getUserReservations(
+            req.user._id
+        );
+
+    res.status(200).json(
+        new ApiResponse(
+            200,
+            "My reservations fetched successfully",
+            reservations
+        )
+    );
+
+});
+
 export const getAll = asyncHandler(async (req, res) => {
 
     const reservations =

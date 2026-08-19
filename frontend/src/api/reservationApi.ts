@@ -12,6 +12,12 @@ export const reservationApi = {
     return response.data.data || [];
   },
 
+  getMyReservations: async () => {
+    const response = await api.get("/reservations/my");
+
+    return response.data.data || [];
+  },
+
   getReservationById: async (id: string) => {
     const response = await api.get(`/reservations/${id}`);
 
