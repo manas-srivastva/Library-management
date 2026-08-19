@@ -179,15 +179,14 @@ router.get(
  *         description: Borrow record not found
  */
 router.get(
-
     "/:id",
-
     authMiddleware,
-
+    authorize(
+        ROLES.ADMIN,
+        ROLES.LIBRARIAN
+    ),
     borrowController.getById
-
 );
-
 
 /**
  * @swagger
@@ -270,13 +269,13 @@ router.put(
  *         description: User not found
  */
 router.get(
-
     "/user/:id",
-
     authMiddleware,
-
+    authorize(
+        ROLES.ADMIN,
+        ROLES.LIBRARIAN
+    ),
     borrowController.history
-
 );
 
 export default router;
