@@ -6,6 +6,9 @@ export interface User {
   email: string;
   role: string;
   status: string;
+  phone?: string;
+  profileImage?: string;
+  createdAt?: string;
 }
 
 export const userApi = {
@@ -29,5 +32,18 @@ export const userApi = {
     );
 
     return response.data.data;
+  },
+
+  updateProfile: async (data: {
+    name?: string;
+    phone?: string;
+    profileImage?: string;
+  }) => {
+    const response = await api.put(
+      "/users/profile",
+      data
+    );
+
+    return response.data.data as User;
   },
 };

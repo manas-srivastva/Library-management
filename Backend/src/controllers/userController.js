@@ -81,3 +81,47 @@ export const activateUser = asyncHandler(async (req, res) => {
   );
 
 });
+
+
+export const updateMyProfile = asyncHandler(
+  async (req, res) => {
+    const { name, phone, profileImage } = req.body;
+
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      throw new ApiError(
+        404,
+        "User not found"
+      );
+    }
+
+    if (name !== undefined) {
+      user.name = name;
+    }
+
+    if (phone !== undefined) {
+      user.phone = phone;
+    }
+
+    if (profileImage !== undefined) {
+      user.profileImage = profileImage;
+    }
+
+    await user.save();
+
+    const updatedUser = await User.findById(
+      user._id
+    ).select(
+      "_id name email role status phone profileImage"
+    );
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        updatedUser,
+        "Profile updated successfully"
+      )
+    );
+  }
+);
