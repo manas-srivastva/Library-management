@@ -20,28 +20,103 @@ import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 
 import { useAuthContext } from "@/context/AuthContext";
+import { userApi } from "@/api/usersApi";
 
 export default function ProfilePage() {
-  const { user } = useAuthContext();
+  const { user, refreshUser } = useAuthContext();
 
   const [name, setName] = useState(user?.name || "");
   const [phone, setPhone] = useState(user?.phone || "");
 
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
-    // Backend integration will be added next
-    toast.success("Profile updated successfully");
-  };
-
-  const handlePasswordUpdate = () => {
-    // Backend integration will be added next
-    toast.success("Password updated successfully");
-  };
+  const [isSaving, setIsSaving] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] =
+    useState(false);
 
   if (!user) {
     return null;
   }
+
+  const handleSave = async (
+    e: React.FormEvent
+  ) => {
+    e.preventDefault();
+
+    if (!name.trim()) {
+      toast.error("Name is required");
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+
+      await userApi.updateProfile({
+        name: name.trim(),
+        phone: phone.trim(),
+      });
+
+      await refreshUser();
+
+      toast.success(
+        "Profile updated successfully"
+      );
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message ||
+          "Failed to update profile"
+      );
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handlePasswordUpdate = async () => {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      toast.error("Please fill all password fields");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast.error(
+        "New password and confirm password do not match"
+      );
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      toast.error(
+        "New password must be at least 8 characters"
+      );
+      return;
+    }
+
+    try {
+      setIsChangingPassword(true);
+
+      await userApi.changePassword({
+        currentPassword,
+        newPassword,
+      });
+
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+
+      toast.success(
+        "Password updated successfully"
+      );
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message ||
+          "Failed to update password"
+      );
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
 
   return (
     <div>
@@ -51,11 +126,13 @@ export default function ProfilePage() {
       />
 
       <div className="grid gap-4 lg:grid-cols-3">
+
         {/* Profile Card */}
         <Card className="lg:col-span-1">
           <div className="relative h-24 rounded-t-2xl bg-gradient-to-r from-brand-500/20 to-accent-500/20" />
 
           <CardContent className="-mt-12 flex flex-col items-center text-center">
+
             <div className="relative">
               <Avatar
                 name={user.name}
@@ -81,36 +158,60 @@ export default function ProfilePage() {
             </p>
 
             <div className="mt-2">
-              <Badge tone="brand" className="capitalize">
+              <Badge
+                tone="brand"
+                className="capitalize"
+              >
                 {user.role.toLowerCase()}
               </Badge>
             </div>
 
             <div className="mt-5 grid w-full grid-cols-3 gap-2">
-              <Stat label="Borrowed" value={0} />
-              <Stat label="Reserved" value={0} />
-              <Stat label="Fines" value="$0" />
+              <Stat
+                label="Borrowed"
+                value={0}
+              />
+
+              <Stat
+                label="Reserved"
+                value={0}
+              />
+
+              <Stat
+                label="Fines"
+                value="$0"
+              />
             </div>
 
             <p className="mt-4 text-xs text-fg-subtle">
               Library member
             </p>
+
           </CardContent>
         </Card>
 
         {/* Personal Information */}
         <Card className="lg:col-span-2">
+
           <CardHeader>
-            <CardTitle>Personal Information</CardTitle>
+            <CardTitle>
+              Personal Information
+            </CardTitle>
           </CardHeader>
 
           <CardContent>
+
             <form
               className="space-y-4"
               onSubmit={handleSave}
             >
+
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Full name" icon={UserIcon}>
+
+                <Field
+                  label="Full name"
+                  icon={UserIcon}
+                >
                   <input
                     className="input-base pl-9"
                     value={name}
@@ -120,7 +221,10 @@ export default function ProfilePage() {
                   />
                 </Field>
 
-                <Field label="Email" icon={Mail}>
+                <Field
+                  label="Email"
+                  icon={Mail}
+                >
                   <input
                     className="input-base pl-9"
                     type="email"
@@ -129,7 +233,10 @@ export default function ProfilePage() {
                   />
                 </Field>
 
-                <Field label="Phone" icon={Phone}>
+                <Field
+                  label="Phone"
+                  icon={Phone}
+                >
                   <input
                     className="input-base pl-9"
                     placeholder="+91 XXXXX XXXXX"
@@ -139,9 +246,11 @@ export default function ProfilePage() {
                     }
                   />
                 </Field>
+
               </div>
 
               <div className="flex justify-end gap-2.5">
+
                 <Button
                   type="button"
                   variant="secondary"
@@ -153,22 +262,35 @@ export default function ProfilePage() {
                   Cancel
                 </Button>
 
-                <Button type="submit">
-                  Save changes
+                <Button
+                  type="submit"
+                  disabled={isSaving}
+                >
+                  {isSaving
+                    ? "Saving..."
+                    : "Save changes"}
                 </Button>
+
               </div>
+
             </form>
+
           </CardContent>
         </Card>
+
       </div>
 
       {/* Security */}
       <Card className="mt-6">
+
         <CardHeader>
-          <CardTitle>Security</CardTitle>
+          <CardTitle>
+            Security
+          </CardTitle>
         </CardHeader>
 
         <CardContent className="space-y-4">
+
           <Field
             label="Current password"
             icon={Shield}
@@ -177,10 +299,15 @@ export default function ProfilePage() {
               type="password"
               className="input-base pl-9"
               placeholder="••••••••"
+              value={currentPassword}
+              onChange={(e) =>
+                setCurrentPassword(e.target.value)
+              }
             />
           </Field>
 
           <div className="grid gap-4 sm:grid-cols-2">
+
             <Field
               label="New password"
               icon={Shield}
@@ -189,6 +316,10 @@ export default function ProfilePage() {
                 type="password"
                 className="input-base pl-9"
                 placeholder="••••••••"
+                value={newPassword}
+                onChange={(e) =>
+                  setNewPassword(e.target.value)
+                }
               />
             </Field>
 
@@ -200,20 +331,32 @@ export default function ProfilePage() {
                 type="password"
                 className="input-base pl-9"
                 placeholder="••••••••"
+                value={confirmPassword}
+                onChange={(e) =>
+                  setConfirmPassword(e.target.value)
+                }
               />
             </Field>
+
           </div>
 
           <div className="flex justify-end">
+
             <Button
               variant="secondary"
               onClick={handlePasswordUpdate}
+              disabled={isChangingPassword}
             >
-              Update password
+              {isChangingPassword
+                ? "Updating..."
+                : "Update password"}
             </Button>
+
           </div>
+
         </CardContent>
       </Card>
+
     </div>
   );
 }
@@ -227,6 +370,7 @@ function Stat({
 }) {
   return (
     <div className="rounded-xl border border-border-soft bg-bg-soft px-2 py-3">
+
       <p className="text-lg font-bold text-fg">
         {value}
       </p>
@@ -234,6 +378,7 @@ function Stat({
       <p className="text-xs text-fg-subtle">
         {label}
       </p>
+
     </div>
   );
 }
@@ -249,15 +394,19 @@ function Field({
 }) {
   return (
     <div>
+
       <label className="mb-1.5 block text-sm font-medium text-fg">
         {label}
       </label>
 
       <div className="relative">
+
         <Icon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fg-subtle" />
 
         {children}
+
       </div>
+
     </div>
   );
 }

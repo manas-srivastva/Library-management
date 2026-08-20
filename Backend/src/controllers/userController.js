@@ -92,8 +92,9 @@ export const updateProfile = asyncHandler(async (req, res) => {
   return res.status(200).json(
     new ApiResponse(
       200,
-      user,
-      "Profile updated successfully"
+      "Profile updated successfully",
+      user
+      
     )
   );
 });
@@ -140,8 +141,9 @@ export const changePassword = asyncHandler(async (req, res) => {
   return res.status(200).json(
     new ApiResponse(
       200,
-      null,
-      "Password updated successfully"
+      "Password updated successfully",
+      null
+      
     )
   );
 });
