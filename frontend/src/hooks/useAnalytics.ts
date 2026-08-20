@@ -1,32 +1,62 @@
 import { useQuery } from "@tanstack/react-query";
 import { analyticsApi } from "../api/analyticsApi";
+import { useAuthContext } from "@/context/AuthContext";
 
-export const useOverview = () =>
-    useQuery({
-        queryKey: ["analytics", "overview"],
-        queryFn: analyticsApi.getOverview,
-    });
+const useAnalyticsAccess = () => {
+  const { user } = useAuthContext();
 
-export const usePopularBooks = () =>
-    useQuery({
-        queryKey: ["analytics", "popular-books"],
-        queryFn: analyticsApi.getPopularBooks,
-    });
+  return (
+    user?.role === "ADMIN" ||
+    user?.role === "LIBRARIAN"
+  );
+};
 
-export const useActiveMembers = () =>
-    useQuery({
-        queryKey: ["analytics", "active-members"],
-        queryFn: analyticsApi.getActiveMembers,
-    });
+export const useOverview = () => {
+  const hasAccess = useAnalyticsAccess();
 
-export const useFineStats = () =>
-    useQuery({
-        queryKey: ["analytics", "fines"],
-        queryFn: analyticsApi.getFineStats,
-    });
+  return useQuery({
+    queryKey: ["analytics", "overview"],
+    queryFn: analyticsApi.getOverview,
+    enabled: hasAccess,
+  });
+};
 
-export const useMonthlyBorrows = () =>
-    useQuery({
-        queryKey: ["analytics", "monthly-borrows"],
-        queryFn: analyticsApi.getMonthlyBorrows,
-    });
+export const usePopularBooks = () => {
+  const hasAccess = useAnalyticsAccess();
+
+  return useQuery({
+    queryKey: ["analytics", "popular-books"],
+    queryFn: analyticsApi.getPopularBooks,
+    enabled: hasAccess,
+  });
+};
+
+export const useActiveMembers = () => {
+  const hasAccess = useAnalyticsAccess();
+
+  return useQuery({
+    queryKey: ["analytics", "active-members"],
+    queryFn: analyticsApi.getActiveMembers,
+    enabled: hasAccess,
+  });
+};
+
+export const useFineStats = () => {
+  const hasAccess = useAnalyticsAccess();
+
+  return useQuery({
+    queryKey: ["analytics", "fines"],
+    queryFn: analyticsApi.getFineStats,
+    enabled: hasAccess,
+  });
+};
+
+export const useMonthlyBorrows = () => {
+  const hasAccess = useAnalyticsAccess();
+
+  return useQuery({
+    queryKey: ["analytics", "monthly-borrows"],
+    queryFn: analyticsApi.getMonthlyBorrows,
+    enabled: hasAccess,
+  });
+};

@@ -65,13 +65,15 @@ const { user } = useAuthContext();
   // BOOKS
   // -----------------------------
 
-  const {
-    data: books = [],
-    isLoading: booksLoading,
-  } = useQuery({
-    queryKey: ['books'],
-    queryFn: bookApi.getBooks,
-  });
+const {
+  data: booksData,
+  isLoading: booksLoading,
+} = useQuery({
+  queryKey: ['books'],
+  queryFn: () => bookApi.getBooks({ limit: 100 }),
+});
+
+const books = booksData?.books ?? [];
 
   // -----------------------------
   // USERS
