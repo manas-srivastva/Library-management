@@ -13,7 +13,8 @@ import {
   getUsers,
   deactivateUser,
   activateUser,
-  updateMyProfile
+  updateProfile,
+  changePassword
 } from "../controllers/userController.js";
 
 const router = express.Router();
@@ -28,7 +29,7 @@ UPDATE MY PROFILE
 router.put(
   "/profile",
   authMiddleware,
-  updateMyProfile
+  updateProfile
 );
 
 
@@ -47,6 +48,18 @@ router.get(
 );
 
 
+
+router.put(
+  "/profile",
+  authMiddleware,
+  updateProfile
+);
+
+router.put(
+  "/change-password",
+  authMiddleware,
+  changePassword
+);
 /*
 =================================
 ACTIVATE USER

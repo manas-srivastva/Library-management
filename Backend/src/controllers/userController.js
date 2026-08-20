@@ -3,9 +3,6 @@ import asyncHandler from "../utils/asyncHandler.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import ApiError from "../utils/ApiError.js";
 
-
-
-
 export const getUsers = asyncHandler(async (req, res) => {
   const users = await User.find({
     role: "MEMBER",
@@ -22,16 +19,14 @@ export const getUsers = asyncHandler(async (req, res) => {
   );
 });
 
-
 export const deactivateUser = asyncHandler(async (req, res) => {
-
   const user = await User.findByIdAndUpdate(
     req.params.id,
     {
-      status: "INACTIVE"
+      status: "INACTIVE",
     },
     {
-      new: true
+      new: true,
     }
   ).select("_id name email role status");
 
@@ -45,23 +40,20 @@ export const deactivateUser = asyncHandler(async (req, res) => {
   return res.status(200).json(
     new ApiResponse(
       200,
-      "User deactivated successfully",
-      user
+      user,
+      "User deactivated successfully"
     )
   );
-
 });
-
 
 export const activateUser = asyncHandler(async (req, res) => {
-
   const user = await User.findByIdAndUpdate(
     req.params.id,
     {
-      status: "ACTIVE"
+      status: "ACTIVE",
     },
     {
-      new: true
+      new: true,
     }
   ).select("_id name email role status");
 
@@ -75,53 +67,81 @@ export const activateUser = asyncHandler(async (req, res) => {
   return res.status(200).json(
     new ApiResponse(
       200,
-      "User activated successfully",
-      user
+      user,
+      "User activated successfully"
     )
   );
-
 });
 
 
-export const updateMyProfile = asyncHandler(
-  async (req, res) => {
-    const { name, phone, profileImage } = req.body;
+export const updateProfile = asyncHandler(async (req, res) => {
+  const { name, phone } = req.body;
 
-    const user = await User.findById(req.user._id);
-
-    if (!user) {
-      throw new ApiError(
-        404,
-        "User not found"
-      );
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      name,
+      phone,
+    },
+    {
+      new: true,
+      runValidators: true,
     }
+  ).select("_id name email role status phone profileImage");
 
-    if (name !== undefined) {
-      user.name = name;
-    }
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      user,
+      "Profile updated successfully"
+    )
+  );
+});
 
-    if (phone !== undefined) {
-      user.phone = phone;
-    }
 
-    if (profileImage !== undefined) {
-      user.profileImage = profileImage;
-    }
+export const changePassword = asyncHandler(async (req, res) => {
+  const {
+    currentPassword,
+    newPassword,
+  } = req.body;
 
-    await user.save();
-
-    const updatedUser = await User.findById(
-      user._id
-    ).select(
-      "_id name email role status phone profileImage"
-    );
-
-    return res.status(200).json(
-      new ApiResponse(
-        200,
-        updatedUser,
-        "Profile updated successfully"
-      )
+  if (!currentPassword || !newPassword) {
+    throw new ApiError(
+      400,
+      "Current password and new password are required"
     );
   }
-);
+
+  const user = await User.findById(
+    req.user._id
+  ).select("+password");
+
+  if (!user) {
+    throw new ApiError(
+      404,
+      "User not found"
+    );
+  }
+
+  const isPasswordCorrect =
+    await user.comparePassword(currentPassword);
+
+  if (!isPasswordCorrect) {
+    throw new ApiError(
+      400,
+      "Current password is incorrect"
+    );
+  }
+
+  user.password = newPassword;
+
+  await user.save();
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      null,
+      "Password updated successfully"
+    )
+  );
+});
