@@ -18,7 +18,7 @@ import { Dropdown, DropdownItem } from '@/components/ui/Dropdown';
 
 import { reservationApi } from '@/api/reservationApi';
 import { bookApi } from '@/api/booksApi';
-import { usersApi } from '@/api/usersApi';
+import { userApi } from '@/api/usersApi';
 
 import { formatDate, paginate, totalPages } from '@/utils/format';
 
@@ -84,7 +84,7 @@ const books = booksData?.books ?? [];
   isLoading: usersLoading,
 } = useQuery({
   queryKey: ['users'],
-  queryFn: usersApi.getUsers,
+  queryFn: userApi.getUsers,
   enabled: user?.role !== 'MEMBER',
 });
 
