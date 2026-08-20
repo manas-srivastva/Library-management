@@ -4,16 +4,29 @@ export interface User {
   _id: string;
   name: string;
   email: string;
-  role: "ADMIN" | "LIBRARIAN" | "MEMBER";
-  status: "ACTIVE" | "INACTIVE";
+  role: string;
+  status: string;
 }
 
-export const usersApi = {
-  getUsers: async (): Promise<User[]> => {
+export const userApi = {
+  getUsers: async () => {
     const response = await api.get("/users");
 
-    console.log("USERS API RESPONSE:", response.data);
-    console.log("ACTUAL USERS ARRAY:", response.data.data);
+    return response.data.data || [];
+  },
+
+  activateUser: async (id: string) => {
+    const response = await api.put(
+      `/users/${id}/activate`
+    );
+
+    return response.data.data;
+  },
+
+  deactivateUser: async (id: string) => {
+    const response = await api.put(
+      `/users/${id}/deactivate`
+    );
 
     return response.data.data;
   },

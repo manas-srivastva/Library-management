@@ -2,6 +2,7 @@ import { lazy, Suspense } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ToastContainer } from "react-toastify";
+
 import "react-toastify/dist/ReactToastify.css";
 
 import { ThemeProvider, useTheme } from "@/context/ThemeContext";
@@ -26,26 +27,59 @@ function ThemedToast() {
 }
 
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
+
 const LoginPage = lazy(() => import("@/pages/LoginPage"));
+
 const RegisterPage = lazy(() => import("@/pages/RegisterPage"));
+
 const DashboardPage = lazy(() => import("@/pages/DashboardPage"));
+
 const BooksPage = lazy(() => import("@/pages/BooksPage"));
-const BookCopiesPage = lazy(() => import("@/pages/BookCopiesPage"));
+
+const BookCopiesPage = lazy(
+  () => import("@/pages/BookCopiesPage")
+);
+
 const BorrowManagementPage = lazy(
   () => import("@/pages/BorrowManagementPage")
 );
+
 const ReservationsPage = lazy(
   () => import("@/pages/ReservationsPage")
 );
-const FinesPage = lazy(() => import("@/pages/FinesPage"));
+
+const FinesPage = lazy(
+  () => import("@/pages/FinesPage")
+);
+
 const NotificationsPage = lazy(
   () => import("@/pages/NotificationsPage")
 );
-const AnalyticsPage = lazy(() => import("@/pages/AnalyticsPage"));
-const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
-const SettingsPage = lazy(() => import("@/pages/SettingsPage"));
-const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"));
-const MyBorrowsPage = lazy(() => import("@/pages/MyBorrowsPage"));
+
+const AnalyticsPage = lazy(
+  () => import("@/pages/AnalyticsPage")
+);
+
+const ProfilePage = lazy(
+  () => import("@/pages/ProfilePage")
+);
+
+const SettingsPage = lazy(
+  () => import("@/pages/SettingsPage")
+);
+
+const NotFoundPage = lazy(
+  () => import("@/pages/NotFoundPage")
+);
+
+const MyBorrowsPage = lazy(
+  () => import("@/pages/MyBorrowsPage")
+);
+
+const UsersPage = lazy(
+  () => import("@/pages/UsersPage")
+);
+
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -58,16 +92,31 @@ export default function App() {
               {/* PUBLIC ROUTES */}
               {/* ========================= */}
 
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
+              <Route
+                path="/"
+                element={<LandingPage />}
+              />
+
+              <Route
+                path="/login"
+                element={<LoginPage />}
+              />
+
+              <Route
+                path="/register"
+                element={<RegisterPage />}
+              />
 
               {/* ========================= */}
               {/* AUTHENTICATED ROUTES */}
               {/* ========================= */}
 
               <Route element={<ProtectedRoute />}>
-                <Route path="/app" element={<DashboardLayout />}>
+
+                <Route
+                  path="/app"
+                  element={<DashboardLayout />}
+                >
 
                   {/* ========================= */}
                   {/* ALL AUTHENTICATED USERS */}
@@ -94,6 +143,7 @@ export default function App() {
                       />
                     }
                   >
+
                     <Route
                       path="dashboard"
                       element={<DashboardPage />}
@@ -103,6 +153,7 @@ export default function App() {
                       path="books"
                       element={<BooksPage />}
                     />
+
                     <Route
                       path="my-borrows"
                       element={<MyBorrowsPage />}
@@ -132,6 +183,7 @@ export default function App() {
                       path="settings"
                       element={<SettingsPage />}
                     />
+
                   </Route>
 
                   {/* ========================= */}
@@ -148,6 +200,7 @@ export default function App() {
                       />
                     }
                   >
+
                     <Route
                       path="copies"
                       element={<BookCopiesPage />}
@@ -162,9 +215,30 @@ export default function App() {
                       path="analytics"
                       element={<AnalyticsPage />}
                     />
+
+                  </Route>
+
+                  {/* ========================= */}
+                  {/* ADMIN ONLY */}
+                  {/* ========================= */}
+
+                  <Route
+                    element={
+                      <ProtectedRoute
+                        allowedRoles={["ADMIN"]}
+                      />
+                    }
+                  >
+
+                    <Route
+                      path="users"
+                      element={<UsersPage />}
+                    />
+
                   </Route>
 
                 </Route>
+
               </Route>
 
               {/* ========================= */}
