@@ -15,6 +15,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Dropdown, DropdownItem } from '@/components/ui/Dropdown';
 import { useTheme } from '@/context/ThemeContext';
 import { useSidebar } from '@/context/SidebarContext';
+import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/utils/cn';
 
 const notifications = [
@@ -26,6 +27,7 @@ const notifications = [
 export function Navbar() {
   const { theme, toggleTheme } = useTheme();
   const { setMobileOpen } = useSidebar();
+  const { logout } = useAuth();
   const navigate = useNavigate();
 
   return (
@@ -145,7 +147,10 @@ export function Navbar() {
               <DropdownItem
                 icon={<LogOut className="h-4 w-4" />}
                 danger
-                onClick={() => navigate('/login')}
+                onClick={() => {
+                  logout();
+                  navigate('/login', { replace: true });
+                }}
               >
                 Sign out
               </DropdownItem>

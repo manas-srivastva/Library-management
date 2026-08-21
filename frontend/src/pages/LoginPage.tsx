@@ -16,7 +16,7 @@ interface FormValues {
 export default function LoginPage() {
   const navigate = useNavigate();
 
-  const { login, isAuthenticated } = useAuth();
+  const { login, user, isAuthenticated } = useAuth();
 
   const {
     register,
@@ -26,9 +26,14 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/app/dashboard", { replace: true });
+      navigate(
+        user?.role === "ADMIN"
+          ? "/app/users"
+          : "/app/dashboard",
+        { replace: true }
+      );
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, user]);
 
   const onSubmit = async (data: FormValues) => {
  
@@ -37,10 +42,6 @@ export default function LoginPage() {
     await login(data);
 
     toast.success("Login successful");
-
-    // Don't navigate manually.
-    // LoginPage's useEffect will redirect automatically
-    // when isAuthenticated becomes true.
   } catch (error: any) {
     console.error(error);
 
