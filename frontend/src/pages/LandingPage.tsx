@@ -114,6 +114,24 @@ export default function LandingPage() {
             </div>
           </motion.div>
 
+          <motion.div
+            initial={{ opacity: 0, y: 18, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.7, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            className="book-hero-frame mx-auto mt-14 max-w-4xl"
+          >
+            <div className="book-hero-glow" />
+            <img
+              src="/Book1.png"
+              alt="An open book in a quiet library setting"
+              className="book-hero-image"
+            />
+            <div className="book-hero-caption">
+              <span className="h-2 w-2 rounded-full bg-brand-400 shadow-glow-sm" />
+              A calmer way to run your library
+            </div>
+          </motion.div>
+
           {/* Preview card */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}

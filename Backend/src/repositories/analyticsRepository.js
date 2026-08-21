@@ -134,14 +134,16 @@ export const fineStats = () =>
 
 export const monthlyBorrows = async () => {
     const year = new Date().getFullYear();
-    const startOfYear = new Date(year, 0, 1);
+    // LibraAI launched in August, so earlier months are not part of the live graph.
+    const launchMonth = 7;
+    const startOfLaunch = new Date(year, launchMonth, 1);
     const startOfNextYear = new Date(year + 1, 0, 1);
 
     const data = await BorrowRecord.aggregate([
         {
             $match: {
                 issueDate: {
-                    $gte: startOfYear,
+                    $gte: startOfLaunch,
                     $lt: startOfNextYear,
                 },
             },
@@ -180,13 +182,13 @@ export const monthlyBorrows = async () => {
         "Dec",
     ];
 
-    const monthlyData = monthNames.map((month) => ({
+    const monthlyData = monthNames.slice(launchMonth).map((month) => ({
         month,
         total: 0,
     }));
 
     data.forEach((item) => {
-        monthlyData[item._id.month - 1].total = item.total;
+        monthlyData[item._id.month - launchMonth - 1].total = item.total;
     });
 
     return monthlyData;

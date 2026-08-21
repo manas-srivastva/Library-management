@@ -13,7 +13,17 @@ export function DashboardLayout() {
         <Sidebar />
         <div className="flex min-w-0 flex-1 flex-col">
           <Navbar />
-          <main className="app-canvas relative flex-1 px-4 py-6 lg:px-8 lg:py-8">
+          <main className="app-canvas relative flex-1 overflow-hidden px-4 py-6 lg:px-8 lg:py-8">
+            <div className="library-atmosphere" aria-hidden="true">
+              <div className="library-bookmark library-bookmark-one" />
+              <div className="library-bookmark library-bookmark-two" />
+              <div className="library-bookmark library-bookmark-three" />
+              <div className="library-open-book">
+                <span className="library-page library-page-left" />
+                <span className="library-page library-page-right" />
+                <span className="library-spine" />
+              </div>
+            </div>
             <AnimatePresence mode="wait">
               <motion.div
                 key={location.pathname}

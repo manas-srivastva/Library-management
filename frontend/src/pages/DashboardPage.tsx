@@ -195,11 +195,11 @@ export default function DashboardPage() {
 
       <div className="mt-6 grid gap-3 rounded-2xl border border-border-soft bg-bg-card/60 p-4 shadow-card sm:grid-cols-3 sm:p-5">
         <div className="border-border-soft sm:border-r sm:pr-5">
-          <p className="eyebrow">Year to date</p>
+          <p className="eyebrow">Since launch</p>
           <p className="mt-2 text-xl font-semibold tabular-nums text-fg">
             {monthlyLoading ? '...' : currentYearBorrows}
           </p>
-          <p className="mt-1 text-xs text-fg-subtle">Borrows recorded this year</p>
+          <p className="mt-1 text-xs text-fg-subtle">Borrows recorded since August</p>
         </div>
         <div className="border-border-soft sm:border-r sm:pr-5">
           <p className="eyebrow">Leading title</p>
@@ -229,7 +229,7 @@ export default function DashboardPage() {
 
         <ChartCard
           title="Monthly Borrows"
-          subtitle={`Borrow activity in ${new Date().getFullYear()}`}
+          subtitle={`Borrow activity since August ${new Date().getFullYear()}`}
           className="w-full"
           action={
             <Badge tone="brand" dot>
