@@ -133,7 +133,19 @@ export const fineStats = () =>
     ]);
 
 export const monthlyBorrows = async () => {
+    const year = new Date().getFullYear();
+    const startOfYear = new Date(year, 0, 1);
+    const startOfNextYear = new Date(year + 1, 0, 1);
+
     const data = await BorrowRecord.aggregate([
+        {
+            $match: {
+                issueDate: {
+                    $gte: startOfYear,
+                    $lt: startOfNextYear,
+                },
+            },
+        },
         {
             $group: {
                 _id: {
@@ -168,7 +180,7 @@ export const monthlyBorrows = async () => {
         "Dec",
     ];
 
-    const monthlyData = monthNames.map((month, index) => ({
+    const monthlyData = monthNames.map((month) => ({
         month,
         total: 0,
     }));

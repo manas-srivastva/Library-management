@@ -7,54 +7,54 @@
     color-scheme: light;
 
     /* Light theme semantic tokens */
-    --bg: #f4f5f7;
+    --bg: #f3f6f3;
     --bg-soft: #ffffff;
-    --bg-card: #ffffff;
-    --bg-elevated: #f1f3f5;
-    --bg-hover: #e9ecef;
-    --bg-inset: #eef0f3;
+    --bg-card: #fbfdfb;
+    --bg-elevated: #edf3ef;
+    --bg-hover: #e4eee8;
+    --bg-inset: #edf4f0;
 
-    --border: #e2e5ea;
-    --border-soft: #eef0f3;
-    --border-strong: #d1d5db;
-    --border-faint: #f1f3f5;
+    --border: #dce7df;
+    --border-soft: #e9f0eb;
+    --border-strong: #bfd2c5;
+    --border-faint: #f0f6f2;
 
-    --fg: #0f1115;
-    --fg-muted: #5a6270;
-    --fg-subtle: #8a929e;
-    --fg-faint: #b0b6c0;
+    --fg: #10231b;
+    --fg-muted: #587067;
+    --fg-subtle: #82978e;
+    --fg-faint: #aebdb5;
 
     --shadow-card: 0 1px 2px 0 rgba(0, 0, 0, 0.05), 0 1px 0 0 rgba(0, 0, 0, 0.02) inset;
-    --shadow-card-hover: 0 4px 24px -8px rgba(0, 0, 0, 0.1), 0 1px 0 0 rgba(0, 0, 0, 0.02) inset;
+    --shadow-card-hover: 0 16px 36px -18px rgba(20, 79, 53, 0.24), 0 1px 0 0 rgba(255, 255, 255, 0.7) inset;
     --shadow-pop: 0 24px 64px -16px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.05);
     --shadow-pop-sm: 0 12px 32px -12px rgba(0, 0, 0, 0.14), 0 0 0 1px rgba(0, 0, 0, 0.04);
     --shadow-inset: inset 0 1px 2px 0 rgba(0, 0, 0, 0.06);
     --shadow-glow: 0 0 0 1px rgba(31, 185, 136, 0.25), 0 8px 30px -10px rgba(31, 185, 136, 0.25);
     --shadow-glow-sm: 0 0 0 1px rgba(31, 185, 136, 0.18), 0 4px 16px -8px rgba(31, 185, 136, 0.2);
 
-    --grid-line: rgba(0, 0, 0, 0.04);
+    --grid-line: rgba(22, 87, 57, 0.065);
     --shimmer: rgba(0, 0, 0, 0.05);
   }
 
   html.dark {
     color-scheme: dark;
 
-    --bg: #08090c;
-    --bg-soft: #0e0f14;
-    --bg-card: #121319;
-    --bg-elevated: #181a21;
-    --bg-hover: #1e2029;
-    --bg-inset: #0b0c10;
+    --bg: #08120f;
+    --bg-soft: #0b1914;
+    --bg-card: #10201a;
+    --bg-elevated: #162a22;
+    --bg-hover: #1b352b;
+    --bg-inset: #0b1813;
 
-    --border: #1f222c;
-    --border-soft: #181a22;
-    --border-strong: #2a2e3b;
-    --border-faint: #141620;
+    --border: #1e3a2d;
+    --border-soft: #173025;
+    --border-strong: #2d5943;
+    --border-faint: #12261d;
 
-    --fg: #eceef3;
-    --fg-muted: #a0a6b5;
-    --fg-subtle: #6c7280;
-    --fg-faint: #4a4f5d;
+    --fg: #eef8f1;
+    --fg-muted: #a2c0ae;
+    --fg-subtle: #6f9580;
+    --fg-faint: #456653;
 
     --shadow-card: 0 1px 2px 0 rgba(0, 0, 0, 0.4), 0 1px 0 0 rgba(255, 255, 255, 0.03) inset;
     --shadow-card-hover: 0 4px 24px -8px rgba(0, 0, 0, 0.5), 0 1px 0 0 rgba(255, 255, 255, 0.04) inset;
@@ -64,7 +64,7 @@
     --shadow-glow: 0 0 0 1px rgba(31, 185, 136, 0.20), 0 8px 30px -10px rgba(31, 185, 136, 0.30);
     --shadow-glow-sm: 0 0 0 1px rgba(31, 185, 136, 0.15), 0 4px 16px -8px rgba(31, 185, 136, 0.25);
 
-    --grid-line: rgba(255, 255, 255, 0.022);
+    --grid-line: rgba(104, 205, 145, 0.04);
     --shimmer: rgba(255, 255, 255, 0.05);
   }
 
@@ -84,9 +84,9 @@
     background-color: var(--bg);
     color: var(--fg);
     background-image:
-      radial-gradient(64rem 64rem at 78% -8%, rgba(31, 185, 136, 0.055), transparent 62%),
-      radial-gradient(52rem 52rem at -8% 8%, rgba(139, 92, 246, 0.045), transparent 58%),
-      radial-gradient(40rem 40rem at 50% 120%, rgba(31, 185, 136, 0.03), transparent 60%);
+      radial-gradient(56rem 32rem at 82% -6%, rgba(31, 185, 136, 0.09), transparent 65%),
+      radial-gradient(42rem 30rem at -8% 15%, rgba(245, 158, 11, 0.055), transparent 62%),
+      linear-gradient(135deg, transparent 0 48%, rgba(31, 185, 136, 0.018) 49% 51%, transparent 52%);
     background-attachment: fixed;
     min-height: 100vh;
     letter-spacing: 0;
@@ -95,8 +95,9 @@
 
   html:not(.dark) body {
     background-image:
-      radial-gradient(60rem 60rem at 78% -8%, rgba(31, 185, 136, 0.08), transparent 62%),
-      radial-gradient(52rem 52rem at -8% 8%, rgba(139, 92, 246, 0.05), transparent 58%);
+      radial-gradient(60rem 34rem at 78% -8%, rgba(31, 185, 136, 0.1), transparent 62%),
+      radial-gradient(42rem 30rem at -8% 8%, rgba(245, 158, 11, 0.065), transparent 58%),
+      linear-gradient(135deg, transparent 0 48%, rgba(31, 185, 136, 0.018) 49% 51%, transparent 52%);
   }
 
   ::selection {
@@ -141,9 +142,10 @@
     box-shadow: var(--shadow-card);
   }
   .card-hover {
-    transition: all 0.3s ease-out;
+    transition: transform 0.3s ease-out, border-color 0.3s ease-out, box-shadow 0.3s ease-out, background-color 0.3s ease-out;
   }
   .card-hover:hover {
+    transform: translateY(-3px);
     border-color: var(--border-strong);
     box-shadow: var(--shadow-card-hover);
     background-color: var(--bg-elevated);
@@ -187,6 +189,8 @@
     box-shadow: 0 0 0 2px rgba(31, 185, 136, 0.15);
   }
   .btn {
+    position: relative;
+    overflow: hidden;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -209,6 +213,18 @@
   }
   .btn:active {
     transform: scale(0.97);
+  }
+  .btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    transform: translateX(-120%);
+    background: linear-gradient(110deg, transparent 28%, rgba(255, 255, 255, 0.18) 50%, transparent 72%);
+    transition: transform 0.55s ease;
+  }
+  .btn:hover::after {
+    transform: translateX(120%);
   }
   .btn-primary {
     background-color: #1fb988;
@@ -301,6 +317,12 @@
     line-height: 1rem;
     text-transform: uppercase;
   }
+  .surface-enter {
+    animation: surface-enter 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .surface-enter-delayed {
+    animation: surface-enter 0.55s 0.1s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
   .gradient-text {
     background: linear-gradient(to right, #43d0a1, #7ce3bf, #a78bfa);
     -webkit-background-clip: text;
@@ -372,5 +394,19 @@
 @keyframes shimmer {
   100% {
     transform: translateX(100%);
+  }
+}
+
+@keyframes surface-enter {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
   }
 }

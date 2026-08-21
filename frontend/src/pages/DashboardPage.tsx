@@ -15,12 +15,9 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
-  Cell,
   Legend,
   Line,
   LineChart,
-  Pie,
-  PieChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -34,14 +31,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
-
-import {
-  categoryDistribution,
-  placeholderActivity,
-} from '@/data/placeholders';
-
-import { relativeTime } from '@/utils/format';
-import { cn } from '@/utils/cn';
+import { formatCurrency } from '@/utils/format';
 
 import {
   useOverview,
@@ -50,32 +40,6 @@ import {
   useFineStats,
   useMonthlyBorrows,
 } from '@/hooks/useAnalytics';
-
-const PIE_COLORS = [
-  '#1fb988',
-  '#3b82f6',
-  '#8b5cf6',
-  '#f59e0b',
-  '#ef4444',
-];
-
-const activityIcon: Record<string, typeof BookOpen> = {
-  borrow: CalendarClock,
-  return: BookOpen,
-  reserve: Library,
-  fine: Receipt,
-  add_book: Plus,
-  register: Users,
-};
-
-const activityTone: Record<string, string> = {
-  borrow: 'bg-info-500/10 text-info-400',
-  return: 'bg-success-500/10 text-success-400',
-  reserve: 'bg-warning-500/10 text-warning-400',
-  fine: 'bg-danger-500/10 text-danger-400',
-  add_book: 'bg-brand-500/10 text-brand-400',
-  register: 'bg-accent-500/10 text-accent-400',
-};
 
 export default function DashboardPage() {
   const navigate = useNavigate();
@@ -92,22 +56,36 @@ export default function DashboardPage() {
   const {
     data: monthlyBorrows,
     isLoading: monthlyLoading,
+    isError: monthlyError,
   } = useMonthlyBorrows();
 
   const {
     data: popularBooks,
     isLoading: popularLoading,
+    isError: popularError,
   } = usePopularBooks();
 
   const {
     data: activeMembers,
     isLoading: membersLoading,
+    isError: membersError,
   } = useActiveMembers();
 
   const {
     data: fineStats,
     isLoading: fineLoading,
+    isError: fineError,
   } = useFineStats();
+
+  const currentYearBorrows = (monthlyBorrows ?? []).reduce(
+    (total, month) => total + month.total,
+    0,
+  );
+  const fineTotal = (fineStats ?? []).reduce(
+    (total, stat) => total + stat.total,
+    0,
+  );
+  const topBook = popularBooks?.[0];
 
   return (
     <div>
@@ -215,18 +193,44 @@ export default function DashboardPage() {
 
       </div>
 
+      <div className="mt-6 grid gap-3 rounded-2xl border border-border-soft bg-bg-card/60 p-4 shadow-card sm:grid-cols-3 sm:p-5">
+        <div className="border-border-soft sm:border-r sm:pr-5">
+          <p className="eyebrow">Year to date</p>
+          <p className="mt-2 text-xl font-semibold tabular-nums text-fg">
+            {monthlyLoading ? '...' : currentYearBorrows}
+          </p>
+          <p className="mt-1 text-xs text-fg-subtle">Borrows recorded this year</p>
+        </div>
+        <div className="border-border-soft sm:border-r sm:pr-5">
+          <p className="eyebrow">Leading title</p>
+          <p className="mt-2 truncate text-base font-semibold text-fg">
+            {popularLoading ? 'Loading...' : topBook?.title ?? 'No borrow data'}
+          </p>
+          <p className="mt-1 text-xs text-fg-subtle">
+            {topBook ? `${topBook.borrowCount} recorded borrows` : 'Awaiting activity'}
+          </p>
+        </div>
+        <div>
+          <p className="eyebrow">Fine exposure</p>
+          <p className="mt-2 text-xl font-semibold tabular-nums text-fg">
+            {fineLoading ? '...' : formatCurrency(fineTotal)}
+          </p>
+          <p className="mt-1 text-xs text-fg-subtle">Across backend fine records</p>
+        </div>
+      </div>
+
       {/* ========================================= */}
-      {/* MONTHLY BORROWS + CATEGORIES */}
+      {/* MONTHLY BORROWS */}
       {/* ========================================= */}
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-3">
+      <div className="mt-6 grid gap-4">
 
         {/* MONTHLY BORROWS - BACKEND */}
 
         <ChartCard
           title="Monthly Borrows"
-          subtitle="Borrow activity from the backend"
-          className="lg:col-span-2"
+          subtitle={`Borrow activity in ${new Date().getFullYear()}`}
+          className="w-full"
           action={
             <Badge tone="brand" dot>
               <TrendingUp className="h-3 w-3" />
@@ -236,142 +240,32 @@ export default function DashboardPage() {
         >
 
           <div className="h-72">
-
-            <ResponsiveContainer
-              width="100%"
-              height="100%"
-            >
-
-              <LineChart
-                data={
-                  monthlyLoading
-                    ? []
-                    : monthlyBorrows ?? []
-                }
-                margin={{
-                  left: -16,
-                  right: 8,
-                  top: 8,
-                }}
-              >
-
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="#1c2029"
-                  vertical={false}
-                />
-
-                <XAxis
-                  dataKey="month"
-                  stroke="#6b7280"
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                />
-
-                <YAxis
-                  stroke="#6b7280"
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                />
-
-                <Tooltip
-                  contentStyle={{
-                    background: '#14161d',
-                    border: '1px solid #232733',
-                    borderRadius: 12,
-                    fontSize: 12,
-                  }}
-                />
-
-                <Legend
-                  wrapperStyle={{
-                    fontSize: 12,
-                  }}
-                />
-
-                <Line
-                  type="monotone"
-                  dataKey="total"
-                  name="Borrows"
-                  stroke="#1fb988"
-                  strokeWidth={2.5}
-                  dot={{ r: 3 }}
-                  activeDot={{ r: 5 }}
-                />
-
-              </LineChart>
-
-            </ResponsiveContainer>
-
-          </div>
-
-        </ChartCard>
-
-        {/* CATEGORY DISTRIBUTION
-            Still placeholder because backend
-            currently has no category analytics endpoint.
-        */}
-
-        <ChartCard
-          title="Categories"
-          subtitle="Distribution by genre"
-        >
-
-          <div className="h-72">
-
-            <ResponsiveContainer
-              width="100%"
-              height="100%"
-            >
-
-              <PieChart>
-
-                <Pie
-                  data={categoryDistribution}
-                  dataKey="value"
-                  nameKey="name"
-                  innerRadius={55}
-                  outerRadius={85}
-                  paddingAngle={3}
-                  stroke="none"
+            {monthlyLoading ? (
+              <div className="flex h-full items-center justify-center text-sm text-fg-subtle">
+                Loading borrow activity...
+              </div>
+            ) : monthlyError ? (
+              <div className="flex h-full items-center justify-center text-sm text-danger-400">
+                Unable to load borrow activity.
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart
+                  data={monthlyBorrows ?? []}
+                  margin={{ left: -16, right: 8, top: 8 }}
                 >
-
-                  {categoryDistribution.map(
-                    (_, i) => (
-                      <Cell
-                        key={i}
-                        fill={
-                          PIE_COLORS[
-                            i %
-                              PIE_COLORS.length
-                          ]
-                        }
-                      />
-                    )
-                  )}
-
-                </Pie>
-
-                <Tooltip
-                  contentStyle={{
-                    background: '#14161d',
-                    border: '1px solid #232733',
-                    borderRadius: 12,
-                    fontSize: 12,
-                  }}
-                />
-
-                <Legend
-                  wrapperStyle={{
-                    fontSize: 12,
-                  }}
-                />
-
-              </PieChart>
-
-            </ResponsiveContainer>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1c2029" vertical={false} />
+                  <XAxis dataKey="month" stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
+                  <YAxis stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
+                  <Tooltip
+                    formatter={(value: number) => [value, 'Borrows']}
+                    contentStyle={{ background: '#14161d', border: '1px solid #232733', borderRadius: 12, fontSize: 12 }}
+                  />
+                  <Legend wrapperStyle={{ fontSize: 12 }} />
+                  <Line type="monotone" dataKey="total" name="Borrows" stroke="#1fb988" strokeWidth={2.5} dot={{ r: 3 }} activeDot={{ r: 5 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
 
           </div>
 
@@ -395,6 +289,19 @@ export default function DashboardPage() {
 
           <div className="h-72">
 
+            {popularLoading ? (
+              <div className="flex h-full items-center justify-center text-sm text-fg-subtle">
+                Loading popular titles...
+              </div>
+            ) : popularError ? (
+              <div className="flex h-full items-center justify-center text-sm text-danger-400">
+                Unable to load popular titles.
+              </div>
+            ) : !popularBooks?.length ? (
+              <div className="flex h-full items-center justify-center text-sm text-fg-subtle">
+                No borrow activity available yet.
+              </div>
+            ) : (
             <ResponsiveContainer
               width="100%"
               height="100%"
@@ -470,6 +377,7 @@ export default function DashboardPage() {
               </BarChart>
 
             </ResponsiveContainer>
+            )}
 
           </div>
 
@@ -504,6 +412,10 @@ export default function DashboardPage() {
                 Loading members...
               </p>
 
+            ) : membersError ? (
+              <p className="px-2 py-4 text-sm text-danger-400">
+                Unable to load active members.
+              </p>
             ) : (
 
               (activeMembers ?? [])
@@ -595,6 +507,19 @@ export default function DashboardPage() {
 
           <div className="h-64">
 
+            {fineLoading ? (
+              <div className="flex h-full items-center justify-center text-sm text-fg-subtle">
+                Loading fine statistics...
+              </div>
+            ) : fineError ? (
+              <div className="flex h-full items-center justify-center text-sm text-danger-400">
+                Unable to load fine statistics.
+              </div>
+            ) : !fineStats?.length ? (
+              <div className="flex h-full items-center justify-center text-sm text-fg-subtle">
+                No fine records available yet.
+              </div>
+            ) : (
             <ResponsiveContainer
               width="100%"
               height="100%"
@@ -669,108 +594,13 @@ export default function DashboardPage() {
               </BarChart>
 
             </ResponsiveContainer>
+            )}
 
           </div>
 
         </ChartCard>
 
       </div>
-
-      {/* ========================================= */}
-      {/* RECENT ACTIVITY */}
-      {/* ========================================= */}
-
-      {/* 
-        This is still placeholder data because your
-        backend currently has no /analytics/activity
-        endpoint.
-      */}
-
-      <Card className="mt-6 p-5">
-
-        <div className="mb-4 flex items-center justify-between">
-
-          <h3 className="text-base font-semibold text-fg">
-            Recent Activity
-          </h3>
-
-          <Badge tone="neutral">
-            Last 7 days
-          </Badge>
-
-        </div>
-
-        <div className="space-y-1">
-
-          {placeholderActivity.map(
-            (activity, index) => {
-
-              const Icon =
-                activityIcon[
-                  activity.type
-                ] ?? BookOpen;
-
-              return (
-
-                <motion.div
-                  key={activity.id}
-                  initial={{
-                    opacity: 0,
-                    y: 6,
-                  }}
-                  animate={{
-                    opacity: 1,
-                    y: 0,
-                  }}
-                  transition={{
-                    delay:
-                      index * 0.04,
-                  }}
-                  className="flex items-center gap-3 rounded-xl px-2 py-2.5 hover:bg-bg-elevated/60 transition"
-                >
-
-                  <div
-                    className={cn(
-                      'flex h-9 w-9 items-center justify-center rounded-lg',
-                      activityTone[
-                        activity.type
-                      ]
-                    )}
-                  >
-
-                    <Icon className="h-4 w-4" />
-
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-
-                    <p className="text-sm text-fg">
-
-                      <span className="font-semibold">
-                        {activity.user}
-                      </span>{' '}
-
-                      {activity.message}
-
-                    </p>
-
-                  </div>
-
-                  <span className="text-xs text-fg-subtle">
-                    {relativeTime(
-                      activity.timestamp
-                    )}
-                  </span>
-
-                </motion.div>
-
-              );
-            }
-          )}
-
-        </div>
-
-      </Card>
 
     </div>
   );

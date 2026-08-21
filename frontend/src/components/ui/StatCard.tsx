@@ -47,7 +47,7 @@ export function StatCard({ label, value, icon: Icon, trend, accent = 'brand', de
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay, ease: [0.16, 1, 0.3, 1] }}
-      className="card card-hover card-glow group relative overflow-hidden p-5"
+      className="card card-hover card-glow surface-enter group relative overflow-hidden p-5"
       style={{ '--glow-y': '0%' } as React.CSSProperties}
     >
       {/* Subtle top gradient */}
