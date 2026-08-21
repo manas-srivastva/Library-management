@@ -89,7 +89,7 @@
       radial-gradient(40rem 40rem at 50% 120%, rgba(31, 185, 136, 0.03), transparent 60%);
     background-attachment: fixed;
     min-height: 100vh;
-    letter-spacing: -0.011em;
+    letter-spacing: 0;
     transition: background-color 0.3s ease, color 0.3s ease;
   }
 
@@ -135,9 +135,9 @@
     border: 1px solid var(--border-soft);
   }
   .card {
-    background-color: var(--bg-card);
+    background-color: color-mix(in srgb, var(--bg-card) 94%, var(--brand-500, #1fb988));
     border: 1px solid var(--border);
-    border-radius: 1rem;
+    border-radius: 0.875rem;
     box-shadow: var(--shadow-card);
   }
   .card-hover {
@@ -168,7 +168,7 @@
     width: 100%;
     background-color: var(--bg-inset);
     border: 1px solid var(--border);
-    border-radius: 0.75rem;
+    border-radius: 0.625rem;
     padding: 0.625rem 0.875rem;
     font-size: 0.875rem;
     line-height: 1.25rem;
@@ -191,7 +191,8 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    border-radius: 0.75rem;
+    min-height: 2.625rem;
+    border-radius: 0.625rem;
     font-size: 0.875rem;
     font-weight: 500;
     transition: all 0.2s;
@@ -277,6 +278,29 @@
     -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 80%);
     mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 80%);
   }
+  .app-canvas {
+    position: relative;
+    isolation: isolate;
+  }
+  .app-canvas::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    pointer-events: none;
+    background-image: linear-gradient(to right, var(--grid-line) 1px, transparent 1px), linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size: 72px 72px;
+    mask-image: linear-gradient(to bottom, black, transparent 72%);
+    opacity: 0.45;
+  }
+  .eyebrow {
+    color: var(--fg-subtle);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    line-height: 1rem;
+    text-transform: uppercase;
+  }
   .gradient-text {
     background: linear-gradient(to right, #43d0a1, #7ce3bf, #a78bfa);
     -webkit-background-clip: text;
@@ -313,6 +337,35 @@
   }
   .tabular-nums {
     font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  .card table thead tr {
+    background: color-mix(in srgb, var(--bg-elevated) 72%, transparent);
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .card table th {
+    color: var(--fg-subtle);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    padding: 0.8rem 1rem;
+    text-align: left;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .card table td {
+    border-color: var(--border-soft);
+  }
+  select.input-base,
+  select {
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, var(--fg-subtle) 50%), linear-gradient(135deg, var(--fg-subtle) 50%, transparent 50%);
+    background-position: calc(100% - 16px) 50%, calc(100% - 11px) 50%;
+    background-repeat: no-repeat;
+    background-size: 5px 5px, 5px 5px;
+    padding-right: 2.5rem;
   }
 }
 

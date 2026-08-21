@@ -32,7 +32,7 @@ export function Navbar() {
     <header
       className={cn(
         'sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border px-4 lg:px-6',
-        'bg-bg/60 backdrop-blur-2xl',
+        'bg-bg/75 shadow-[0_1px_0_rgba(255,255,255,0.02)] backdrop-blur-2xl',
       )}
     >
       <button
@@ -48,7 +48,7 @@ export function Navbar() {
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fg-subtle transition-colors group-focus-within:text-brand-400" />
         <input
           placeholder="Search books, members, borrows…"
-          className="input-base pl-9 pr-16"
+          className="input-base border-border-soft bg-bg-card/70 pl-9 pr-16 shadow-inset"
         />
         <kbd className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md border border-border bg-bg-elevated px-1.5 py-0.5 text-[10px] font-medium text-fg-subtle">
           ⌘K
@@ -70,7 +70,7 @@ export function Navbar() {
         <Dropdown
           align="right"
           trigger={
-            <span className="relative flex h-9 w-9 items-center justify-center rounded-lg text-fg-muted transition-colors hover:bg-bg-elevated hover:text-fg" aria-label="Notifications">
+            <span className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-transparent text-fg-muted transition-colors hover:border-border hover:bg-bg-elevated hover:text-fg" aria-label="Notifications">
               <Bell className="h-[18px] w-[18px]" />
               <span className="absolute right-2.5 top-2.5 flex h-2 w-2">
                 <span className="absolute inline-flex h-full w-full animate-pulse-ring rounded-full bg-brand-400 opacity-75" />

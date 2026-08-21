@@ -1,4 +1,8 @@
-import { Users, Loader2, UserCheck, UserX } from "lucide-react";
+import { Loader2, UserCheck, UserX } from "lucide-react";
+
+import { PageHeader } from "@/components/shared/PageHeader";
+import { Card } from "@/components/ui/Card";
+import type { User } from "@/api/usersApi";
 
 import {
   useUsers,
@@ -31,27 +35,13 @@ export default function UsersPage() {
   }
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6">
+      <PageHeader
+        title="User Management"
+        description="Manage library members and their account status."
+      />
 
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="rounded-xl bg-brand-500/10 p-3">
-          <Users className="h-6 w-6 text-brand-400" />
-        </div>
-
-        <div>
-          <h1 className="text-2xl font-bold text-fg">
-            User Management
-          </h1>
-
-          <p className="text-sm text-fg-muted">
-            Manage library members and their account status.
-          </p>
-        </div>
-      </div>
-
-      {/* Users Table */}
-      <div className="overflow-hidden rounded-2xl border border-border bg-bg-soft">
+      <Card className="overflow-hidden p-0">
 
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -81,7 +71,7 @@ export default function UsersPage() {
             </thead>
 
             <tbody>
-              {users.map((user) => (
+              {users.map((user: User) => (
                 <tr
                   key={user._id}
                   className="border-b border-border last:border-0"
@@ -158,7 +148,7 @@ export default function UsersPage() {
 
           </table>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

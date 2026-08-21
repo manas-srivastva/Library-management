@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import {
-  ArrowUpRight,
   BookOpen,
   CalendarClock,
   Library,
@@ -390,7 +389,7 @@ export default function DashboardPage() {
 
         <ChartCard
           title="Popular Books"
-          subtitle="Most borrowed books"
+          subtitle="Top titles by recorded borrow count"
           className="lg:col-span-2"
         >
 
@@ -405,7 +404,9 @@ export default function DashboardPage() {
                 data={
                   popularLoading
                     ? []
-                    : popularBooks ?? []
+                    : Array.isArray(popularBooks)
+                      ? popularBooks
+                      : []
                 }
                 layout="vertical"
                 margin={{
@@ -426,6 +427,7 @@ export default function DashboardPage() {
                   fontSize={12}
                   tickLine={false}
                   axisLine={false}
+                  allowDecimals={false}
                 />
 
                 <YAxis
@@ -449,6 +451,7 @@ export default function DashboardPage() {
                     borderRadius: 12,
                     fontSize: 12,
                   }}
+                  formatter={(value: number) => [value, 'Borrows']}
                 />
 
                 <Bar
@@ -582,7 +585,7 @@ export default function DashboardPage() {
 
         <ChartCard
           title="Fine Statistics"
-          subtitle="Fine totals by status"
+          subtitle="Fine totals from backend records"
           action={
             <Badge tone="neutral">
               Backend Data
@@ -641,6 +644,7 @@ export default function DashboardPage() {
                     borderRadius: 12,
                     fontSize: 12,
                   }}
+                  formatter={(value: number) => [value, 'Fine total']}
                 />
 
                 <Legend

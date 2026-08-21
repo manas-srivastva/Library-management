@@ -38,7 +38,7 @@ export function Modal({ open, onClose, title, description, children, footer, siz
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.97, y: 12 }}
             transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
-            className={cn('relative w-full glass rounded-2xl shadow-pop overflow-hidden', sizes[size])}
+            className={cn('relative w-full glass rounded-xl shadow-pop overflow-hidden border-border-strong/70', sizes[size])}
           >
             {(title || description) && (
               <div className="flex items-start justify-between gap-4 border-b border-border-soft px-6 py-5">

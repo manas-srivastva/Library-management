@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Plus, RotateCcw } from "lucide-react";
+import {
+  BookOpen,
+  CheckCircle2,
+  Clock3,
+  Plus,
+  RotateCcw,
+  Users,
+} from "lucide-react";
 import { toast } from "react-toastify";
 
 import { PageHeader } from "@/components/shared/PageHeader";
@@ -103,6 +110,13 @@ export default function BorrowManagementPage() {
     backendPagination?.totalPages ??
     backendPagination?.pages ??
     1;
+
+  const activeBorrows = borrows.filter(
+    (borrow: any) => borrow.status === "BORROWED"
+  ).length;
+  const returnedBorrows = borrows.filter(
+    (borrow: any) => borrow.status === "RETURNED"
+  ).length;
 
  /* ==========================================
    USERS
@@ -246,7 +260,7 @@ const availableBookCopies = bookCopies.filter(
   };
 
   return (
-    <div>
+    <div className="space-y-6">
       <PageHeader
         title="Borrow Management"
         description="Issue, return, and track all active and historical borrows."
@@ -260,18 +274,70 @@ const availableBookCopies = bookCopies.filter(
         }
       />
 
-      <Card className="p-5">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {[
+          {
+            label: "Visible records",
+            value: borrows.length,
+            icon: BookOpen,
+            tone: "text-brand-400",
+            detail: "Across this page",
+          },
+          {
+            label: "Active borrows",
+            value: activeBorrows,
+            icon: Clock3,
+            tone: "text-warning-400",
+            detail: "Currently checked out",
+          },
+          {
+            label: "Returned",
+            value: returnedBorrows,
+            icon: CheckCircle2,
+            tone: "text-success-400",
+            detail: "Completed on this page",
+          },
+          {
+            label: "Members",
+            value: users.length,
+            icon: Users,
+            tone: "text-info-400",
+            detail: "Eligible borrowers",
+          },
+        ].map(({ label, value, icon: Icon, tone, detail }, index) => (
+          <motion.div
+            key={label}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.05, duration: 0.25 }}
+            className="group rounded-2xl border border-border-soft bg-bg-card/70 p-4 shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:border-border-strong hover:shadow-card-hover"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-medium text-fg-muted">{label}</p>
+                <p className="mt-2 text-2xl font-semibold tracking-tight text-fg">{value}</p>
+              </div>
+              <span className={`rounded-xl bg-bg-elevated p-2 ${tone}`}>
+                <Icon className="h-4 w-4" />
+              </span>
+            </div>
+            <p className="mt-3 text-[11px] text-fg-subtle">{detail}</p>
+          </motion.div>
+        ))}
+      </div>
+
+      <Card className="overflow-hidden p-0">
         {/* SEARCH + FILTER */}
 
-        <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-4 border-b border-border-soft bg-bg-soft/45 px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
           <SearchInput
             value={query}
             onChange={handleSearch}
             placeholder="Search by book or member…"
-            className="lg:w-80"
+            className="w-full lg:w-96"
           />
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between gap-2 sm:justify-end">
             <Dropdown
               align="left"
               trigger={
@@ -283,6 +349,9 @@ const availableBookCopies = bookCopies.filter(
                 </span>
               }
             >
+            <span className="hidden text-xs text-fg-subtle sm:inline">
+              {pages} {pages === 1 ? "page" : "pages"}
+            </span>
               {(close) => (
                 <div>
                   {statuses.map((s) => (
@@ -328,7 +397,8 @@ const availableBookCopies = bookCopies.filter(
           />
         ) : (
           <>
-            <Table>
+            <div className="overflow-x-auto">
+              <Table>
               <THead>
                 <tr>
                   <Th>Book</Th>
@@ -502,7 +572,8 @@ const availableBookCopies = bookCopies.filter(
                   )
                 )}
               </TBody>
-            </Table>
+              </Table>
+            </div>
 
             {/* PAGINATION */}
 
