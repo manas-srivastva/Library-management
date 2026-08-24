@@ -94,7 +94,7 @@ export default function UsersPage() {
                     <span
                       className={
                         user.status === "ACTIVE"
-                          ? "rounded-full bg-green-500/10 px-3 py-1 text-xs font-medium text-green-500"
+                          ? "rounded-full bg-brand-500/10 px-3 py-1 text-xs font-medium text-brand-500"
                           : "rounded-full bg-red-500/10 px-3 py-1 text-xs font-medium text-red-500"
                       }
                     >
@@ -122,7 +122,7 @@ export default function UsersPage() {
                             activateUser.mutate(user._id)
                           }
                           disabled={activateUser.isPending}
-                          className="flex items-center gap-2 rounded-lg border border-green-500/30 px-3 py-2 text-sm text-green-400 transition hover:bg-green-500/10 disabled:opacity-50"
+                          className="flex items-center gap-2 rounded-lg border border-brand-500/30 px-3 py-2 text-sm text-brand-400 transition hover:bg-brand-500/10 disabled:opacity-50"
                         >
                           <UserCheck className="h-4 w-4" />
                           Activate

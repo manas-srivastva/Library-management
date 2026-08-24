@@ -116,8 +116,8 @@ export default function MyBorrowsPage() {
         </Card>
 
         <Card className="flex items-center gap-4 p-5">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-green-500/10">
-            <CheckCircle2 className="h-5 w-5 text-green-400" />
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-500/10">
+            <CheckCircle2 className="h-5 w-5 text-brand-400" />
           </div>
 
           <div>

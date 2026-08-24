@@ -254,15 +254,15 @@ export default function DashboardPage() {
                   data={monthlyBorrows ?? []}
                   margin={{ left: -16, right: 8, top: 8 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1c2029" vertical={false} />
-                  <XAxis dataKey="month" stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#23445E" vertical={false} />
+                  <XAxis dataKey="month" stroke="#71879B" fontSize={12} tickLine={false} axisLine={false} />
+                  <YAxis stroke="#71879B" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
                   <Tooltip
                     formatter={(value: number) => [value, 'Borrows']}
-                    contentStyle={{ background: '#14161d', border: '1px solid #232733', borderRadius: 12, fontSize: 12 }}
+                    contentStyle={{ background: '#11283D', border: '1px solid #376582', borderRadius: 12, fontSize: 12 }}
                   />
                   <Legend wrapperStyle={{ fontSize: 12 }} />
-                  <Line type="monotone" dataKey="total" name="Borrows" stroke="#1fb988" strokeWidth={2.5} dot={{ r: 3 }} activeDot={{ r: 5 }} />
+                  <Line type="monotone" dataKey="total" name="Borrows" stroke="#2A9D8F" strokeWidth={2.5} dot={{ r: 3 }} activeDot={{ r: 5 }} />
                 </LineChart>
               </ResponsiveContainer>
             )}
@@ -324,13 +324,13 @@ export default function DashboardPage() {
 
                 <CartesianGrid
                   strokeDasharray="3 3"
-                  stroke="#1c2029"
+                  stroke="#23445E"
                   horizontal={false}
                 />
 
                 <XAxis
                   type="number"
-                  stroke="#6b7280"
+                  stroke="#71879B"
                   fontSize={12}
                   tickLine={false}
                   axisLine={false}
@@ -340,7 +340,7 @@ export default function DashboardPage() {
                 <YAxis
                   type="category"
                   dataKey="title"
-                  stroke="#6b7280"
+                  stroke="#71879B"
                   fontSize={11}
                   tickLine={false}
                   axisLine={false}
@@ -353,8 +353,8 @@ export default function DashboardPage() {
                       'rgba(255,255,255,0.03)',
                   }}
                   contentStyle={{
-                    background: '#14161d',
-                    border: '1px solid #232733',
+                    background: '#11283D',
+                    border: '1px solid #376582',
                     borderRadius: 12,
                     fontSize: 12,
                   }}
@@ -364,7 +364,7 @@ export default function DashboardPage() {
                 <Bar
                   dataKey="borrowCount"
                   name="Borrows"
-                  fill="#1fb988"
+                  fill="#2A9D8F"
                   radius={[
                     0,
                     6,
@@ -539,20 +539,20 @@ export default function DashboardPage() {
 
                 <CartesianGrid
                   strokeDasharray="3 3"
-                  stroke="#1c2029"
+                  stroke="#23445E"
                   vertical={false}
                 />
 
                 <XAxis
                   dataKey="_id"
-                  stroke="#6b7280"
+                  stroke="#71879B"
                   fontSize={12}
                   tickLine={false}
                   axisLine={false}
                 />
 
                 <YAxis
-                  stroke="#6b7280"
+                  stroke="#71879B"
                   fontSize={12}
                   tickLine={false}
                   axisLine={false}
@@ -564,8 +564,8 @@ export default function DashboardPage() {
                       'rgba(255,255,255,0.03)',
                   }}
                   contentStyle={{
-                    background: '#14161d',
-                    border: '1px solid #232733',
+                    background: '#11283D',
+                    border: '1px solid #376582',
                     borderRadius: 12,
                     fontSize: 12,
                   }}
@@ -581,7 +581,7 @@ export default function DashboardPage() {
                 <Bar
                   dataKey="total"
                   name="Fine Amount"
-                  fill="#1fb988"
+                  fill="#E9C46A"
                   radius={[
                     6,
                     6,

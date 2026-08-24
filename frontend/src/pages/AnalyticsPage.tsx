@@ -33,7 +33,7 @@ import {
 } from "@/hooks/useAnalytics";
 import { formatCurrency } from '@/utils/format';
 
-const PIE_COLORS = ['#1fb988', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444'];
+const PIE_COLORS = ['#2A9D8F', '#1E3A5F', '#E9C46A', '#65C5B8', '#D5AA45'];
 
 
 export default function AnalyticsPage() {
@@ -101,12 +101,12 @@ const {
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={monthlyBorrows ?? []} margin={{ left: -16, right: 8, top: 8 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1c2029" vertical={false} />
-                <XAxis dataKey="month" stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
-                <Tooltip contentStyle={{ background: '#14161d', border: '1px solid #232733', borderRadius: 12, fontSize: 12 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#23445E" vertical={false} />
+                <XAxis dataKey="month" stroke="#71879B" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="#71879B" fontSize={12} tickLine={false} axisLine={false} />
+                <Tooltip contentStyle={{ background: '#11283D', border: '1px solid #376582', borderRadius: 12, fontSize: 12 }} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Line type="monotone" dataKey="total" stroke="#1fb988" strokeWidth={2.5} dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="total" stroke="#2A9D8F" strokeWidth={2.5} dot={{ r: 3 }} />
                 
               </LineChart>
             </ResponsiveContainer>
@@ -117,11 +117,11 @@ const {
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={popularBooks ?? []} layout="vertical" margin={{ left: 24, right: 16 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1c2029" horizontal={false} />
-                <XAxis type="number" stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis type="category" dataKey="title" stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} width={120} />
-                <Tooltip cursor={{ fill: 'rgba(255,255,255,0.03)' }} contentStyle={{ background: '#14161d', border: '1px solid #232733', borderRadius: 12, fontSize: 12 }} />
-                <Bar dataKey="borrowCount" fill="#1fb988" radius={[0, 6, 6, 0]} barSize={16} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#23445E" horizontal={false} />
+                <XAxis type="number" stroke="#71879B" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis type="category" dataKey="title" stroke="#71879B" fontSize={11} tickLine={false} axisLine={false} width={120} />
+                <Tooltip cursor={{ fill: 'rgba(42,157,143,0.08)' }} contentStyle={{ background: '#11283D', border: '1px solid #376582', borderRadius: 12, fontSize: 12 }} />
+                <Bar dataKey="borrowCount" fill="#2A9D8F" radius={[0, 6, 6, 0]} barSize={16} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -137,12 +137,12 @@ const {
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={fineStats ?? []} margin={{ left: -12, right: 8 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1c2029" vertical={false} />
-                <XAxis dataKey="_id" stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
-                <Tooltip cursor={{ fill: 'rgba(255,255,255,0.03)' }} contentStyle={{ background: '#14161d', border: '1px solid #232733', borderRadius: 12, fontSize: 12 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#23445E" vertical={false} />
+                <XAxis dataKey="_id" stroke="#71879B" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="#71879B" fontSize={12} tickLine={false} axisLine={false} />
+                <Tooltip cursor={{ fill: 'rgba(42,157,143,0.08)' }} contentStyle={{ background: '#11283D', border: '1px solid #376582', borderRadius: 12, fontSize: 12 }} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Bar dataKey="total" fill="#1fb988" radius={[6, 6, 0, 0]} barSize={14} />
+                <Bar dataKey="total" fill="#E9C46A" radius={[6, 6, 0, 0]} barSize={14} />
                 
               </BarChart>
             </ResponsiveContainer>

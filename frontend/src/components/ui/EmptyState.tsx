@@ -14,17 +14,17 @@ function EmptyIllustration({ variant = 'book' }: { variant?: EmptyVariant }) {
       <svg viewBox="0 0 120 120" fill="none" width="120" height="120" className="relative">
         <defs>
           <linearGradient id="empty-book" x1="30" y1="30" x2="90" y2="90" gradientUnits="userSpaceOnUse">
-            <stop stopColor="#43d0a1" />
-            <stop offset="1" stopColor="#1fb988" />
+            <stop stopColor="#65c5b8" />
+            <stop offset="1" stopColor="#2a9d8f" />
           </linearGradient>
           <linearGradient id="empty-spark" x1="55" y1="14" x2="65" y2="32" gradientUnits="userSpaceOnUse">
-            <stop stopColor="#a78bfa" />
-            <stop offset="1" stopColor="#8b5cf6" />
+            <stop stopColor="#f5dda0" />
+            <stop offset="1" stopColor="#e9c46a" />
           </linearGradient>
         </defs>
 
         {/* Dashed orbit ring — AI */}
-        <circle cx="60" cy="62" r="44" stroke="#1f222c" strokeWidth="1.5" strokeDasharray="4 6" />
+        <circle cx="60" cy="62" r="44" stroke="#376582" strokeWidth="1.5" strokeDasharray="4 6" />
 
         {/* Open book */}
         <path
@@ -51,10 +51,10 @@ function EmptyIllustration({ variant = 'book' }: { variant?: EmptyVariant }) {
         />
 
         {/* Small nodes — neural */}
-        <circle cx="26" cy="26" r="2.5" fill="#43d0a1" opacity="0.7" />
-        <circle cx="94" cy="30" r="2" fill="#a78bfa" opacity="0.6" />
-        <circle cx="98" cy="86" r="2.5" fill="#43d0a1" opacity="0.5" />
-        <circle cx="22" cy="82" r="2" fill="#a78bfa" opacity="0.5" />
+        <circle cx="26" cy="26" r="2.5" fill="#65c5b8" opacity="0.7" />
+        <circle cx="94" cy="30" r="2" fill="#f5dda0" opacity="0.6" />
+        <circle cx="98" cy="86" r="2.5" fill="#65c5b8" opacity="0.5" />
+        <circle cx="22" cy="82" r="2" fill="#f5dda0" opacity="0.5" />
       </svg>
       {variant === 'search' && (
         <span className="absolute -bottom-1 -right-1 flex h-9 w-9 items-center justify-center rounded-xl bg-bg-elevated border border-border text-fg-muted shadow-pop-sm">
