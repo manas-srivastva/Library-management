@@ -18,6 +18,7 @@ import { SearchInput } from "@/components/ui/SearchInput";
 import { Pagination } from "@/components/ui/Pagination";
 import { Modal } from "@/components/ui/Modal";
 import { Avatar } from "@/components/ui/Avatar";
+
 import {
   Table,
   TBody,
@@ -26,7 +27,9 @@ import {
   THead,
   Tr,
 } from "@/components/ui/Table";
+
 import { EmptyState } from "@/components/ui/EmptyState";
+
 import {
   Dropdown,
   DropdownItem,
@@ -111,57 +114,49 @@ export default function BorrowManagementPage() {
     backendPagination?.pages ??
     1;
 
-  const activeBorrows = borrows.filter(
-    (borrow: any) => borrow.status === "BORROWED"
-  ).length;
-  const returnedBorrows = borrows.filter(
-    (borrow: any) => borrow.status === "RETURNED"
-  ).length;
+  /* ==========================================
+     USERS
+  ========================================== */
 
- /* ==========================================
-   USERS
-========================================== */
+  const {
+    data: usersResponse,
+    isLoading: usersLoading,
+  } = useQuery({
+    queryKey: ["users"],
+    queryFn: userApi.getUsers,
+  });
 
-const {
-  data: usersResponse,
-  isLoading: usersLoading,
-} = useQuery({
-  queryKey: ["users"],
-  queryFn: userApi.getUsers,
-});
+  const users =
+    Array.isArray(usersResponse)
+      ? usersResponse
+      : usersResponse?.users ||
+        usersResponse?.data ||
+        [];
 
-const users = Array.isArray(usersResponse)
-  ? usersResponse
-  : usersResponse?.users ||
-    usersResponse?.data ||
-    [];
+  /* ==========================================
+     BOOK COPIES
+  ========================================== */
 
-/* ==========================================
-   BOOK COPIES
-========================================== */
+  const {
+    data: bookCopiesResponse,
+    isLoading: bookCopiesLoading,
+  } = useQuery({
+    queryKey: ["bookCopies"],
+    queryFn: bookCopyApi.getBookCopies,
+  });
 
-const {
-  data: bookCopiesResponse,
-  isLoading: bookCopiesLoading,
-} = useQuery({
-  queryKey: ["bookCopies"],
-  queryFn: () =>
-    bookCopyApi.getBookCopies({
-      page: 1,
-      limit: 100,
-    }),
-});
+  const bookCopies =
+    Array.isArray(bookCopiesResponse)
+      ? bookCopiesResponse
+      : bookCopiesResponse?.copies ||
+        bookCopiesResponse?.data ||
+        [];
 
-const bookCopies = Array.isArray(bookCopiesResponse)
-  ? bookCopiesResponse
-  : bookCopiesResponse?.copies ||
-    bookCopiesResponse?.bookCopies ||
-    bookCopiesResponse?.data ||
-    [];
-
-const availableBookCopies = bookCopies.filter(
-  (copy: any) => copy.status === "AVAILABLE"
-);
+  const availableBookCopies = Array.isArray(bookCopies)
+    ? bookCopies.filter(
+        (copy: any) => copy.status === "AVAILABLE"
+      )
+    : [];
 
   /* ==========================================
      REFRESH DATA
@@ -194,6 +189,7 @@ const availableBookCopies = bookCopies.filter(
       toast.success("Book returned successfully");
     } catch (error) {
       console.error(error);
+
       toast.error("Failed to return book");
     } finally {
       setReturningId(null);
@@ -227,10 +223,10 @@ const availableBookCopies = bookCopies.filter(
       setSelectedUser("");
       setSelectedBookCopy("");
       setDueDate("");
-
       setPage(1);
     } catch (error) {
       console.error(error);
+
       toast.error("Failed to issue book");
     } finally {
       setIsIssuing(false);
@@ -259,448 +255,599 @@ const availableBookCopies = bookCopies.filter(
     close();
   };
 
+  /* ==========================================
+     STATS
+  ========================================== */
+
+  const totalBorrows = borrows.length;
+
+  const activeBorrows = borrows.filter(
+    (borrow: any) => borrow.status === "BORROWED"
+  ).length;
+
+  const returnedBorrows = borrows.filter(
+    (borrow: any) => borrow.status === "RETURNED"
+  ).length;
+
+  const overdueBorrows = borrows.filter((borrow: any) => {
+    if (borrow.status !== "BORROWED") return false;
+
+    if (!borrow.dueDate) return false;
+
+    return new Date(borrow.dueDate) < new Date();
+  }).length;
+
   return (
     <div className="space-y-6">
+
+      {/* ======================================
+          PAGE HEADER
+      ====================================== */}
+
       <PageHeader
         title="Borrow Management"
-        description="Issue, return, and track all active and historical borrows."
-        actions={
+        description="Track issued books, returns, and active borrowing activity."
+        action={
           <Button
-            leftIcon={<Plus className="h-4 w-4" />}
             onClick={() => setIssueOpen(true)}
+            className="gap-2"
           >
+            <Plus className="h-4 w-4" />
             Issue Book
           </Button>
         }
       />
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {[
-          {
-            label: "Visible records",
-            value: borrows.length,
-            icon: BookOpen,
-            tone: "text-brand-400",
-            detail: "Across this page",
-          },
-          {
-            label: "Active borrows",
-            value: activeBorrows,
-            icon: Clock3,
-            tone: "text-warning-400",
-            detail: "Currently checked out",
-          },
-          {
-            label: "Returned",
-            value: returnedBorrows,
-            icon: CheckCircle2,
-            tone: "text-success-400",
-            detail: "Completed on this page",
-          },
-          {
-            label: "Members",
-            value: users.length,
-            icon: Users,
-            tone: "text-info-400",
-            detail: "Eligible borrowers",
-          },
-        ].map(({ label, value, icon: Icon, tone, detail }, index) => (
-          <motion.div
-            key={label}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05, duration: 0.25 }}
-            className="group rounded-2xl border border-border-soft bg-bg-card/70 p-4 shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:border-border-strong hover:shadow-card-hover"
-          >
-            <div className="flex items-start justify-between gap-3">
+      {/* ======================================
+          STATS
+      ====================================== */}
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <Card className="border border-border-soft shadow-none">
+            <div className="flex items-start justify-between p-5">
+
               <div>
-                <p className="text-xs font-medium text-fg-muted">{label}</p>
-                <p className="mt-2 text-2xl font-semibold tracking-tight text-fg">{value}</p>
+                <p className="text-xs font-medium uppercase tracking-wide text-fg-subtle">
+                  Total Records
+                </p>
+
+                <p className="mt-2 text-2xl font-semibold text-fg">
+                  {totalBorrows}
+                </p>
+
+                <p className="mt-1 text-xs text-fg-muted">
+                  Current page results
+                </p>
               </div>
-              <span className={`rounded-xl bg-bg-elevated p-2 ${tone}`}>
-                <Icon className="h-4 w-4" />
-              </span>
+
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-bg-elevated text-fg-muted">
+                <BookOpen className="h-5 w-5" />
+              </div>
+
             </div>
-            <p className="mt-3 text-[11px] text-fg-subtle">{detail}</p>
-          </motion.div>
-        ))}
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2, delay: 0.04 }}
+        >
+          <Card className="border border-border-soft shadow-none">
+            <div className="flex items-start justify-between p-5">
+
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-fg-subtle">
+                  Active Borrows
+                </p>
+
+                <p className="mt-2 text-2xl font-semibold text-fg">
+                  {activeBorrows}
+                </p>
+
+                <p className="mt-1 text-xs text-fg-muted">
+                  Books currently issued
+                </p>
+              </div>
+
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-500/10 text-brand-400">
+                <Clock3 className="h-5 w-5" />
+              </div>
+
+            </div>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2, delay: 0.08 }}
+        >
+          <Card className="border border-border-soft shadow-none">
+            <div className="flex items-start justify-between p-5">
+
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-fg-subtle">
+                  Returned
+                </p>
+
+                <p className="mt-2 text-2xl font-semibold text-fg">
+                  {returnedBorrows}
+                </p>
+
+                <p className="mt-1 text-xs text-fg-muted">
+                  Completed borrow records
+                </p>
+              </div>
+
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success-500/10 text-success-400">
+                <CheckCircle2 className="h-5 w-5" />
+              </div>
+
+            </div>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2, delay: 0.12 }}
+        >
+          <Card className="border border-border-soft shadow-none">
+            <div className="flex items-start justify-between p-5">
+
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-fg-subtle">
+                  Overdue
+                </p>
+
+                <p className="mt-2 text-2xl font-semibold text-fg">
+                  {overdueBorrows}
+                </p>
+
+                <p className="mt-1 text-xs text-fg-muted">
+                  Require attention
+                </p>
+              </div>
+
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-danger-500/10 text-danger-400">
+                <RotateCcw className="h-5 w-5" />
+              </div>
+
+            </div>
+          </Card>
+        </motion.div>
+
       </div>
 
-      <Card className="overflow-hidden p-0">
-        {/* SEARCH + FILTER */}
+      {/* ======================================
+          BORROW LIST
+      ====================================== */}
 
-        <div className="flex flex-col gap-4 border-b border-border-soft bg-bg-soft/45 px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
-          <SearchInput
-            value={query}
-            onChange={handleSearch}
-            placeholder="Search by book or member…"
-            className="w-full lg:w-96"
-          />
+      <Card className="overflow-hidden border border-border-soft shadow-none">
 
-          <div className="flex items-center justify-between gap-2 sm:justify-end">
-            <Dropdown
-              align="left"
-              trigger={
-                <span className="btn-secondary px-3 py-2 text-xs capitalize">
-                  Status:{" "}
-                  <span className="text-fg">
-                    {status}
+        {/* FILTER BAR */}
+
+        <div className="border-b border-border-soft px-5 py-4">
+
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+
+            <div>
+              <h2 className="text-base font-semibold text-fg">
+                Borrow Records
+              </h2>
+
+              <p className="mt-1 text-sm text-fg-muted">
+                Manage issued books and return activity.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+
+              <div className="w-full sm:w-72">
+                <SearchInput
+                  value={query}
+                  onChange={(event) =>
+                    handleSearch(event.target.value)
+                  }
+                  placeholder="Search records..."
+                />
+              </div>
+
+              <Dropdown
+                align="left"
+                trigger={
+                  <span className="btn-secondary flex items-center justify-between gap-3 px-3 py-2 text-xs min-w-[140px]">
+                    <span className="text-fg-muted">
+                      Status
+                    </span>
+
+                    <span className="font-medium text-fg">
+                      {status}
+                    </span>
                   </span>
-                </span>
-              }
-            >
-            <span className="hidden text-xs text-fg-subtle sm:inline">
-              {pages} {pages === 1 ? "page" : "pages"}
-            </span>
-              {(close) => (
-                <div>
-                  {statuses.map((s) => (
-                    <DropdownItem
-                      key={s}
-                      onClick={() =>
-                        handleStatusChange(
-                          s,
-                          close
-                        )
-                      }
-                    >
-                      <span className="capitalize">
+                }
+              >
+                {(close) => (
+                  <div className="min-w-[160px] py-1">
+                    {statuses.map((s) => (
+                      <DropdownItem
+                        key={s}
+                        onClick={() =>
+                          handleStatusChange(s, close)
+                        }
+                      >
                         {s}
-                      </span>
-                    </DropdownItem>
-                  ))}
-                </div>
-              )}
-            </Dropdown>
+                      </DropdownItem>
+                    ))}
+                  </div>
+                )}
+              </Dropdown>
+
+            </div>
+
           </div>
+
         </div>
 
-        {/* LOADING */}
+        {/* TABLE */}
 
         {isLoading ? (
-          <div className="py-12 text-center text-fg-subtle">
-            Loading borrow records...
+          <div className="flex min-h-[320px] items-center justify-center">
+            <p className="text-sm text-fg-muted">
+              Loading borrow records...
+            </p>
           </div>
         ) : isError ? (
-          <EmptyState
-            title="Failed to load borrows"
-            description="Unable to fetch borrow records from the server."
-          />
+          <div className="flex min-h-[320px] items-center justify-center">
+            <p className="text-sm text-danger-400">
+              Failed to load borrow records.
+            </p>
+          </div>
         ) : borrows.length === 0 ? (
-          <EmptyState
-            title="No borrows found"
-            description={
-              query || status !== "All"
-                ? "No borrow records match your search or filter."
-                : "Issue a book to start a borrow record."
-            }
-          />
+          <div className="py-10">
+            <EmptyState
+              icon={<BookOpen className="h-6 w-6" />}
+              title="No borrow records found"
+              description="Try changing your search or filter."
+            />
+          </div>
         ) : (
-          <>
-            <div className="overflow-x-auto">
-              <Table>
+          <div className="overflow-x-auto">
+
+            <Table>
+
               <THead>
-                <tr>
-                  <Th>Book</Th>
+                <Tr>
+
                   <Th>Member</Th>
-                  <Th>Borrow Date</Th>
+
+                  <Th>Book</Th>
+
+                  <Th>Issued</Th>
+
                   <Th>Due Date</Th>
-                  <Th>Return Date</Th>
-                  <Th>Fine</Th>
+
                   <Th>Status</Th>
-                  <Th></Th>
-                </tr>
+
+                  <Th className="text-right">
+                    Action
+                  </Th>
+
+                </Tr>
               </THead>
 
               <TBody>
-                {borrows.map(
-                  (b: any, i: number) => (
-                    <Tr key={b._id}>
-                      {/* BOOK */}
+
+                {borrows.map((borrow: any) => {
+
+                  const user =
+                    borrow.user ||
+                    borrow.member ||
+                    {};
+
+                  const copy =
+                    borrow.bookCopy ||
+                    borrow.copy ||
+                    {};
+
+                  const book =
+                    copy.book ||
+                    borrow.book ||
+                    {};
+
+                  const memberName =
+                    user.name ||
+                    user.fullName ||
+                    user.username ||
+                    "Unknown Member";
+
+                  const bookTitle =
+                    book.title ||
+                    copy.title ||
+                    "Unknown Book";
+
+                  const isBorrowed =
+                    borrow.status === "BORROWED";
+
+                  return (
+                    <Tr
+                      key={borrow.id}
+                      className="transition-colors hover:bg-bg-elevated/40"
+                    >
 
                       <Td>
-                        <motion.div
-                          initial={{
-                            opacity: 0,
-                            y: 4,
-                          }}
-                          animate={{
-                            opacity: 1,
-                            y: 0,
-                          }}
-                          transition={{
-                            delay: i * 0.03,
-                          }}
-                          className="flex items-center gap-3"
-                        >
-                          {b.bookCopy?.book
-                            ?.coverImage ? (
-                            <img
-                              src={
-                                b.bookCopy.book
-                                  .coverImage
-                              }
-                              alt={
-                                b.bookCopy.book
-                                  .title
-                              }
-                              className="h-10 w-7 rounded border border-border object-cover"
-                            />
-                          ) : (
-                            <div className="flex h-10 w-7 items-center justify-center rounded border border-border bg-bg-elevated">
-                              <span className="text-xs text-fg-subtle">
-                                📖
-                              </span>
-                            </div>
-                          )}
 
-                          <div>
-                            <span className="font-medium text-fg">
-                              {b.bookCopy?.book
-                                ?.title ||
-                                "Unknown Book"}
-                            </span>
+                        <div className="flex items-center gap-3">
 
-                            <div className="text-xs text-fg-subtle">
-                              {b.bookCopy?.barcode ||
-                                "No barcode"}
-                            </div>
-                          </div>
-                        </motion.div>
-                      </Td>
-
-                      {/* MEMBER */}
-
-                      <Td>
-                        <div className="flex items-center gap-2">
                           <Avatar
-                            name={
-                              b.user?.name ||
-                              "Unknown User"
-                            }
+                            name={memberName}
                             size="sm"
                           />
 
                           <div>
-                            <div className="text-fg">
-                              {b.user?.name ||
-                                "Unknown User"}
-                            </div>
 
-                            <div className="text-xs text-fg-subtle">
-                              {b.user?.email ||
-                                "No email"}
-                            </div>
+                            <p className="font-medium text-fg">
+                              {memberName}
+                            </p>
+
+                            {user.email && (
+                              <p className="mt-0.5 text-xs text-fg-subtle">
+                                {user.email}
+                              </p>
+                            )}
+
                           </div>
+
                         </div>
+
                       </Td>
 
-                      {/* ISSUE DATE */}
+                      <Td>
 
-                      <Td className="text-fg-muted">
-                        {b.issueDate
-                          ? formatDate(
-                              b.issueDate
-                            )
-                          : "—"}
+                        <div>
+
+                          <p className="font-medium text-fg">
+                            {bookTitle}
+                          </p>
+
+                          {book.author && (
+                            <p className="mt-0.5 text-xs text-fg-subtle">
+                              {book.author}
+                            </p>
+                          )}
+
+                        </div>
+
                       </Td>
 
-                      {/* DUE DATE */}
-
-                      <Td className="text-fg-muted">
-                        {b.dueDate
-                          ? formatDate(
-                              b.dueDate
-                            )
-                          : "—"}
+                      <Td className="text-sm text-fg-muted">
+                        {borrow.borrowDate
+                          ? formatDate(borrow.borrowDate)
+                          : "-"}
                       </Td>
 
-                      {/* RETURN DATE */}
+                      <Td>
 
-                      <Td className="text-fg-muted">
-                        {b.returnDate
-                          ? formatDate(
-                              b.returnDate
-                            )
-                          : "—"}
+                        <span
+                          className={
+                            isBorrowed &&
+                            borrow.dueDate &&
+                            new Date(borrow.dueDate) < new Date()
+                              ? "font-medium text-danger-400"
+                              : "text-sm text-fg-muted"
+                          }
+                        >
+                          {borrow.dueDate
+                            ? formatDate(borrow.dueDate)
+                            : "-"}
+                        </span>
+
                       </Td>
-
-                      {/* FINE */}
-
-                      <Td className="text-fg-subtle">
-                        {b.fine
-                          ? formatCurrency(
-                              b.fine.amount
-                            )
-                          : "—"}
-                      </Td>
-
-                      {/* STATUS */}
 
                       <Td>
                         <BorrowStatusBadge
-                          status={b.status}
+                          status={borrow.status}
                         />
                       </Td>
 
-                      {/* ACTION */}
+                      <Td className="text-right">
 
-                      <Td>
-                        {b.status !== "RETURNED" && (
+                        {isBorrowed ? (
                           <Button
                             size="sm"
                             variant="secondary"
-                            leftIcon={
-                              <RotateCcw className="h-3.5 w-3.5" />
-                            }
                             onClick={() =>
-                              handleReturn(
-                                b._id
-                              )
+                              handleReturn(borrow.id)
                             }
                             disabled={
-                              returningId === b._id
+                              returningId === borrow.id
                             }
+                            className="gap-2"
                           >
-                            {returningId === b._id
+                            <RotateCcw className="h-3.5 w-3.5" />
+
+                            {returningId === borrow.id
                               ? "Returning..."
                               : "Return"}
                           </Button>
+                        ) : (
+                          <span className="text-xs text-fg-subtle">
+                            Completed
+                          </span>
                         )}
+
                       </Td>
+
                     </Tr>
-                  )
-                )}
+                  );
+                })}
+
               </TBody>
-              </Table>
-            </div>
 
-            {/* PAGINATION */}
+            </Table>
 
-            <div className="mt-5 border-t border-border-soft pt-4">
-              <Pagination
-                page={page}
-                totalPages={pages}
-                onPageChange={setPage}
-              />
-            </div>
-          </>
+          </div>
         )}
+
+        {/* PAGINATION */}
+
+        {borrows.length > 0 && (
+          <div className="flex flex-col gap-3 border-t border-border-soft px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+
+            <p className="text-xs text-fg-subtle">
+              Showing page {page} of {pages}
+            </p>
+
+            <Pagination
+              page={page}
+              totalPages={pages}
+              onPageChange={setPage}
+            />
+
+          </div>
+        )}
+
       </Card>
 
-      {/* ISSUE BOOK MODAL */}
+      {/* ======================================
+          ISSUE BOOK MODAL
+      ====================================== */}
 
       <Modal
         open={issueOpen}
         onClose={() => setIssueOpen(false)}
         title="Issue Book"
       >
-        <div className="space-y-4">
+
+        <div className="space-y-5">
+
+          <div className="border-b border-border-soft pb-4">
+
+            <p className="text-sm text-fg-muted">
+              Assign an available book to a library member.
+            </p>
+
+          </div>
+
           {/* MEMBER */}
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-fg">
-              Member
+
+            <label className="mb-2 block text-sm font-medium text-fg">
+              Select Member
             </label>
 
             <select
               value={selectedUser}
-              onChange={(e) =>
-                setSelectedUser(
-                  e.target.value
-                )
+              onChange={(event) =>
+                setSelectedUser(event.target.value)
               }
               disabled={usersLoading}
-              className="w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-fg"
+              className="input-base w-full"
             >
               <option value="">
                 {usersLoading
                   ? "Loading members..."
-                  : "Select member"}
+                  : "Select a member"}
               </option>
 
               {users.map((user: any) => (
                 <option
-                  key={user._id}
-                  value={user._id}
+                  key={user.id}
+                  value={user.id}
                 >
-                  {user.name} — {user.email}
+                  {user.name ||
+                    user.fullName ||
+                    user.username ||
+                    user.email}
                 </option>
               ))}
+
             </select>
+
           </div>
 
-          {/* BOOK COPY */}
+          {/* BOOK */}
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-fg">
-              Book Copy
+
+            <label className="mb-2 block text-sm font-medium text-fg">
+              Select Book
             </label>
 
             <select
               value={selectedBookCopy}
-              onChange={(e) =>
-                setSelectedBookCopy(
-                  e.target.value
-                )
+              onChange={(event) =>
+                setSelectedBookCopy(event.target.value)
               }
               disabled={bookCopiesLoading}
-              className="w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-fg"
+              className="input-base w-full"
             >
               <option value="">
                 {bookCopiesLoading
-                  ? "Loading book copies..."
-                  : "Select book copy"}
+                  ? "Loading books..."
+                  : "Select an available book"}
               </option>
 
-              {availableBookCopies.map(
-                (copy: any) => (
+              {availableBookCopies.map((copy: any) => {
+
+                const book =
+                  copy.book ||
+                  {};
+
+                return (
                   <option
-                    key={copy._id}
-                    value={copy._id}
+                    key={copy.id}
+                    value={copy.id}
                   >
-                    {typeof copy.book === "object"
-                      ? copy.book.title
-                      : "Unknown Book"}{" "}
-                    — {copy.barcode}
+                    {book.title ||
+                      copy.title ||
+                      "Unknown Book"}
+
+                    {copy.copyNumber
+                      ? ` — Copy ${copy.copyNumber}`
+                      : ""}
                   </option>
-                )
-              )}
+                );
+              })}
+
             </select>
+
           </div>
 
           {/* DUE DATE */}
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-fg">
+
+            <label className="mb-2 block text-sm font-medium text-fg">
               Due Date
             </label>
 
             <input
               type="date"
               value={dueDate}
-              onChange={(e) =>
-                setDueDate(
-                  e.target.value
-                )
+              onChange={(event) =>
+                setDueDate(event.target.value)
               }
-              min={
-                new Date()
-                  .toISOString()
-                  .split("T")[0]
-              }
-              className="w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-fg"
+              className="input-base w-full"
             />
+
           </div>
 
           {/* ACTIONS */}
 
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex items-center justify-end gap-3 border-t border-border-soft pt-5">
+
             <Button
               variant="secondary"
-              onClick={() =>
-                setIssueOpen(false)
-              }
+              onClick={() => setIssueOpen(false)}
               disabled={isIssuing}
             >
               Cancel
@@ -708,19 +855,22 @@ const availableBookCopies = bookCopies.filter(
 
             <Button
               onClick={handleIssue}
-              disabled={
-                isIssuing ||
-                usersLoading ||
-                bookCopiesLoading
-              }
+              disabled={isIssuing}
+              className="gap-2"
             >
+              <Plus className="h-4 w-4" />
+
               {isIssuing
                 ? "Issuing..."
                 : "Issue Book"}
             </Button>
+
           </div>
+
         </div>
+
       </Modal>
+
     </div>
   );
 }

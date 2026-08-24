@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
 import { Filter, Plus } from 'lucide-react';
 
 import { PageHeader } from '@/components/shared/PageHeader';
@@ -9,6 +8,7 @@ import { SearchInput } from '@/components/ui/SearchInput';
 import { Pagination } from '@/components/ui/Pagination';
 import { Modal } from '@/components/ui/Modal';
 import { Badge } from '@/components/ui/Badge';
+
 import {
   Table,
   TBody,
@@ -17,10 +17,12 @@ import {
   THead,
   Tr,
 } from '@/components/ui/Table';
+
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Dropdown, DropdownItem } from '@/components/ui/Dropdown';
 
 import type { Book } from '@/types';
+
 import { bookApi } from '@/api/booksApi';
 import { bookCopyApi } from '@/api/bookCopyApi';
 
@@ -31,36 +33,21 @@ const categories = ['All'];
 const PAGE_SIZE = 6;
 
 export default function BooksPage() {
-
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('All');
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Book | null>(null);
 
-  /*
-   * Reset pagination when search changes.
-   */
   useEffect(() => {
     setPage(1);
   }, [query]);
 
-  /*
-   * Fetch books from backend.
-   *
-   * Backend handles:
-   * - search
-   * - pagination
-   */
   const {
     data,
     isLoading: booksLoading,
     isError: booksError,
   } = useQuery({
-    queryKey: [
-      'books',
-      page,
-      query,
-    ],
+    queryKey: ['books', page, query],
 
     queryFn: () =>
       bookApi.getBooks({
@@ -70,18 +57,13 @@ export default function BooksPage() {
       }),
   });
 
-  /*
-   * Fetch book copies.
-   *
-   * Used for showing copy counts
-   * inside the book details modal.
-   */
   const {
     data: bookCopiesData,
     isLoading: copiesLoading,
     isError: copiesError,
   } = useQuery({
     queryKey: ['bookCopies'],
+
     queryFn: () =>
       bookCopyApi.getBookCopies({
         page: 1,
@@ -95,30 +77,15 @@ export default function BooksPage() {
 
   const bookCopies = bookCopiesData?.copies ?? [];
 
-  /*
-   * Category filtering.
-   *
-   * Since category is not currently supported
-   * by the backend pagination API, keep this
-   * simple for now.
-   */
   const filteredBooks =
     category === 'All'
       ? books
       : books.filter(
-          (book) =>
-            book.category?.name === category
+          (book) => book.category?.name === category
         );
 
-  /*
-   * Reset page if category filtering leaves
-   * the current page empty.
-   */
   useEffect(() => {
-    if (
-      filteredBooks.length === 0 &&
-      page > 1
-    ) {
+    if (filteredBooks.length === 0 && page > 1) {
       setPage(1);
     }
   }, [filteredBooks.length, page]);
@@ -131,275 +98,211 @@ export default function BooksPage() {
       )
     : [];
 
-  return (
-    <div>
+  const availableCopies = selectedBookCopies.filter(
+    (copy) => copy.status === 'AVAILABLE'
+  ).length;
 
+  return (
+    <div className="space-y-6">
       <PageHeader
         title="Books"
-        description="Browse and manage your library catalog."
+        description="Manage and browse your library catalog."
         actions={
-          <>
+          <div className="flex items-center gap-2">
             <Button
               variant="secondary"
-              leftIcon={
-                <Filter className="h-4 w-4" />
-              }
+              leftIcon={<Filter className="h-4 w-4" />}
             >
               Export
             </Button>
 
             <Button
-              leftIcon={
-                <Plus className="h-4 w-4" />
-              }
+              leftIcon={<Plus className="h-4 w-4" />}
             >
               Add Book
             </Button>
-          </>
+          </div>
         }
       />
 
-      <Card className="p-5">
+      {/* Catalog */}
+      <Card className="overflow-hidden border border-border-soft shadow-xs rounded-xl">
+        {/* Toolbar */}
+        <div className="flex flex-col gap-4 border-b border-border-soft bg-bg-soft/50 px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h2 className="text-sm font-semibold text-fg tracking-tight">
+              Library Catalog
+            </h2>
 
-        {/* SEARCH + FILTERS */}
+            <p className="mt-0.5 text-xs text-fg-muted">
+              Search and view books available in the library.
+            </p>
+          </div>
 
-        <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <SearchInput
+              value={query}
+              onChange={setQuery}
+              placeholder="Search title, author or ISBN"
+              className="w-full sm:w-72"
+            />
 
-          <SearchInput
-            value={query}
-            onChange={setQuery}
-            placeholder="Search by title, author, or ISBN…"
-            className="lg:w-80"
-          />
-
-          <Dropdown
-            align="left"
-            trigger={
-              <span className="btn-secondary px-3 py-2 text-xs">
-                Category:{' '}
-                <span className="text-fg">
-                  {category}
+            <Dropdown
+              align="right"
+              trigger={
+                <span className="btn-secondary whitespace-nowrap px-3 py-2 text-xs font-medium cursor-pointer">
+                  Category: <span className="text-fg font-semibold">{category}</span>
                 </span>
-              </span>
-            }
-          >
-            {(close) => (
-              <div>
-
-                {categories.map((c) => (
-
-                  <DropdownItem
-                    key={c}
-                    onClick={() => {
-                      setCategory(c);
-                      setPage(1);
-                      close();
-                    }}
-                  >
-                    {c}
-                  </DropdownItem>
-
-                ))}
-
-              </div>
-            )}
-          </Dropdown>
-
+              }
+            >
+              {(close) => (
+                <div>
+                  {categories.map((item) => (
+                    <DropdownItem
+                      key={item}
+                      onClick={() => {
+                        setCategory(item);
+                        setPage(1);
+                        close();
+                      }}
+                    >
+                      {item}
+                    </DropdownItem>
+                  ))}
+                </div>
+              )}
+            </Dropdown>
+          </div>
         </div>
 
-        {/* LOADING */}
-
+        {/* Loading */}
         {booksLoading ? (
-
-          <div className="py-10 text-center text-fg-muted">
-            Loading books...
+          <div className="py-16 text-center">
+            <p className="text-sm text-fg-muted animate-pulse">
+              Loading books...
+            </p>
           </div>
-
         ) : booksError ? (
-
-          <div className="py-10 text-center text-danger">
-            Failed to load books.
+          <div className="py-16 text-center">
+            <p className="text-sm text-danger font-medium">
+              Failed to load books.
+            </p>
           </div>
-
         ) : filteredBooks.length === 0 ? (
-
-          <EmptyState
-            variant="search"
-            title="No books found"
-            description="Try adjusting your search or filters."
-            action={
-              <Button
-                variant="secondary"
-                onClick={() => {
-                  setQuery('');
-                  setCategory('All');
-                  setPage(1);
-                }}
-              >
-                Clear filters
-              </Button>
-            }
-          />
-
+          <div className="p-6">
+            <EmptyState
+              variant="search"
+              title="No books found"
+              description="Try changing your search or clearing the filters."
+              action={
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setQuery('');
+                    setCategory('All');
+                    setPage(1);
+                  }}
+                >
+                  Clear filters
+                </Button>
+              }
+            />
+          </div>
         ) : (
-
           <>
+            <div className="overflow-x-auto">
+              <Table>
+                <THead>
+                  <tr className="border-b border-border-soft bg-bg-soft/30">
+                    <Th className="py-3 px-5 text-xs font-semibold">Book</Th>
+                    <Th className="py-3 px-5 text-xs font-semibold">Author</Th>
+                    <Th className="py-3 px-5 text-xs font-semibold">Publisher</Th>
+                    <Th className="py-3 px-5 text-xs font-semibold">Category</Th>
+                  </tr>
+                </THead>
 
-            {/* BOOK TABLE */}
-
-            <Table>
-
-              <THead>
-
-                <tr>
-                  <Th>Book</Th>
-                  <Th>Author</Th>
-                  <Th>Publisher</Th>
-                  <Th>Category</Th>
-                </tr>
-
-              </THead>
-
-              <TBody>
-
-                {filteredBooks.map(
-                  (book, index) => (
-
+                <TBody className="divide-y divide-border-soft">
+                  {filteredBooks.map((book) => (
                     <Tr
                       key={book._id}
-                      className="cursor-pointer"
-                      onClick={() =>
-                        setSelected(book)
-                      }
+                      className="cursor-pointer transition-colors duration-150 hover:bg-bg-elevated/50"
+                      onClick={() => setSelected(book)}
                     >
+                      <Td className="py-3.5 px-5">
+                        <div className="flex items-center gap-3">
+                          <div className="h-12 w-9 shrink-0 overflow-hidden rounded border border-border-soft bg-bg-soft shadow-xs">
+                            <img
+                              src={
+                                book.coverImage ||
+                                '/Book1.png'
+                              }
+                              alt={book.title}
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
 
-                      {/* BOOK */}
-
-                      <Td>
-
-                        <motion.div
-                          initial={{
-                            opacity: 0,
-                            y: 4,
-                          }}
-                          animate={{
-                            opacity: 1,
-                            y: 0,
-                          }}
-                          transition={{
-                            delay:
-                              index * 0.04,
-                          }}
-                          className="flex items-center gap-3"
-                        >
-
-                          <img
-                            src={
-                              book.coverImage ||
-                              '/Book1.png'
-                            }
-                            alt={book.title}
-                            className="h-12 w-9 rounded-md object-cover border border-border"
-                          />
-
-                          <div>
-
-                            <p className="font-medium text-fg">
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-medium text-fg">
                               {book.title}
                             </p>
 
-                            <p className="text-xs text-fg-subtle">
-                              ISBN {book.isbn}
+                            <p className="mt-0.5 text-xs text-fg-subtle font-mono">
+                              ISBN {book.isbn || 'N/A'}
                             </p>
-
                           </div>
-
-                        </motion.div>
-
+                        </div>
                       </Td>
 
-                      {/* AUTHOR */}
-
-                      <Td className="text-fg-muted">
-
+                      <Td className="py-3.5 px-5 text-xs text-fg-muted font-medium">
                         {book.authors
-                          ?.map(
-                            (author) =>
-                              author.name
-                          )
-                          .join(', ')}
-
+                          ?.map((author) => author.name)
+                          .join(', ') || 'N/A'}
                       </Td>
 
-                      {/* PUBLISHER */}
-
-                      <Td className="text-fg-muted">
-
-                        {book.publisher?.name}
-
+                      <Td className="py-3.5 px-5 text-xs text-fg-muted">
+                        {book.publisher?.name || 'N/A'}
                       </Td>
 
-                      {/* CATEGORY */}
-
-                      <Td>
-
-                        <Badge tone="neutral">
-
-                          {book.category?.name}
-
+                      <Td className="py-3.5 px-5">
+                        <Badge tone="neutral" className="text-xs">
+                          {book.category?.name || 'Uncategorized'}
                         </Badge>
-
                       </Td>
-
                     </Tr>
+                  ))}
+                </TBody>
+              </Table>
+            </div>
 
-                  )
-                )}
-
-              </TBody>
-
-            </Table>
-
-            {/* PAGINATION */}
-
-            <div className="mt-5 flex items-center justify-between border-t border-border-soft pt-4">
-
-              <span className="text-xs text-fg-muted">
-
-                {data?.total ?? 0} total books
-
-              </span>
+            {/* Pagination */}
+            <div className="flex flex-col gap-3 border-t border-border-soft bg-bg-soft/20 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-xs text-fg-muted">
+                Showing page <span className="font-semibold text-fg">{page}</span> of{' '}
+                <span className="font-semibold text-fg">{totalPages}</span> ·{' '}
+                <span className="font-semibold text-fg">{data?.total ?? 0}</span> books
+              </p>
 
               <Pagination
                 page={page}
                 totalPages={totalPages}
                 onPageChange={setPage}
               />
-
             </div>
-
           </>
-
         )}
-
       </Card>
 
-      {/* BOOK DETAILS MODAL */}
-
+      {/* Book Details */}
       <Modal
         open={!!selected}
-        onClose={() =>
-          setSelected(null)
-        }
+        onClose={() => setSelected(null)}
         title="Book Details"
         size="lg"
         footer={
           <>
             <Button
               variant="secondary"
-              onClick={() =>
-                setSelected(null)
-              }
+              onClick={() => setSelected(null)}
             >
               Close
             </Button>
@@ -410,165 +313,132 @@ export default function BooksPage() {
           </>
         }
       >
-
         {selected && (
+          <div className="space-y-6">
+            {/* Main info */}
+            <div className="flex flex-col gap-5 sm:flex-row">
+              <div className="mx-auto h-56 w-40 shrink-0 overflow-hidden rounded-lg border border-border-soft bg-bg-soft shadow-sm sm:mx-0">
+                <img
+                  src={
+                    selected.coverImage ||
+                    '/Book1.png'
+                  }
+                  alt={selected.title}
+                  className="h-full w-full object-cover"
+                />
+              </div>
 
-          <div className="flex flex-col gap-6 sm:flex-row">
-
-            <img
-              src={
-                selected.coverImage ||
-                '/Book1.png'
-              }
-              alt={selected.title}
-              className="h-64 w-44 rounded-xl object-cover border border-border shadow-card"
-            />
-
-            <div className="flex-1 space-y-4">
-
-              <div>
-
-                <h3 className="text-xl font-bold text-fg">
+              <div className="flex-1">
+                <h3 className="text-xl font-semibold text-fg tracking-tight">
                   {selected.title}
                 </h3>
 
-                <p className="text-sm text-fg-muted">
-                  by{' '}
+                <p className="mt-1 text-sm text-fg-muted font-medium">
                   {selected.authors
-                    ?.map(
-                      (author) =>
-                        author.name
-                    )
-                    .join(', ')}
+                    ?.map((author) => author.name)
+                    .join(', ') || 'Unknown author'}
                 </p>
 
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <Badge tone="neutral">
+                    {selected.category?.name || 'Uncategorized'}
+                  </Badge>
+
+                  {selected.language && (
+                    <Badge tone="neutral">
+                      {selected.language}
+                    </Badge>
+                  )}
+                </div>
+
+                <p className="mt-5 text-sm leading-relaxed text-fg-muted">
+                  {selected.description ||
+                    'No description available for this book.'}
+                </p>
               </div>
+            </div>
 
-              <div className="flex flex-wrap items-center gap-2">
+            {/* Details */}
+            <div className="border-t border-border-soft pt-5">
+              <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-fg">
+                Publication Details
+              </h4>
 
-                <Badge tone="neutral">
-                  {selected.category?.name}
-                </Badge>
-
-                <Badge tone="neutral">
-                  {selected.language}
-                </Badge>
-
-              </div>
-
-              <p className="text-sm text-fg-muted">
-                {selected.description ||
-                  'No description available.'}
-              </p>
-
-              <div className="grid grid-cols-2 gap-3 text-sm">
-
-                <Info
+              <div className="grid grid-cols-2 gap-x-6 gap-y-4 text-sm sm:grid-cols-3">
+                <Detail
                   label="Publisher"
-                  value={
-                    selected.publisher
-                      ?.name || 'N/A'
-                  }
+                  value={selected.publisher?.name || 'N/A'}
                 />
 
-                <Info
+                <Detail
                   label="Published"
                   value={
                     selected.publicationYear
-                      ? String(
-                          selected.publicationYear
-                        )
+                      ? String(selected.publicationYear)
                       : 'N/A'
                   }
                 />
 
-                <Info
+                <Detail
                   label="ISBN"
-                  value={
-                    selected.isbn
-                  }
+                  value={selected.isbn || 'N/A'}
                 />
 
-                <Info
+                <Detail
                   label="Pages"
                   value={
                     selected.pages
-                      ? String(
-                          selected.pages
-                        )
+                      ? String(selected.pages)
                       : 'N/A'
                   }
                 />
 
-                <Info
+                <Detail
                   label="Total Copies"
-                  value={String(
-                    selectedBookCopies.length
-                  )}
+                  value={String(selectedBookCopies.length)}
                 />
 
-                <Info
-                  label="Available Copies"
-                  value={String(
-                    selectedBookCopies.filter(
-                      (copy) =>
-                        copy.status ===
-                        'AVAILABLE'
-                    ).length
-                  )}
+                <Detail
+                  label="Available"
+                  value={String(availableCopies)}
                 />
-
               </div>
-
-              {copiesLoading && (
-
-                <p className="text-xs text-fg-muted">
-                  Loading copy information...
-                </p>
-
-              )}
-
-              {copiesError && (
-
-                <p className="text-xs text-danger">
-                  Could not load copy information.
-                </p>
-
-              )}
-
             </div>
 
+            {copiesLoading && (
+              <p className="text-xs text-fg-muted">
+                Loading copy information...
+              </p>
+            )}
+
+            {copiesError && (
+              <p className="text-xs text-danger font-medium">
+                Could not load copy information.
+              </p>
+            )}
           </div>
-
         )}
-
       </Modal>
-
     </div>
   );
 }
 
-function Info({
+function Detail({
   label,
   value,
 }: {
   label: string;
   value: string;
 }) {
-
   return (
-
-    <div className="rounded-xl border border-border-soft bg-bg-soft px-3 py-2.5">
-
+    <div>
       <p className="text-xs text-fg-subtle">
         {label}
       </p>
 
-      <p className="mt-0.5 font-medium text-fg">
+      <p className="mt-1 font-medium text-fg">
         {value}
       </p>
-
     </div>
-
   );
 }
