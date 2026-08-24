@@ -13,21 +13,11 @@ interface LoaderProps {
  */
 export function Loader({ className, label }: LoaderProps) {
   return (
-    <div className={cn('flex flex-col items-center justify-center gap-5 py-12', className)}>
-      <div className="relative flex h-14 w-14 items-center justify-center">
-        {/* Pulsing glow */}
-        <span className="absolute inset-0 rounded-2xl bg-brand-500/20 blur-lg animate-pulse-soft" />
-        {/* Rotating conic ring */}
-        <span
-          className="absolute inset-0 rounded-2xl animate-spin"
-          style={{
-            background:
-              'conic-gradient(from 0deg, transparent 0deg, rgba(31,185,136,0.5) 90deg, transparent 180deg)',
-            mask: 'radial-gradient(farthest-side, transparent calc(100% - 2px), black calc(100% - 2px))',
-            WebkitMask: 'radial-gradient(farthest-side, transparent calc(100% - 2px), black calc(100% - 2px))',
-          }}
-        />
-        <LogoMark size={32} />
+    <div className={cn('flex flex-col items-center justify-center gap-4 py-12', className)}>
+      <div className="relative flex h-10 w-10 items-center justify-center">
+        <span className="absolute inset-0 rounded-xl border-2 border-border" />
+        <span className="absolute inset-0 animate-spin rounded-xl border-2 border-transparent border-t-brand-400" />
+        <LogoMark size={24} />
       </div>
       {label && (
         <p className="flex items-center gap-1.5 text-sm text-fg-muted">
@@ -45,9 +35,7 @@ export function Loader({ className, label }: LoaderProps) {
 
 export function FullPageLoader({ label = 'Loading your library…' }: { label?: string }) {
   return (
-    <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden">
-      <div className="absolute inset-0 grid-bg opacity-30" />
-      <div className="absolute h-72 w-72 rounded-full bg-brand-500/10 blur-3xl" />
+    <div className="flex min-h-screen w-full items-center justify-center">
       <Loader label={label} />
     </div>
   );

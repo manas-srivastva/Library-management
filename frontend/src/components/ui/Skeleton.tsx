@@ -10,7 +10,7 @@ export function Skeleton({ className }: SkeletonProps) {
 
 export function SkeletonCard() {
   return (
-    <div className="card p-6">
+    <div className="card animate-fade-in p-6">
       <div className="flex items-start justify-between">
         <div className="space-y-2.5">
           <Skeleton className="h-3 w-20" />
@@ -25,7 +25,7 @@ export function SkeletonCard() {
 
 export function SkeletonRow() {
   return (
-    <div className="flex items-center gap-4 px-4 py-4">
+    <div className="flex animate-fade-in items-center gap-4 px-4 py-4">
       <Skeleton className="h-10 w-10 rounded-lg" />
       <div className="flex-1 space-y-2.5">
         <Skeleton className="h-3.5 w-40" />

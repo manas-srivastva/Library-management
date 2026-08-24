@@ -10,7 +10,7 @@ function EmptyIllustration({ variant = 'book' }: { variant?: EmptyVariant }) {
   return (
     <div className="relative">
       {/* Soft glow */}
-      <div className="absolute inset-0 rounded-full bg-brand-500/10 blur-2xl" aria-hidden />
+      <div className="absolute inset-3 rounded-full bg-brand-500/5 blur-xl" aria-hidden />
       <svg viewBox="0 0 120 120" fill="none" width="120" height="120" className="relative">
         <defs>
           <linearGradient id="empty-book" x1="30" y1="30" x2="90" y2="90" gradientUnits="userSpaceOnUse">
@@ -84,9 +84,9 @@ export function EmptyState({ title, description, action, className, variant = 'b
   return (
     <div className={cn('flex flex-col items-center justify-center py-20 text-center', className)}>
       <motion.div
-        initial={{ opacity: 0, scale: 0.92, y: 6 }}
+        initial={{ opacity: 0, scale: 0.97, y: 4 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
       >
         <EmptyIllustration variant={variant} />
       </motion.div>

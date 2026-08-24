@@ -13,7 +13,7 @@ export function PageHeader({ title, description, actions }: PageHeaderProps) {
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-      className="surface-enter relative mb-7 flex flex-col gap-5 overflow-hidden rounded-2xl border border-border-soft bg-bg-card/55 px-5 py-5 shadow-card backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between sm:px-6"
+      className="surface-enter relative mb-7 flex flex-col gap-5 overflow-hidden rounded-xl border border-border-soft bg-bg-card/55 px-5 py-5 shadow-card backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between sm:px-6"
     >
       <div className="relative">
         <div className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-400">
