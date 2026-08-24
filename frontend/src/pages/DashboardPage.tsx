@@ -7,6 +7,8 @@ import {
   Receipt,
   TrendingUp,
   Users,
+  AlertCircle,
+  ArrowUpRight,
 } from 'lucide-react';
 
 import { useNavigate } from 'react-router-dom';
@@ -31,6 +33,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
+import { Skeleton, SkeletonCard } from '@/components/ui/Skeleton';
 import { formatCurrency } from '@/utils/format';
 
 import {
@@ -40,6 +43,20 @@ import {
   useFineStats,
   useMonthlyBorrows,
 } from '@/hooks/useAnalytics';
+
+const sectionVariants = {
+  hidden: { opacity: 0, y: 8 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.24, ease: [0.16, 1, 0.3, 1], staggerChildren: 0.06 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 6 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] } },
+};
 
 export default function DashboardPage() {
   const navigate = useNavigate();
@@ -88,7 +105,12 @@ export default function DashboardPage() {
   const topBook = popularBooks?.[0];
 
   return (
-    <div>
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={sectionVariants}
+      className="space-y-6"
+    >
 
       {/* ========================================= */}
       {/* HEADER */}
@@ -129,7 +151,15 @@ export default function DashboardPage() {
       {/* OVERVIEW STATS - BACKEND */}
       {/* ========================================= */}
 
+      <motion.section variants={itemVariants} aria-labelledby="overview-heading">
+        <div className="mb-3 flex items-center gap-3">
+          <h2 id="overview-heading" className="text-xs font-semibold uppercase tracking-[0.14em] text-fg-subtle">
+            Library overview
+          </h2>
+          <span className="h-px flex-1 bg-border-soft" />
+        </div>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        {overviewLoading && Array.from({ length: 5 }).map((_, index) => <SkeletonCard key={index} />)}
 
         <StatCard
           label="Total Books"
@@ -141,6 +171,7 @@ export default function DashboardPage() {
           icon={BookOpen}
           accent="brand"
           delay={0}
+          className={overviewLoading ? 'hidden' : undefined}
         />
 
         <StatCard
@@ -153,6 +184,7 @@ export default function DashboardPage() {
           icon={Users}
           accent="info"
           delay={0.05}
+          className={overviewLoading ? 'hidden' : undefined}
         />
 
         <StatCard
@@ -165,6 +197,7 @@ export default function DashboardPage() {
           icon={CalendarClock}
           accent="accent"
           delay={0.1}
+          className={overviewLoading ? 'hidden' : undefined}
         />
 
         <StatCard
@@ -177,6 +210,7 @@ export default function DashboardPage() {
           icon={Library}
           accent="warning"
           delay={0.15}
+          className={overviewLoading ? 'hidden' : undefined}
         />
 
         <StatCard
@@ -189,11 +223,13 @@ export default function DashboardPage() {
           icon={Receipt}
           accent="danger"
           delay={0.2}
+          className={overviewLoading ? 'hidden' : undefined}
         />
 
       </div>
+      </motion.section>
 
-      <div className="mt-6 grid gap-3 rounded-2xl border border-border-soft bg-bg-card/60 p-4 shadow-card sm:grid-cols-3 sm:p-5">
+      <motion.section variants={itemVariants} aria-label="Library activity summary" className="grid gap-3 rounded-xl border border-border-soft bg-bg-card/60 p-4 shadow-card sm:grid-cols-3 sm:p-5">
         <div className="border-border-soft sm:border-r sm:pr-5">
           <p className="eyebrow">Since launch</p>
           <p className="mt-2 text-xl font-semibold tabular-nums text-fg">
@@ -217,13 +253,13 @@ export default function DashboardPage() {
           </p>
           <p className="mt-1 text-xs text-fg-subtle">Across backend fine records</p>
         </div>
-      </div>
+      </motion.section>
 
       {/* ========================================= */}
       {/* MONTHLY BORROWS */}
       {/* ========================================= */}
 
-      <div className="mt-6 grid gap-4">
+      <motion.section variants={itemVariants} className="grid gap-4">
 
         {/* MONTHLY BORROWS - BACKEND */}
 
@@ -241,11 +277,13 @@ export default function DashboardPage() {
 
           <div className="h-72">
             {monthlyLoading ? (
-              <div className="flex h-full items-center justify-center text-sm text-fg-subtle">
-                Loading borrow activity...
+              <div className="flex h-full flex-col justify-center gap-3 px-6">
+                <Skeleton className="h-3 w-32" />
+                <Skeleton className="h-40 w-full" />
               </div>
             ) : monthlyError ? (
-              <div className="flex h-full items-center justify-center text-sm text-danger-400">
+              <div className="flex h-full items-center justify-center gap-2 text-sm text-danger-400">
+                <AlertCircle className="h-4 w-4" />
                 Unable to load borrow activity.
               </div>
             ) : (
@@ -271,13 +309,13 @@ export default function DashboardPage() {
 
         </ChartCard>
 
-      </div>
+      </motion.section>
 
       {/* ========================================= */}
       {/* POPULAR BOOKS + ACTIVE MEMBERS */}
       {/* ========================================= */}
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-3">
+      <motion.section variants={itemVariants} className="grid gap-4 lg:grid-cols-3">
 
         {/* POPULAR BOOKS - BACKEND */}
 
@@ -290,15 +328,18 @@ export default function DashboardPage() {
           <div className="h-72">
 
             {popularLoading ? (
-              <div className="flex h-full items-center justify-center text-sm text-fg-subtle">
-                Loading popular titles...
+              <div className="flex h-full flex-col justify-center gap-3 px-6">
+                <Skeleton className="h-3 w-36" />
+                <Skeleton className="h-40 w-full" />
               </div>
             ) : popularError ? (
-              <div className="flex h-full items-center justify-center text-sm text-danger-400">
+              <div className="flex h-full items-center justify-center gap-2 text-sm text-danger-400">
+                <AlertCircle className="h-4 w-4" />
                 Unable to load popular titles.
               </div>
             ) : !popularBooks?.length ? (
-              <div className="flex h-full items-center justify-center text-sm text-fg-subtle">
+              <div className="flex h-full flex-col items-center justify-center gap-2 text-center text-sm text-fg-subtle">
+                <BookOpen className="h-5 w-5 text-fg-faint" />
                 No borrow activity available yet.
               </div>
             ) : (
@@ -385,7 +426,7 @@ export default function DashboardPage() {
 
         {/* ACTIVE MEMBERS - BACKEND */}
 
-        <Card className="p-5">
+        <Card hover className="p-5">
 
           <div className="mb-4 flex items-center justify-between">
 
@@ -394,12 +435,12 @@ export default function DashboardPage() {
             </h3>
 
             <button
-              className="text-xs text-brand-400 hover:underline"
+              className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-brand-400 transition-colors hover:bg-brand-500/10 hover:text-brand-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/50"
               onClick={() =>
                 navigate('/app/analytics')
               }
             >
-              View all
+              View all <ArrowUpRight className="h-3.5 w-3.5" />
             </button>
 
           </div>
@@ -408,9 +449,17 @@ export default function DashboardPage() {
 
             {membersLoading ? (
 
-              <p className="px-2 py-4 text-sm text-fg-subtle">
-                Loading members...
-              </p>
+              <div className="space-y-3 px-2 py-4">
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <div key={index} className="flex items-center gap-3">
+                    <Skeleton className="h-8 w-8 rounded-full" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-3 w-28" />
+                      <Skeleton className="h-2.5 w-36" />
+                    </div>
+                  </div>
+                ))}
+              </div>
 
             ) : membersError ? (
               <p className="px-2 py-4 text-sm text-danger-400">
@@ -436,7 +485,7 @@ export default function DashboardPage() {
                       delay:
                         index * 0.05,
                     }}
-                    className="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-bg-elevated/60 transition"
+                    className="flex items-center gap-3 rounded-lg px-2 py-2 transition-colors duration-200 hover:bg-bg-elevated/60"
                   >
 
                     <Avatar
@@ -477,7 +526,8 @@ export default function DashboardPage() {
             {!membersLoading &&
               (activeMembers ?? []).length === 0 && (
 
-                <p className="px-2 py-4 text-sm text-fg-subtle">
+                <p className="flex items-center gap-2 px-2 py-4 text-sm text-fg-subtle">
+                  <Users className="h-4 w-4 text-fg-faint" />
                   No active members found.
                 </p>
 
@@ -487,13 +537,13 @@ export default function DashboardPage() {
 
         </Card>
 
-      </div>
+      </motion.section>
 
       {/* ========================================= */}
       {/* FINE STATISTICS - BACKEND */}
       {/* ========================================= */}
 
-      <div className="mt-6">
+      <motion.section variants={itemVariants}>
 
         <ChartCard
           title="Fine Statistics"
@@ -508,15 +558,18 @@ export default function DashboardPage() {
           <div className="h-64">
 
             {fineLoading ? (
-              <div className="flex h-full items-center justify-center text-sm text-fg-subtle">
-                Loading fine statistics...
+              <div className="flex h-full flex-col justify-center gap-3 px-6">
+                <Skeleton className="h-3 w-36" />
+                <Skeleton className="h-32 w-full" />
               </div>
             ) : fineError ? (
-              <div className="flex h-full items-center justify-center text-sm text-danger-400">
+              <div className="flex h-full items-center justify-center gap-2 text-sm text-danger-400">
+                <AlertCircle className="h-4 w-4" />
                 Unable to load fine statistics.
               </div>
             ) : !fineStats?.length ? (
-              <div className="flex h-full items-center justify-center text-sm text-fg-subtle">
+              <div className="flex h-full flex-col items-center justify-center gap-2 text-sm text-fg-subtle">
+                <Receipt className="h-5 w-5 text-fg-faint" />
                 No fine records available yet.
               </div>
             ) : (
@@ -600,8 +653,8 @@ export default function DashboardPage() {
 
         </ChartCard>
 
-      </div>
+      </motion.section>
 
-    </div>
+    </motion.div>
   );
 }

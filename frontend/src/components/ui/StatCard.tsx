@@ -10,6 +10,7 @@ interface StatCardProps {
   trend?: { value: string; up: boolean };
   accent?: 'brand' | 'info' | 'warning' | 'danger' | 'accent';
   delay?: number;
+  className?: string;
 }
 
 const accents: Record<string, { icon: string; bar: string }> = {
@@ -35,14 +36,14 @@ const accents: Record<string, { icon: string; bar: string }> = {
   },
 };
 
-export function StatCard({ label, value, icon: Icon, trend, accent = 'brand', delay = 0 }: StatCardProps) {
+export function StatCard({ label, value, icon: Icon, trend, accent = 'brand', delay = 0, className }: StatCardProps) {
   const a = accents[accent];
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.24, delay, ease: [0.16, 1, 0.3, 1] }}
-      className="card card-hover card-glow surface-enter group relative overflow-hidden p-5"
+      className={cn('card card-hover card-glow surface-enter group relative overflow-hidden p-5', className)}
       style={{ '--glow-y': '0%' } as React.CSSProperties}
     >
       <div className="relative flex items-start justify-between">
