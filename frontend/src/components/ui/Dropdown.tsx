@@ -30,7 +30,11 @@ export function Dropdown({ trigger, children, align = 'right', className }: Drop
 
   return (
     <div ref={ref} className="relative">
-      <button onClick={() => setOpen((o) => !o)} className="block">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/50"
+        aria-expanded={open}
+      >
         {trigger}
       </button>
       <AnimatePresence>
@@ -41,7 +45,7 @@ export function Dropdown({ trigger, children, align = 'right', className }: Drop
             exit={{ opacity: 0, y: -6, scale: 0.97 }}
             transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
             className={cn(
-              'absolute z-50 mt-2 min-w-[12rem] glass rounded-xl shadow-pop p-1.5 origin-top',
+              'absolute z-50 mt-2 min-w-[12rem] glass rounded-lg shadow-pop p-1.5 origin-top',
               align === 'right' ? 'right-0' : 'left-0',
               className,
             )}
@@ -69,7 +73,7 @@ export function DropdownItem({
     <button
       onClick={onClick}
       className={cn(
-        'flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors duration-150',
+        'flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-400/50',
         danger ? 'text-danger-400 hover:bg-danger-500/10' : 'text-fg hover:bg-bg-elevated',
       )}
     >

@@ -15,7 +15,7 @@ export function ChartCard({ title, subtitle, action, children, className }: Char
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
       className={cn('card card-hover surface-enter p-6', className)}
     >
       <div className="mb-6 flex items-start justify-between gap-3">

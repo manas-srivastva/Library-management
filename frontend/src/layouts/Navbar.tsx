@@ -39,7 +39,7 @@ export function Navbar() {
     >
       <button
         onClick={() => setMobileOpen(true)}
-        className="flex h-10 w-10 items-center justify-center rounded-xl border border-transparent text-fg-muted transition-all hover:border-border hover:bg-bg-elevated hover:text-fg lg:hidden"
+        className="flex h-10 w-10 items-center justify-center rounded-lg border border-transparent text-fg-muted transition-colors duration-200 hover:border-border hover:bg-bg-elevated hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/50 lg:hidden"
         aria-label="Open menu"
       >
         <Menu className="h-5 w-5" />
@@ -62,7 +62,7 @@ export function Navbar() {
         {/* Theme toggle */}
         <button
           onClick={toggleTheme}
-          className="flex h-10 w-10 items-center justify-center rounded-xl border border-transparent text-fg-muted transition-all hover:border-border hover:bg-bg-elevated hover:text-fg"
+          className="flex h-10 w-10 items-center justify-center rounded-lg border border-transparent text-fg-muted transition-colors duration-200 hover:border-border hover:bg-bg-elevated hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/50"
           aria-label="Toggle theme"
           title="Toggle theme"
         >
@@ -73,7 +73,7 @@ export function Navbar() {
         <Dropdown
           align="right"
           trigger={
-            <span className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-transparent text-fg-muted transition-all hover:border-border hover:bg-bg-elevated hover:text-fg" aria-label="Notifications">
+            <span className="relative flex h-10 w-10 items-center justify-center rounded-lg border border-transparent text-fg-muted transition-colors duration-200 hover:border-border hover:bg-bg-elevated hover:text-fg" aria-label="Notifications">
               <Bell className="h-[18px] w-[18px]" />
               <span className="absolute right-2.5 top-2.5 flex h-2 w-2">
                 <span className="absolute inline-flex h-full w-full animate-pulse-ring rounded-full bg-brand-400 opacity-75" />
@@ -120,7 +120,7 @@ export function Navbar() {
         <Dropdown
           align="right"
           trigger={
-            <span className="group flex items-center gap-2 rounded-xl border border-border-soft bg-bg-card/55 py-1.5 pl-1.5 pr-2 transition-all duration-200 hover:border-border-strong hover:bg-bg-elevated/70">
+            <span className="group flex items-center gap-2 rounded-lg border border-border-soft bg-bg-card/55 py-1.5 pl-1.5 pr-2 transition-colors duration-200 hover:border-border-strong hover:bg-bg-elevated/70">
               <Avatar name="Aisha Patel" src="https://picsum.photos/seed/aisha/80/80" size="sm" />
               <span className="hidden text-left sm:block">
                 <span className="block text-xs font-semibold text-fg leading-tight">Aisha Patel</span>

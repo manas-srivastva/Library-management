@@ -12,30 +12,25 @@ interface StatCardProps {
   delay?: number;
 }
 
-const accents: Record<string, { icon: string; glow: string; bar: string }> = {
+const accents: Record<string, { icon: string; bar: string }> = {
   brand: {
     icon: 'bg-brand-500/10 text-brand-400 border-brand-500/20',
-    glow: 'from-brand-500/8',
     bar: 'bg-brand-400',
   },
   info: {
     icon: 'bg-info-500/10 text-info-400 border-info-500/20',
-    glow: 'from-info-500/8',
     bar: 'bg-info-400',
   },
   warning: {
     icon: 'bg-warning-500/10 text-warning-400 border-warning-500/20',
-    glow: 'from-warning-500/8',
     bar: 'bg-warning-400',
   },
   danger: {
     icon: 'bg-danger-500/10 text-danger-400 border-danger-500/20',
-    glow: 'from-danger-500/8',
     bar: 'bg-danger-400',
   },
   accent: {
     icon: 'bg-accent-500/10 text-accent-300 border-accent-500/20',
-    glow: 'from-accent-500/8',
     bar: 'bg-accent-400',
   },
 };
@@ -46,13 +41,10 @@ export function StatCard({ label, value, icon: Icon, trend, accent = 'brand', de
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.24, delay, ease: [0.16, 1, 0.3, 1] }}
       className="card card-hover card-glow surface-enter group relative overflow-hidden p-5"
       style={{ '--glow-y': '0%' } as React.CSSProperties}
     >
-      {/* Subtle top gradient */}
-      <div className={cn('absolute inset-x-0 top-0 h-24 bg-gradient-to-b to-transparent opacity-60', a.glow)} />
-
       <div className="relative flex items-start justify-between">
         <div>
           <p className="text-[13px] font-medium text-fg-muted">{label}</p>
@@ -60,7 +52,7 @@ export function StatCard({ label, value, icon: Icon, trend, accent = 'brand', de
         </div>
         <div
           className={cn(
-            'flex h-11 w-11 items-center justify-center rounded-xl border transition-transform duration-300 group-hover:scale-105',
+            'flex h-11 w-11 items-center justify-center rounded-lg border transition-colors duration-200',
             a.icon,
           )}
         >

@@ -116,7 +116,7 @@ function NavItems({ collapsed }: { collapsed: boolean }) {
             to={item.to}
             className={({ isActive }) =>
               cn(
-                'group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
+                'group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/50',
                 isActive
                   ? 'bg-brand-500/10 text-brand-300'
                   : 'text-fg-muted hover:bg-bg-elevated/60 hover:text-fg',
@@ -168,7 +168,7 @@ function NavItems({ collapsed }: { collapsed: boolean }) {
             to={item.to}
             className={({ isActive }) =>
               cn(
-                'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
+                'group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/50',
                 isActive
                   ? 'bg-bg-elevated text-fg'
                   : 'text-fg-muted hover:bg-bg-elevated/60 hover:text-fg',
@@ -219,7 +219,7 @@ export function Sidebar() {
 
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="flex h-7 w-7 items-center justify-center rounded-lg text-fg-subtle transition-colors hover:bg-bg-elevated hover:text-fg"
+            className="flex h-7 w-7 items-center justify-center rounded-md text-fg-subtle transition-colors duration-200 hover:bg-bg-elevated hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/50"
             aria-label="Toggle sidebar"
           >
             <ChevronLeft
