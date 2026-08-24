@@ -32,22 +32,22 @@ export function LogoMark({ size = 36, className, showGlow = false }: LogoMarkPro
       >
         <defs>
           <linearGradient id="libra-mark-bg" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
-            <stop stopColor="#10243b" />
-            <stop offset="1" stopColor="#1e3a5f" />
+            <stop stopColor="#1d2e3a" />
+            <stop offset="1" stopColor="#263746" />
           </linearGradient>
           <linearGradient id="libra-mark-stroke" x1="8" y1="10" x2="32" y2="30" gradientUnits="userSpaceOnUse">
-            <stop stopColor="#65c5b8" />
-            <stop offset="1" stopColor="#2a9d8f" />
+            <stop stopColor="#a0afb7" />
+            <stop offset="1" stopColor="#526a78" />
           </linearGradient>
           <linearGradient id="libra-mark-spark" x1="18" y1="6" x2="22" y2="14" gradientUnits="userSpaceOnUse">
-            <stop stopColor="#f5dda0" />
-            <stop offset="1" stopColor="#e9c46a" />
+            <stop stopColor="#e3cf9f" />
+            <stop offset="1" stopColor="#c9a76a" />
           </linearGradient>
         </defs>
 
         {/* Rounded tile background */}
         <rect width="40" height="40" rx="11" fill="url(#libra-mark-bg)" />
-        <rect x="0.5" y="0.5" width="39" height="39" rx="10.5" stroke="#376582" />
+        <rect x="0.5" y="0.5" width="39" height="39" rx="10.5" stroke="#526a78" />
 
         {/* Open book — left page */}
         <path

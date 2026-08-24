@@ -288,13 +288,13 @@ export default function FinesPage() {
 
                 <CartesianGrid
                   strokeDasharray="3 3"
-                  stroke="#23445E"
+                  stroke="#D8D2C4"
                   vertical={false}
                 />
 
                 <XAxis
                   dataKey="_id"
-                  stroke="#71879B"
+                  stroke="#859096"
                   fontSize={12}
                   tickLine={false}
                   axisLine={false}
@@ -318,9 +318,9 @@ export default function FinesPage() {
                     formatCurrency(value)
                   }
                   contentStyle={{
-                    background: '#11283D',
+                    background: '#FFFDF8',
                     border:
-                      '1px solid #376582',
+                      '1px solid #BCB3A1',
                     borderRadius: 12,
                     fontSize: 12,
                   }}
@@ -328,7 +328,7 @@ export default function FinesPage() {
 
                 <Bar
                   dataKey="total"
-                  fill="#E9C46A"
+                  fill="#C9A76A"
                   radius={[
                     6,
                     6,
