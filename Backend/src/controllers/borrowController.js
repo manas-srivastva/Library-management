@@ -21,9 +21,14 @@ export const borrowBook = asyncHandler(async (req, res) => {
 
 export const getAll = asyncHandler(async (req, res) => {
 
+    const pageInput = req.query.page ? parseInt(req.query.page) : 1;
+    const limitInput = req.query.limit ? parseInt(req.query.limit) : 10;
+
+    // Validate and sanitize pagination inputs
+    const page = Math.max(1, Math.min(isNaN(pageInput) ? 1 : pageInput, 1000));
+    const limit = Math.max(1, Math.min(isNaN(limitInput) ? 10 : limitInput, 100));
+
     const {
-        page = 1,
-        limit = 10,
         search = "",
         status = "",
         from = "",

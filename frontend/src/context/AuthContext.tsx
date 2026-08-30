@@ -41,12 +41,9 @@ const refreshUser = async () => {
   try {
     const response = await authApi.me();
 
-    console.log("ME Response:", response);
-    console.log("ME User:", response.data);
-
+    // Removed debug logs for security
     setUser(response.data);
   } catch (error) {
-    console.error("ME Error:", error);
     logout();
   }
 };

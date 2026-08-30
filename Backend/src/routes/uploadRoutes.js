@@ -13,6 +13,9 @@ import authorize
 
     from "../middlewares/authorize.js";
 
+import ROLES
+    from "../constants/roles.js";
+
 import upload
 
     from "../middlewares/uploadMiddleware.js";
@@ -90,9 +93,9 @@ router.post(
 
     authorize(
 
-        "ADMIN",
+        ROLES.ADMIN,
 
-        "LIBRARIAN"
+        ROLES.LIBRARIAN
 
     ),
 

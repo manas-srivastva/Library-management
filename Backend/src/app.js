@@ -69,7 +69,17 @@ app.use(
 
 app.use(
     helmet({
-        contentSecurityPolicy: false,
+        contentSecurityPolicy: {
+            directives: {
+                defaultSrc: ["'self'"],
+                styleSrc: ["'self'", "'unsafe-inline'"],
+                scriptSrc: ["'self'"],
+                imgSrc: ["'self'", "data:", "https:"],
+                fontSrc: ["'self'", "https:"],
+                connectSrc: ["'self'", "https:"],
+                mediaSrc: ["'self'"],
+            },
+        },
         crossOriginResourcePolicy: { policy: "cross-origin" },
         hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
         noSniff: true,
@@ -100,6 +110,7 @@ const apiLimiter = rateLimit({
     max: 200,
     standardHeaders: true,
     legacyHeaders: false,
+    skip: (req, res) => process.env.NODE_ENV === 'test',
     message: {
         success: false,
         message: "Too many requests, please try again later.",
@@ -112,9 +123,22 @@ const authLimiter = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
     skipSuccessfulRequests: true,
+    skip: (req, res) => process.env.NODE_ENV === 'test',
     message: {
         success: false,
         message: "Too many login attempts. Please wait and try again later.",
+    },
+});
+
+const uploadLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+    skip: (req, res) => process.env.NODE_ENV === 'test',
+    message: {
+        success: false,
+        message: "Too many upload requests. Please try again later.",
     },
 });
 
@@ -157,7 +181,7 @@ app.use(
     bookRoutes
 
 );
-app.use("/api/users", userRoutes);
+app.use("/api/users", uploadLimiter, userRoutes);
 
 app.use(
 
@@ -193,13 +217,9 @@ app.use(
 );
 
 app.use(
-
     "/api-docs",
-
-    swaggerUi.serve,
-
-    swaggerUi.setup(specs)
-
+    process.env.NODE_ENV === "production" ? (req, res) => res.status(404).json({ message: "Not found" }) : swaggerUi.serve,
+    process.env.NODE_ENV === "production" ? (req, res) => res.status(404).json({ message: "Not found" }) : swaggerUi.setup(specs)
 );
 
 
@@ -233,6 +253,8 @@ app.use(
 app.use(
 
     "/api/uploads",
+
+    uploadLimiter,
 
     uploadRoutes
 

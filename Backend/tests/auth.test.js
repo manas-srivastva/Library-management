@@ -11,7 +11,7 @@ describe("Authentication - Register", () => {
             .send({
                 name: "Manas",
                 email: "manas@test.com",
-                password: "password123"
+                password: "Test@Password123"
             });
 
         expect(res.statusCode).toBe(201);
@@ -23,7 +23,7 @@ describe("Authentication - Register", () => {
         const user = {
             name: "Manas",
             email: "duplicate@test.com",
-            password: "password123"
+            password: "Test@Password123"
         };
 
         await request(app)
@@ -45,7 +45,7 @@ describe("Authentication - Register", () => {
             .send({
                 name: "Manas",
                 email: "invalid-email",
-                password: "password123"
+                password: "Test@Password123"
             });
 
         expect(res.statusCode).toBe(400);
@@ -71,7 +71,7 @@ describe("Authentication - Register", () => {
             .post("/api/auth/register")
             .send({
                 email: "noname@test.com",
-                password: "password123"
+                password: "Test@Password123"
             });
 
         expect(res.statusCode).toBe(400);
@@ -93,7 +93,7 @@ describe("Authentication - Login", () => {
         const user = {
             name: "Manas",
             email: "login@test.com",
-            password: "password123"
+            password: "Test@Password123"
         };
 
         await request(app)
@@ -125,7 +125,7 @@ describe("Authentication - Login", () => {
         const user = {
             name: "Manas",
             email: "wrong@test.com",
-            password: "password123"
+            password: "Test@Password123"
         };
 
         await request(app)
@@ -149,7 +149,7 @@ describe("Authentication - Login", () => {
             .post("/api/auth/login")
             .send({
                 email: "nouser@test.com",
-                password: "password123"
+                password: "Test@Password123"
             });
 
         expect(res.statusCode).toBe(401);
@@ -171,7 +171,7 @@ describe("Authentication - Protected Routes", () => {
         const user = {
             name: "Manas",
             email: "me@test.com",
-            password: "password123"
+            password: "Test@Password123"
         };
 
         // Register

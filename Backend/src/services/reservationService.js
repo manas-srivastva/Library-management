@@ -37,42 +37,23 @@ if (!user)
         "User not found"
     );
 
-
+        // Use exact match instead of regex to prevent NoSQL injection
         const book =
-
             await Book.findOne({
-
-                title: {
-
-                    $regex:
-
-                        `^${data.book}$`,
-
-                    $options: "i"
-
-                }
-
+                title: { $eq: data.book }
             });
 
         if (!book)
-
             throw new ApiError(
-
                 404,
-
                 "Book not found"
-
             );
 
 
         const reservation =
-
             await reservationRepository.create({
-
                 user: user._id,
-
                 book: book._id
-
             });
 
 

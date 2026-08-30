@@ -12,10 +12,18 @@ import ApiResponse
 
 from "../utils/ApiResponse.js";
 
+import ApiError from "../utils/ApiError.js";
+import ROLES from "../constants/roles.js";
+
 
 export const getAll = asyncHandler(
 
 async (req, res) => {
+
+    // Only ADMIN/LIBRARIAN can view all notifications
+    if (req.user.role !== ROLES.ADMIN && req.user.role !== ROLES.LIBRARIAN) {
+        return next(new ApiError(403, "Forbidden"));
+    }
 
     const notifications =
 
