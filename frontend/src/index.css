@@ -187,6 +187,24 @@
   .input-base:focus {
     border-color: rgba(184, 155, 94, 0.55);
     box-shadow: 0 0 0 2px rgba(184, 155, 94, 0.15);
+    background-color: var(--bg-card);
+  }
+  .input-base:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  .input-base.error {
+    border-color: rgba(239, 68, 68, 0.5);
+    background-color: rgba(239, 68, 68, 0.04);
+  }
+  .input-base.error:focus {
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1);
+  }
+  .input-base.success {
+    border-color: rgba(34, 197, 94, 0.5);
+  }
+  .input-base.success:focus {
+    box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.1);
   }
   .btn {
     position: relative;

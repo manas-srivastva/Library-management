@@ -11,14 +11,26 @@ const api = axios.create({
 
 const getErrorMessage = (error: unknown) => {
   const err = error as {
-    response?: { data?: { message?: string }; status?: number };
+    response?: { data?: { message?: string; errors?: Array<{ msg?: string }>; }; status?: number };
     message?: string;
   };
 
+  // Validation errors from express-validator
+  if (err?.response?.data?.errors && Array.isArray(err.response.data.errors)) {
+    return err.response.data.errors.map(e => e.msg || 'Invalid input').join(', ');
+  }
+
+  // Server error message
   if (err?.response?.data?.message) {
     return err.response.data.message;
   }
 
+  // Network error
+  if (err?.message?.includes('timeout')) {
+    return 'Request timeout. Please check your connection and try again.';
+  }
+
+  // Generic error
   if (err?.message) {
     return err.message;
   }

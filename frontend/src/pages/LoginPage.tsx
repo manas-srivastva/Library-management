@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { ArrowRight, Lock, Mail } from "lucide-react";
+import { ArrowRight, Lock, Mail, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { motion } from "framer-motion";
 import { Logo, LogoMark } from "@/components/brand/Logo";
@@ -22,7 +22,9 @@ export default function LoginPage() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<FormValues>();
+  } = useForm<FormValues>({
+    mode: 'onChange',
+  });
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -36,22 +38,152 @@ export default function LoginPage() {
   }, [isAuthenticated, navigate, user]);
 
   const onSubmit = async (data: FormValues) => {
- 
+    try {
+      await login(data);
+      toast.success("Welcome back! Logging in...");
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message ||
+        error?.userMessage ||
+        error?.message ||
+        "Login failed. Please try again.";
+      
+      toast.error(errorMessage);
+    }
+  };
 
-  try {
-    await login(data);
+  return (
+    <div className="relative flex min-h-screen items-center justify-center px-4 py-12">
+      <div className="absolute inset-0 grid-bg opacity-50" />
+      <div className="absolute inset-0 grid-bg-fade" />
+      <div className="absolute -top-40 left-1/2 h-80 w-[36rem] -translate-x-1/2 rounded-full bg-brand-500/10 blur-3xl" />
 
-    toast.success("Login successful");
-  } catch (error: any) {
-    console.error(error);
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="relative w-full max-w-md"
+      >
+        <Link to="/" className="mb-8 flex flex-col items-center gap-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{
+              duration: 0.5,
+              delay: 0.1,
+              ease: [0.16, 1, 0.3, 1],
+            }}
+            className="relative"
+          >
+            <div className="absolute inset-0 rounded-3xl bg-brand-500/20 blur-xl" />
+            <LogoMark
+              size={56}
+              showGlow
+              className="relative"
+            />
+          </motion.div>
 
-    toast.error(
-      error?.response?.data?.message ||
-      error?.message ||
-      "Login failed"
-    );
-  }
-};
+          <Logo
+            size={0}
+            showText
+            subtitle={undefined}
+            className="scale-110"
+            textClassName="text-lg"
+          />
+        </Link>
+
+        <div className="glass rounded-2xl p-7 shadow-pop gradient-border">
+          <div className="mb-1 flex items-center gap-2">
+            <h1 className="text-2xl font-bold tracking-tight text-fg">
+              Sign in
+            </h1>
+          </div>
+          <p className="text-sm text-fg-muted">
+            Enter your credentials to access LibraAI
+          </p>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
+            {/* Email Field */}
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-fg">
+                Email address
+              </label>
+              <div className="relative group">
+                <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fg-subtle transition-colors group-focus-within:text-brand-400" />
+                <input
+                  type="email"
+                  placeholder="you@library.io"
+                  className="input-base pl-9 transition-all focus:ring-2 focus:ring-brand-400/20"
+                  {...register("email", {
+                    required: "Email is required",
+                    pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Enter a valid email" },
+                  })}
+                />
+              </div>
+              {errors.email && (
+                <div className="mt-1.5 flex items-center gap-1.5 text-xs text-danger-400">
+                  <AlertCircle className="h-3.5 w-3.5" />
+                  {errors.email.message}
+                </div>
+              )}
+            </div>
+
+            {/* Password Field */}
+            <div>
+              <label className="mb-1.5 flex items-center justify-between text-sm font-medium text-fg">
+                <span>Password</span>
+                <Link
+                  to="#"
+                  className="text-xs font-normal text-brand-400 hover:text-brand-300 transition-colors"
+                >
+                  Forgot?
+                </Link>
+              </label>
+              <div className="relative group">
+                <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fg-subtle transition-colors group-focus-within:text-brand-400" />
+                <input
+                  type="password"
+                  placeholder="Enter your password"
+                  className="input-base pl-9 transition-all focus:ring-2 focus:ring-brand-400/20"
+                  {...register("password", {
+                    required: "Password is required",
+                  })}
+                />
+              </div>
+              {errors.password && (
+                <div className="mt-1.5 flex items-center gap-1.5 text-xs text-danger-400">
+                  <AlertCircle className="h-3.5 w-3.5" />
+                  {errors.password.message}
+                </div>
+              )}
+            </div>
+
+            <Button
+              type="submit"
+              size="lg"
+              className="w-full"
+              loading={isSubmitting}
+              rightIcon={<ArrowRight className="h-4 w-4" />}
+            >
+              {isSubmitting ? "Signing in..." : "Sign in"}
+            </Button>
+          </form>
+
+          <div className="mt-5 border-t border-border-soft pt-5">
+            <p className="text-center text-sm text-fg-muted">
+              Don't have an account?{' '}
+              <Link
+                to="/register"
+                className="font-medium text-brand-400 hover:text-brand-300 transition-colors"
+              >
+                Create one
+              </Link>
+            </p>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
 
   return (
     <div className="relative flex min-h-screen items-center justify-center px-4 py-12">

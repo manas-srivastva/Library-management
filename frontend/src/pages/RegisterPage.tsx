@@ -1,10 +1,12 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
-import { ArrowRight, Lock, Mail, User } from 'lucide-react';
+import { ArrowRight, Lock, Mail, User, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { motion } from 'framer-motion';
 import { Logo, LogoMark } from '@/components/brand/Logo';
+import { authApi } from '@/api/authApi';
+import { useAuth } from '@/hooks/useAuth';
 
 interface FormValues {
   name: string;
@@ -12,18 +14,43 @@ interface FormValues {
   password: string;
 }
 
+const PASSWORD_REQUIREMENTS = [
+  { label: '12+ characters', test: (p: string) => p.length >= 12 },
+  { label: 'Uppercase letter', test: (p: string) => /[A-Z]/.test(p) },
+  { label: 'Lowercase letter', test: (p: string) => /[a-z]/.test(p) },
+  { label: 'Number', test: (p: string) => /\d/.test(p) },
+  { label: 'Special character (@$!%*?&)', test: (p: string) => /[@$!%*?&]/.test(p) },
+];
+
 export default function RegisterPage() {
   const navigate = useNavigate();
+  const { register: registerUser } = useAuth();
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
-  } = useForm<FormValues>();
+  } = useForm<FormValues>({
+    mode: 'onChange',
+  });
 
-  const onSubmit = (_data: FormValues) => {
-    // NOTE: No backend auth here. UI-only demo that routes to the dashboard.
-    toast.success('Account created. Welcome to LibraAI');
-    navigate('/app/dashboard');
+  const passwordValue = watch('password');
+  const passwordStrength = PASSWORD_REQUIREMENTS.filter(req => req.test(passwordValue || '')).length;
+  const isPasswordValid = passwordStrength === PASSWORD_REQUIREMENTS.length;
+
+  const onSubmit = async (data: FormValues) => {
+    if (!isPasswordValid) {
+      toast.error('Password does not meet all requirements');
+      return;
+    }
+
+    try {
+      await registerUser(data);
+      toast.success('Account created successfully! Welcome to LibraAI');
+      navigate('/app/dashboard', { replace: true });
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || error?.message || 'Registration failed');
+    }
   };
 
   return (
@@ -57,19 +84,26 @@ export default function RegisterPage() {
           <p className="mt-1 text-sm text-fg-muted">Start managing your library in minutes.</p>
 
           <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
+            {/* Name Field */}
             <div>
               <label className="mb-1.5 block text-sm font-medium text-fg">Full name</label>
               <div className="relative group">
                 <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fg-subtle transition-colors group-focus-within:text-brand-400" />
                 <input
                   placeholder="Jane Doe"
-                  className="input-base pl-9"
-                  {...register('name', { required: 'Name is required' })}
+                  className="input-base pl-9 transition-all focus:ring-2 focus:ring-brand-400/20"
+                  {...register('name', { required: 'Name is required', minLength: { value: 2, message: 'Name must be at least 2 characters' } })}
                 />
               </div>
-              {errors.name && <p className="mt-1.5 text-xs text-danger-400">{errors.name.message}</p>}
+              {errors.name && (
+                <div className="mt-1.5 flex items-center gap-1.5 text-xs text-danger-400">
+                  <AlertCircle className="h-3.5 w-3.5" />
+                  {errors.name.message}
+                </div>
+              )}
             </div>
 
+            {/* Email Field */}
             <div>
               <label className="mb-1.5 block text-sm font-medium text-fg">Email</label>
               <div className="relative group">
@@ -77,27 +111,96 @@ export default function RegisterPage() {
                 <input
                   type="email"
                   placeholder="you@library.io"
-                  className="input-base pl-9"
+                  className="input-base pl-9 transition-all focus:ring-2 focus:ring-brand-400/20"
                   {...register('email', {
                     required: 'Email is required',
                     pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Enter a valid email' },
                   })}
                 />
               </div>
-              {errors.email && <p className="mt-1.5 text-xs text-danger-400">{errors.email.message}</p>}
+              {errors.email && (
+                <div className="mt-1.5 flex items-center gap-1.5 text-xs text-danger-400">
+                  <AlertCircle className="h-3.5 w-3.5" />
+                  {errors.email.message}
+                </div>
+              )}
             </div>
 
+            {/* Password Field */}
             <div>
               <label className="mb-1.5 block text-sm font-medium text-fg">Password</label>
               <div className="relative group">
                 <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fg-subtle transition-colors group-focus-within:text-brand-400" />
                 <input
                   type="password"
-                  placeholder="At least 6 characters"
-                  className="input-base pl-9"
-                  {...register('password', {
-                    required: 'Password is required',
-                    minLength: { value: 6, message: 'At least 6 characters' },
+                  placeholder="Create a strong password"
+                  className="input-base pl-9 transition-all focus:ring-2 focus:ring-brand-400/20"
+                  {...register('password', { required: 'Password is required' })}
+                />
+              </div>
+              {errors.password && (
+                <div className="mt-1.5 flex items-center gap-1.5 text-xs text-danger-400">
+                  <AlertCircle className="h-3.5 w-3.5" />
+                  {errors.password.message}
+                </div>
+              )}
+
+              {/* Password Requirements */}
+              {passwordValue && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  transition={{ duration: 0.2 }}
+                  className="mt-3 space-y-1.5 rounded-lg border border-border bg-bg-soft/50 p-3"
+                >
+                  <p className="text-xs font-medium text-fg-muted">Password strength: {passwordStrength}/5</p>
+                  <div className="h-1 w-full rounded-full bg-bg-elevated">
+                    <div
+                      className={`h-full rounded-full transition-all duration-300 ${
+                        passwordStrength <= 2 ? 'bg-danger-500' : passwordStrength <= 4 ? 'bg-warning-500' : 'bg-success-500'
+                      }`}
+                      style={{ width: `${(passwordStrength / 5) * 100}%` }}
+                    />
+                  </div>
+                  <div className="grid gap-1">
+                    {PASSWORD_REQUIREMENTS.map((req, i) => (
+                      <div key={i} className="flex items-center gap-2 text-xs">
+                        {req.test(passwordValue) ? (
+                          <CheckCircle2 className="h-3.5 w-3.5 text-success-400" />
+                        ) : (
+                          <div className="h-3.5 w-3.5 rounded-full border border-border-soft" />
+                        )}
+                        <span className={req.test(passwordValue) ? 'text-fg-muted' : 'text-fg-subtle'}>{req.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </div>
+
+            <Button
+              type="submit"
+              size="lg"
+              className="w-full"
+              loading={isSubmitting}
+              disabled={!isPasswordValid}
+              rightIcon={<ArrowRight className="h-4 w-4" />}
+            >
+              {isSubmitting ? 'Creating account...' : 'Create account'}
+            </Button>
+          </form>
+
+          <p className="mt-5 text-center text-sm text-fg-muted">
+            Already have an account?{' '}
+            <Link to="/login" className="font-medium text-brand-400 hover:text-brand-300 transition-colors">
+              Sign in
+            </Link>
+          </p>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
                   })}
                 />
               </div>
