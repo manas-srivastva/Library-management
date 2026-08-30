@@ -7,6 +7,10 @@ import connectDB from "./config/db.js";
 
 const PORT = process.env.PORT || 5000;
 
+if (process.env.NODE_ENV !== "test" && !process.env.JWT_SECRET) {
+    throw new Error("JWT_SECRET is required for backend security");
+}
+
 const startServer = async () => {
     try {
         await connectDB();

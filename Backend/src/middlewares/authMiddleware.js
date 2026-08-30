@@ -4,134 +4,44 @@ import User from "../models/User.js";
 
 import ApiError from "../utils/ApiError.js";
 
-const authMiddleware =
+const authMiddleware = async (req, res, next) => {
+    const authHeader = req.headers.authorization;
 
-    async (
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return next(new ApiError(401, "Unauthorized"));
+    }
 
-        req,
+    const token = authHeader.split(" ")[1];
 
-        res,
+    if (!token || token.trim() === "") {
+        return next(new ApiError(401, "Unauthorized"));
+    }
 
-        next
+    const jwtSecret = process.env.JWT_SECRET;
 
-    ) => {
+    if (!jwtSecret) {
+        return next(new ApiError(500, "JWT secret is not configured"));
+    }
 
-        let token;
+    try {
+        const decoded = jwt.verify(token, jwtSecret);
 
-        const authHeader =
-
-            req.headers.authorization;
-
-
-        if (
-
-            authHeader &&
-
-            authHeader.startsWith(
-
-                "Bearer "
-
-            )
-
-        ) {
-
-            token =
-
-                authHeader.split(
-
-                    " "
-
-                )[1];
-
+        if (!decoded || !decoded.id) {
+            throw new ApiError(401, "Invalid Token");
         }
 
+        const user = await User.findById(decoded.id).select("-password");
 
-        if (
-
-            !token
-
-        ) {
-
-            return next(
-
-                new ApiError(
-
-                    401,
-
-                    "Unauthorized"
-
-                )
-
-            );
-
+        if (!user) {
+            throw new ApiError(404, "User not found");
         }
 
-
-        try {
-
-            const decoded =
-
-                jwt.verify(
-
-                    token,
-
-                    process.env.JWT_SECRET
-
-                );
-
-
-            const user =
-
-                await User.findById(
-
-                    decoded.id
-
-                )
-
-                    .select(
-
-                        "-password"
-
-                    );
-
-
-            if (
-
-                !user) {
-
-                throw new ApiError(
-
-                    404,
-
-                    "User not found"
-
-                );
-
-            }
-
-
-            req.user = user;
-
-            next();
-
-        }
-
-        catch (error) {
-
-            next(
-
-                new ApiError(
-
-                    401,
-
-                    "Invalid Token"
-
-                )
-
-            );
-
-        }
-
-    };
+        req.user = user;
+        next();
+    } catch (error) {
+        const message = error instanceof ApiError ? error.message : "Invalid Token";
+        next(new ApiError(401, message));
+    }
+};
 
 export default authMiddleware;
