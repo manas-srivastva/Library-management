@@ -32,6 +32,24 @@ const stats = [
   { label: 'Uptime', value: '99.9%' },
 ];
 
+const workflowSteps = [
+  {
+    icon: BookOpen,
+    title: 'Catalog with clarity',
+    body: 'Organize authors, categories, and copies in a searchable system that keeps your shelves accurate.',
+  },
+  {
+    icon: Users,
+    title: 'Support members effortlessly',
+    body: 'Track borrowing activity, reservations, and account status with a single, secure member view.',
+  },
+  {
+    icon: BarChart3,
+    title: 'Act on insights',
+    body: 'Monitor demand, overdue trends, and circulation patterns to plan smarter library operations.',
+  },
+];
+
 export default function LandingPage() {
   return (
     <div className="min-h-screen">
@@ -174,6 +192,63 @@ export default function LandingPage() {
               </div>
             </Card>
           </motion.div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-4 py-8 lg:px-8">
+        <div className="grid items-center gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+          <motion.div
+            initial={{ opacity: 0, x: -12 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.45 }}
+            className="space-y-5"
+          >
+            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-bg-elevated/60 px-3 py-1 text-xs font-medium text-fg-muted">
+              <Sparkles className="h-3.5 w-3.5 text-brand-400" />
+              Built for modern library operations
+            </span>
+            <h2 className="text-3xl font-bold tracking-tight text-fg sm:text-4xl">
+              Library workflows that feel effortless from day one.
+            </h2>
+            <p className="max-w-xl text-fg-muted">
+              LibraAI brings cataloging, circulation, member service, and reporting into one calm, dependable workspace that scales with your institution.
+            </p>
+            <div className="grid gap-3 sm:grid-cols-3">
+              {[
+                'Faster checkouts',
+                'Smarter inventory',
+                'Better member service',
+              ].map((item) => (
+                <div key={item} className="rounded-xl border border-border bg-bg-soft px-3 py-2 text-sm font-medium text-fg-muted">
+                  {item}
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          <div className="grid gap-4">
+            {workflowSteps.map((step, index) => (
+              <motion.div
+                key={step.title}
+                initial={{ opacity: 0, y: 14 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.35, delay: index * 0.08 }}
+                whileHover={{ y: -4 }}
+              >
+                <Card hover glow className="flex items-start gap-4 p-5">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-brand-500/20 bg-brand-500/10 text-brand-400">
+                    <step.icon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-semibold text-fg">{step.title}</h3>
+                    <p className="mt-1 text-sm leading-relaxed text-fg-muted">{step.body}</p>
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 

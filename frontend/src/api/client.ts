@@ -9,12 +9,28 @@ const api = axios.create({
   },
 });
 
-// Attach JWT token
+const getErrorMessage = (error: unknown) => {
+  const err = error as {
+    response?: { data?: { message?: string }; status?: number };
+    message?: string;
+  };
+
+  if (err?.response?.data?.message) {
+    return err.response.data.message;
+  }
+
+  if (err?.message) {
+    return err.message;
+  }
+
+  return "Something went wrong. Please try again.";
+};
+
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
 
-    if (token) {
+    if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
 
@@ -23,15 +39,16 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Handle unauthorized responses
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    const message = getErrorMessage(error);
+    error.userMessage = message;
+
     if (error.response?.status === 401) {
       localStorage.removeItem(STORAGE_KEYS.TOKEN);
       localStorage.removeItem(STORAGE_KEYS.USER);
 
-      // Prevent redirect loop if already on auth pages
       if (
         window.location.pathname !== "/login" &&
         window.location.pathname !== "/register"
