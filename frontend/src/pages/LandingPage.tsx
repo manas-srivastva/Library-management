@@ -64,12 +64,22 @@ export default function LandingPage() {
         <div className="absolute -top-40 left-1/2 h-96 w-[40rem] -translate-x-1/2 rounded-full bg-brand-500/10 blur-3xl" />
         <div className="absolute top-20 right-10 h-64 w-64 rounded-full bg-accent-500/8 blur-3xl" />
 
+        <div className="library-atmosphere" aria-hidden="true">
+          <div className="library-open-book" />
+          <div className="library-page library-page-left" />
+          <div className="library-page library-page-right" />
+          <div className="library-spine" />
+          <div className="library-bookmark library-bookmark-one" />
+          <div className="library-bookmark library-bookmark-two" />
+          <div className="library-bookmark library-bookmark-three" />
+        </div>
+
         <div className="relative mx-auto max-w-6xl px-4 py-24 lg:px-8 lg:py-32">
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="mx-auto max-w-3xl text-center"
+            className="surface-enter mx-auto max-w-3xl text-center"
           >
             {/* Branded badge with AI spark */}
             <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-brand-500/25 bg-brand-500/[0.07] px-3.5 py-1.5 text-xs font-medium text-brand-300 backdrop-blur-sm">
@@ -99,12 +109,12 @@ export default function LandingPage() {
               fast, and secure dashboard built for modern institutions.
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <Link to="/register">
+              <Link to="/register" className="transition-transform duration-200 hover:-translate-y-0.5">
                 <Button size="lg" rightIcon={<ArrowRight className="h-4 w-4" />}>
                   Start for free
                 </Button>
               </Link>
-              <Link to="/app/dashboard">
+              <Link to="/app/dashboard" className="transition-transform duration-200 hover:-translate-y-0.5">
                 <Button variant="secondary" size="lg">View live demo</Button>
               </Link>
             </div>
@@ -118,6 +128,7 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 18, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.7, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            whileHover={{ y: -6, scale: 1.01 }}
             className="book-hero-frame mx-auto mt-14 max-w-4xl"
           >
             <div className="book-hero-glow" />
@@ -184,6 +195,7 @@ export default function LandingPage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.35, delay: i * 0.05 }}
+              whileHover={{ y: -6, scale: 1.01 }}
             >
               <Card hover glow className="h-full p-6">
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-500/10 border border-brand-500/20 text-brand-400 transition-transform duration-300 group-hover:scale-105">
